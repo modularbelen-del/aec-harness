@@ -29,7 +29,7 @@ def piece_width(piece):
 def find_wedges(zone, pieces, column_dir=None, leds=None, angle_tol_deg=3.0, min_width_mm=120.0,
                 max_area_mm2=4.5e6, touch_mm=6.0, min_edge_mm=300.0, led_reach_mm=3500.0, led_parallel_deg=25.0,
                 need_column_edge=True, column_edge_mm=800.0):
-    """Error2/Error8: panel pieces next to a colour zone that are wedges or slivers.
+    """Wedges: panel pieces next to a colour zone that are wedges or slivers.
     pieces: {key: region|polygon}. A piece touching the zone (<= touch_mm) is a wedge when an edge facing the
     zone (longer than min_edge_mm) is >= angle_tol_deg off the panel column direction, or the piece is narrower
     than min_width_mm. The column direction is `column_dir` (vector or degrees) or, per piece, the nearest light
@@ -77,7 +77,7 @@ def find_wedges(zone, pieces, column_dir=None, leds=None, angle_tol_deg=3.0, min
 
 
 def absorb_wedges(zone, wedges, close_mm=3.2):
-    """Error2/8: the zone takes the wedge pieces (their 2 mm joints close). Returns one shapely Polygon or
+    """Wedges: the zone takes the wedge pieces (their 2 mm joints close). Returns one shapely Polygon or
     raises GeometryError when the result is not one piece."""
     Polygon, LineString, Point, unary_union, linemerge = _shp()
     zp = region_to_polygon(zone)
@@ -108,7 +108,7 @@ def cut_back(layer, zones, add=None, inset_mm=1.0, add_grow_mm=2.5, add_reach_mm
 
 def step_closures(zone_new, wedges, walls, higher, offset_mm=7.5, run_on_mm=18.0, trim_run_on_mm=23.0,
                   min_edge_mm=200.0, near_mm=15.0):
-    """Error8: closure walls (AT_Alın) of a lower colour zone after it absorbed wedges of a higher field.
+    """Step closures: closure walls (AT_Alın) of a lower colour zone after it absorbed wedges of a higher field.
     walls: [{"id", "p0", "p1"}] existing closure axes near the old boundary; higher: regions of the higher
     ceilings. A wall that now has the new zone on both sides is deleted, or cut back (its kept end runs on
     trim_run_on_mm to close the corner). Every wedge edge that now faces a higher ceiling gets a new closure:
@@ -183,7 +183,7 @@ def _halfplane(p0, d, side_pt, big=1e6):
 
 def straighten_border(zone, panels, direction, joint_mm=2.0, sliver_mm2=2e4, cross_deg=20.0, straight_mm=3.0,
                       touch_mm=6.0, min_border_mm=800.0, close_mm=3.2):
-    """Error9: every border between a colour zone and the panels next to it (same height) becomes ONE straight
+    """Straight border: every border between a colour zone and the panels next to it (same height) becomes ONE straight
     line in `direction` (a vector, or a function (border_mid, border_deg) -> vector, e.g. radial_direction of
     the corridor wall; border_deg is the direction of the border's longest segment, to reject crossing lights;
     None skips that border)

@@ -6,7 +6,7 @@ from _helpers import check, near, pnear
 
 
 def test_zones():
-    """Colour zone next to panel fields: wedges (Error2/8), closures at a step (Error8), straight border (Error9)."""
+    """Colour zone next to panel fields: wedges, closures at a height step, straight border."""
     from shapely.geometry import Polygon, box
     sq = lambda x0, y0, x1, y1: box(x0, y0, x1, y1)
     # polygon_to_region: straight, arc and a pinched ring
@@ -23,7 +23,7 @@ def test_zones():
     # radial direction
     d = G.radial_direction((1000, 0), (0, 1000), (-1000, 0), (0, 2000))
     check("zones radial direction", pnear(d, (0, 1), 1e-9), d)
-    # Error2: zone edge 3.8 deg off the vertical column line x = 2300 -> the piece between is a wedge
+    # Wedge: zone edge 3.8 deg off the vertical column line x = 2300 -> the piece between is a wedge
     zone = Polygon([(0, 0), (2000, 0), (2200, 3000), (0, 3000)])
     wedge = Polygon([(2002, 0), (2298, 0), (2298, 3000), (2202, 3000)])
     full = sq(2300, 0, 2898, 1500)
@@ -42,7 +42,7 @@ def test_zones():
     check("zones profile layer cut back", parts and all(p.intersection(nz.buffer(-1.5)).area < 1e-6 for p in parts)
           and abs(sum(p.area for p in parts) - (sq(1500, -100, 3000, 3100).area - sq(1500, -100, 3000, 3100).intersection(nz.buffer(-1)).area)) < 1)
     check("zones profile layer unchanged -> None", G.cut_back(sq(5000, 0, 6000, 1000), [nz]) is None)
-    # Error8: the wedge belonged to a higher field; the old closure along the slanted edge goes, a new one runs
+    # Step closure: the wedge belonged to a higher field; the old closure along the slanted edge goes, a new one runs
     # along x = 2298 (axis 7.5 mm inside the zone, ends run on 18 mm)
     walls = [{"id": 1, "p0": (2000 - 7.5, -18), "p1": (2200 - 7.5, 3018)}]
     st = G.step_closures(nz, [wedge], walls, [sq(2300, 0, 2898, 3000)])
@@ -54,7 +54,7 @@ def test_zones():
     walls2 = [{"id": 2, "p0": (1992.5, -18), "p1": (2192.5, 3018)}, {"id": 3, "p0": (0, -7.5), "p1": (2002, -7.5)}]
     st2 = G.step_closures(nz, [sq(2002, 1500, 2298, 3000)], walls2, [sq(2300, 0, 2898, 3000)])
     check("zones closure partly covered is trimmed with a run-on", [t["id"] for t in st2["trim"]] == [2] and 3 not in st2["delete"], st2)
-    # Error9: kinked border (x = 1000 below, 1040 above) -> one straight vertical line at x = 1020
+    # Straight border: kinked border (x = 1000 below, 1040 above) -> one straight vertical line at x = 1020
     zk = Polygon([(0, 0), (1000, 0), (1000, 1500), (1040, 1500), (1040, 3000), (0, 3000)])
     A, Bp = sq(1002, 0, 1600, 1498), sq(1042, 1500, 1600, 3000)
     res = G.straighten_border(zk, {"A": A, "B": Bp}, (0, 1))

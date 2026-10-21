@@ -912,9 +912,9 @@ def continue_rhythm(axes, region, pitch_mm=None, side="both", clearance_mm=30.0,
 
 
 # ---------------------------------------------------------------- 2026-09-29 colour zones next to panel fields
-# Error2 (white wedge between a colour zone and a panel field at the same height), Error8 (the same at a height
-# step, with its closure walls) and Error9 (the zone/panel border is ONE straight line, radial in a curved
-# corridor). These need polygon booleans, so they use shapely; the import is local, the module still loads in
+# Wedges (a white wedge between a colour zone and a panel field at the same height), step closures (the same at
+# a height step, with its closure walls) and straight borders (the zone/panel border is ONE straight line, radial
+# in a curved corridor). These need polygon booleans, so they use shapely; the import is local, the module still loads in
 # IronPython. Inputs may be ceiling_geometry regions ({"outer": loop, "holes": [...]}), bare loops or shapely
 # polygons; polygons come back as shapely polygons, and polygon_to_region() turns them into curve loops for Revit.
 
