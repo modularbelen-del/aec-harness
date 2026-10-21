@@ -1,0 +1,12 @@
+{
+  "name": "aec-office",
+  "owner": { "name": "<ofis>" },
+  "description": "Mimarlık ofisi için Claude Code araçları: DWG okuma, Revit, AutoCAD ve Grasshopper ile ölç, uygula, doğrula.",
+  "plugins": [
+    {
+      "name": "aec",
+      "source": "./plugin",
+      "description": "Çizimi araçla ölçer, Revit'e planla uygular, Revit'ten geri okuyup toleransla doğrular."
+    }
+  ]
+}

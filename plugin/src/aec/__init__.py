@@ -1,0 +1,1 @@
+"""Ofis AEC harness çekirdeği."""
