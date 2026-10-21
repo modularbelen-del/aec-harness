@@ -24,6 +24,10 @@ onların yanına koyun. Claude Code bir sonraki açılışta eklentiyi kendisi i
 }
 ```
 
+Kontrol: Claude Code'u yeniden açın ve `/plugin` yazın. `aec` kurulu görünmeli, `aec-office` marketplace'inde de
+otomatik güncelleme açık olmalı. Kurulu görünmüyorsa terminalde `claude plugin install aec@aec-office`
+çalıştırın. Otomatik güncelleme kapalıysa `/plugin` → Marketplaces → `aec-office` → Enable auto-update yolundan açın.
+
 Gereken program: [uv](https://docs.astral.sh/uv/). Revit, AutoCAD ve Rhino tarafındaki kurulum ilerideki
 aşamalarda `kur.ps1` ile gelecek.
 

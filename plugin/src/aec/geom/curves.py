@@ -805,7 +805,7 @@ def refit_arcs(points, tol_mm=1.5, closed=False, min_pts=4, max_r_mm=200000.0, m
     return out
 
 
-# ---------------------------------------------------------------- 2026-09-28 (ErrorlarEnSon2)
+# ---------------------------------------------------------------- 2026-09-28
 def straighten_bites(loop, max_seg_mm=600.0, min_turn_deg=100.0, max_turn_deg=220.0,
                      min_chord_mm=150.0, max_chord_mm=900.0, min_segs=3):
     """Replace round bites/lobes drawn as runs of short segments (or arcs) by the straight chord.

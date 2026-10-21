@@ -178,7 +178,7 @@ def test_bulge():
     check("bulge: rebuilt zone keeps its area", near(a, pg.area, 0.001 * pg.area), (a, pg.area))
     check("bulge: no small arc left", not any(c["t"] == "arc" and c["r"] < 1000 for c in r["outer"]),
           [round(c["r"]) for c in r["outer"] if c["t"] == "arc"])
-    # a vertex where the edge turns back on itself (4.5 mm spike at a wall corner, H1 2026-09-29): Revit rejects it
+    # a vertex where the edge turns back on itself (4.5 mm spike at a wall corner): Revit rejects it
     from shapely.geometry import Polygon as _P
     spk = _P([(0, 0), (2000, 0), (2000, 1000), (50, 1000), (-4.5, 1000.2), (10, 1000.1)])
     r = G.polygon_to_region(spk)
