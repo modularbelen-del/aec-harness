@@ -49,6 +49,13 @@ def test_missing_authority_warns(tmp_path):
     assert "UYARI" in ctx
 
 
+def test_corrupt_authority_warns(tmp_path):
+    bad = tmp_path / "authority.md"
+    bad.write_bytes("Yetki sırası".encode("cp1254"))
+    ctx = _ctx(_hook().build_output(str(tmp_path), bad))
+    assert "UYARI" in ctx
+
+
 def test_under_2kb(tmp_path):
     # As long a Turkish folder name as Windows lets us create (CreateDirectory stops at 248 characters).
     room = max(20, min(150, 240 - len(str(tmp_path)) - len("\\.aec")))

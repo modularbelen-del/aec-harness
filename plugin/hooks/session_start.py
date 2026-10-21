@@ -15,7 +15,7 @@ PROJECT_LINE = "Bu projede .aec klasörü var: {}. Proje kuralları ofis kuralla
 def build_output(project_dir: str | None, authority_path: pathlib.Path) -> str:
     try:
         text = pathlib.Path(authority_path).read_text(encoding="utf-8").strip()
-    except OSError:
+    except (OSError, UnicodeDecodeError):
         text = MISSING
     if project_dir and (pathlib.Path(project_dir) / ".aec").is_dir():
         text += "\n" + PROJECT_LINE.format(project_dir)
