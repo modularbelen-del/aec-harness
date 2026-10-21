@@ -14,7 +14,7 @@ onların yanına koyun. Claude Code bir sonraki açılışta eklentiyi kendisi i
 {
   "extraKnownMarketplaces": {
     "aec-office": {
-      "source": { "source": "github", "repo": "<ofis>/aec-harness" },
+      "source": { "source": "github", "repo": "modularbelen-del/aec-harness" },
       "autoUpdate": true
     }
   },
@@ -42,3 +42,7 @@ claude plugin validate plugin            # plugin manifesti
 
 `main` dalına yapılan her push, bir sonraki açılışta bütün üyelere ulaşır. Değişiklikler PR ile girer ve CI yeşil
 olmadan birleştirilmez.
+
+## Lisans
+
+MIT. Ayrıntı için [LICENSE](LICENSE) dosyasına bakın. Telif hakkı © 2026 BelenPartners.

@@ -1,5 +1,7 @@
 {
   "name": "aec",
   "description": "Çizimi araçla ölçer, Revit'e planla uygular, Revit'ten geri okuyup toleransla doğrular.",
-  "author": { "name": "<ofis>" }
+  "author": { "name": "BelenPartners" },
+  "license": "MIT",
+  "repository": "https://github.com/modularbelen-del/aec-harness"
 }
