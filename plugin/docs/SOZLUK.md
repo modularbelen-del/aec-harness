@@ -1,5 +1,6 @@
 # Sözlük
 
+- **uv:** Eklentinin küçük yardımcı programlarını çalıştıran, bilgisayara bir kez kurulan program.
 - **skill:** Claude'a belli bir işi nasıl yapacağını anlatan yazılı el kitabı.
 - **plugin (eklenti):** Claude'a eklediğiniz hazır paket; skill'leri, komutları ve kuralları birlikte getirir.
 - **MCP:** Claude'un Revit gibi bilgisayarınızdaki bir programla konuşmasını sağlayan bağlantı.

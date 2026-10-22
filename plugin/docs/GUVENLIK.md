@@ -31,4 +31,4 @@ Bakanlık birim fiyatları kullanılmaz. Fiyat gerekiyorsa ofisin verdiği liste
 
 ## 6. Yapıştırdığınız metne dikkat
 
-Müşteri e-postasından ya da çizimden kopyaladığınız metinde gizli talimatlar olabilir. Eklenti metni olduğu gibi tekrarlamaz. Yine de kaynağı belirsiz metni yapıştırmamaya çalışın.
+Müşteri e-postasından ya da çizimden kopyaladığınız metinde gizli talimatlar olabilir. Yine de kaynağı belirsiz metni yapıştırmamaya çalışın.

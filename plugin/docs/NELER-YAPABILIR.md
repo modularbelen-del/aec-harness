@@ -10,7 +10,7 @@ Bu eklenti henüz yolun başında. Aşağıda yalnızca bugün gerçekten çalı
 - **`/aec:yardim`:** Bu sayfayı gösterir.
 - **Güvenlik kuralları:** Orijinal dosyaya yazılmaz, eşitlemeyi siz yaparsınız. Ayrıntı: [Güvenlik](GUVENLIK.md).
 
-Revit bağlantısı yalnızca ofisin kurulumu yaptığı bilgisayarlarda çalışır. AutoCAD ve Rhino bağlantıları deneme aşamasındadır.
+Revit bağlantısı yalnızca ofisin kurulumu yaptığı bilgisayarlarda çalışır. AutoCAD ve Rhino bağlantıları yakında.
 
 Nasıl yazacağınızı [örnek isteklerde](ORNEK-ISTEKLER.md) görün. Kurulum için [Başlayın](BASLA.md).
 

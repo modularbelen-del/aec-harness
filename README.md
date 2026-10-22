@@ -15,7 +15,7 @@ AutoCAD, Rhino) ve modüller (asma tavan, metraj, render) yakında. Ayrıntı:
 Adım adım kurulum (terminal ve Cowork için): [plugin/docs/BASLA.md](plugin/docs/BASLA.md). Güvenlik kuralları:
 [GUVENLIK.md](plugin/docs/GUVENLIK.md). Takılırsanız: [SORUN-GIDERME.md](plugin/docs/SORUN-GIDERME.md).
 
-### Elle kurulum
+### Elle kurulum (yalnızca BT/şampiyon için)
 
 `C:\Users\<kullanıcı>\.claude\settings.json` dosyasına şunu ekleyin. Dosyada başka ayarlar varsa bu anahtarları
 onların yanına koyun. Claude Code bir sonraki açılışta eklentiyi kendisi indirip kurar ve güncel tutar. uv'yi
@@ -35,10 +35,12 @@ ayrıca kurun (`winget install --id=astral-sh.uv -e`).
 }
 ```
 
+Otomatik güncelleme kapalı görünürse: `/plugin` > Marketplaces > aec-office > Enable auto-update.
+
 ## Kanallar
 
 - `main`: herkes için kararlı kanal. Korumalıdır, yalnızca PR ile değişir.
-- `dev`: şampiyonlar için deneme kanalı (`kur.ps1 -Kanal dev`).
+- `dev`: şampiyonlar için deneme kanalı. Kurulum: [BASLA.md, Kanallar bölümü](plugin/docs/BASLA.md).
 
 Şampiyon iki kanalı aynı anda kuramaz, çünkü marketplace adı aynıdır.
 

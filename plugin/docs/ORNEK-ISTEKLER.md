@@ -4,66 +4,109 @@
 
 Varsayım, sormadığım ama doğru kabul ettiğim şeydir. Planda **VARSAYIM** diye işaretlenir. Yanlışsa düzeltin. ([Sözlük](SOZLUK.md))
 
-Aşağıdaki isimler örnektir. Kendi proje ve kat adlarınızı yazın.
+Her başlığın altında önce o işin bugünkü durumu yazar. Aşağıdaki isimler örnektir. Kendi proje ve kat adlarınızı yazın.
+
+"Ön kapı şunu sorar" altındaki listede o işte eksik olabilecek bilgiler var. Ön kapı bunların hepsini sormaz. Proje dosyanızdan ve açık modelden bulabildiğini kendisi doldurur, kalanlardan en önemli 3 tanesini sorar.
 
 ## Revit modelleme
+
+**Durum:** Revit bağlantısı kurulu bilgisayarlarda çalışır (/aec:kontrol-et ile bakın).
 
 **Böyle yazmayın:** `Duvarları çiz.`
 
 **Böyle yazın:** `Revit'te Zemin kat'a, A blok planındaki ölçülerle iç duvarları kopya modelde oluştur.`
 
-**Ön kapı şunu sorar:** Kopya model mi? Hangi kat? Hangi duvar tipi? Ölçüler nereden alınacak?
+**Ön kapı şunu sorar** (en önemli 3 tanesini):
+
+- kopya model mi
+- kat/seviye
+- aile ve tip
+- ölçü kaynağı
 
 ## DWG okuma/aktarma
+
+**Durum:** yakında (Faz 1B); şimdilik ölçüleri siz verirseniz plan hazırlar.
 
 **Böyle yazmayın:** `Şu çizimi Revit'e at.`
 
 **Böyle yazın:** `A blok DWG dosyasındaki duvar ve kolon katmanlarını oku. Birim milimetre. Önce ne bulduğunu listele.`
 
-**Ön kapı şunu sorar:** Hangi dosya ve pafta? Hangi katmanlar? Birim ve ölçek ne? Çizim ile Revit modeli aynı yerde mi duruyor?
+**Ön kapı şunu sorar** (en önemli 3 tanesini):
+
+- hangi dosya ve pafta
+- hangi katmanlar
+- birim ve ölçek
+- DWG–Revit hizası
 
 ## DWG'de çizim
+
+**Durum:** yakında.
 
 **Böyle yazmayın:** `Detay çiz.`
 
 **Böyle yazın:** `Yeni bir DWG dosyasında, 1/20 ölçekte, kapı eşiği detayını çiz. Orijinal dosyaya dokunma.`
 
-**Ön kapı şunu sorar:** Yeni dosya mı, kopya mı? Hangi ölçek ve birim? Ölçüler nereden gelecek?
+**Ön kapı şunu sorar** (en önemli 3 tanesini):
 
-Not: AutoCAD bağlantısı henüz deneme aşamasındadır. Çalışmıyorsa size açıkça söylenir.
+- yeni dosya mı kopya mı
+- katman standardı
+- ölçek
+- yazı stili
 
 ## Metraj/liste
+
+**Durum:** Revit bağlıysa Revit'ten kısmen; DWG'den yakında.
 
 **Böyle yazmayın:** `Metraj çıkar.`
 
 **Böyle yazın:** `Zemin kat'taki odaların alanlarını mahal listesi olarak Excel tablosuna yaz. Birim metrekare.`
 
-**Ön kapı şunu sorar:** Hangi kat veya bölüm? Hangi sütunlar? Hangi birim? Fiyat var mı? (Fiyat için Bakanlık birim fiyatları kullanılmaz.)
+**Ön kapı şunu sorar** (en önemli 3 tanesini):
+
+- kaynak Revit mi DWG mi
+- net mi brüt mü
+- Excel biçimi
+- poz no (fiyatsız)
 
 ## Rhino'dan Revit'e
 
+**Durum:** yakında.
+
 **Böyle yazmayın:** `Rhino'daki şeyi Revit'e geçir.`
 
-**Böyle yazın:** `Rhino'daki cephe panellerini A blok Revit modelinin kopyasına aktar. Panel başına bir aile örneği olsun.`
+**Böyle yazın:** `Rhino'daki cephe panellerini A blok Revit modelinin kopyasına aktar.`
 
-**Ön kapı şunu sorar:** Hangi Rhino nesneleri? Revit'te hangi kategori? Hangi kat? Kopya model mi?
+**Ön kapı şunu sorar** (en önemli 3 tanesini):
 
-Not: Rhino bağlantısı henüz deneme aşamasındadır.
+- hangi geometri
+- Revit'te hangi kategori
+- birim ve orijin
 
 ## Asma tavan
 
+**Durum:** yakında (Faz 1D).
+
 **Böyle yazmayın:** `Tavanı yap.`
 
-**Böyle yazın:** `Zemin kat koridorunun asma tavanını DWG tavan planından kopya modelde oluştur. Armatür ve menfezleri çizimdeki yerlerine koy.`
+**Böyle yazın:** `Zemin kat koridorunun asma tavanını DWG tavan planından kopya modelde oluştur.`
 
-**Ön kapı şunu sorar:** Hangi DWG ve hangi mahal? Tavan sistemi ve ölçüleri? Tavan yüksekliği? Tanımadığı bir işaret varsa ne olduğu?
+**Ön kapı şunu sorar** (en önemli 3 tanesini):
+
+- hangi DWG ve oda
+- tavan sistemi
+- kot
+- kopya model mi
 
 ## Render/görsel
 
+**Durum:** yakında; sahne tarifi ya da istem metni yazabilir.
+
 **Böyle yazmayın:** `Güzel bir görsel yap.`
 
-**Böyle yazın:** `A blok girişinin gündüz, insan gözü yüksekliğinde bir perspektif görselini hazırla.`
+**Böyle yazın:** `A blok girişinin gündüz, insan gözü yüksekliğinde bir perspektif görseli için sahne tarifi yaz.`
 
-**Ön kapı şunu sorar:** Hangi görünüm veya kamera? Hangi ışık ve saat? Hangi boyut ve nereye kaydedilecek?
+**Ön kapı şunu sorar** (en önemli 3 tanesini):
 
-Not: Render henüz çalışmıyor. [Yakında](NELER-YAPABILIR.md) listesindedir.
+- hangi görünüş
+- stil
+- gizlilik (müşteri çizimi)
