@@ -19,7 +19,8 @@ STANDARDS = (STANDARDS_DIR / "rol.md", STANDARDS_DIR / "authority.md")
 MISSING = "UYARI: aec kurulumu eksik (standards/{} okunamadı). Plugin'i yeniden kurun."
 PROJECT_LINE = "Bu projede .aec klasörü var: {}. Proje kuralları ofis kurallarından önce gelir."
 NO_PROJECT_LINE = "Bu klasörde proje bilgisi bulunmamaktadır; ilk istekte /aec:proje-baslat önerilmelidir."
-OPEN_JOB_LINE = "Açık iş: {} ({})"
+OPEN_JOB_LINE = ("Açık iş: {0} ({1}). Kişiye devam etmeyi öner; kişi isterse iş kaydı aracında "
+                 "`devam --is {0}` komutunu çalıştır.")
 MAX_OPEN_JOBS = 3
 JOB_ID = re.compile(r"\d{8}-\d{4}-[a-z0-9-]+")
 MAX_BYTES = 4096

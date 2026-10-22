@@ -143,6 +143,23 @@ def test_cli_applied_refused_in_every_other_state(tmp_path, capsys):
         assert k["durum"] == durum and len(k["olaylar"]) == olay_sayisi, durum
 
 
+def test_cli_continue_prints_marker_and_changes_nothing(tmp_path, capsys):
+    for durum in is_durumu.DURUMLAR:
+        proje = tmp_path / durum.replace(":", "-")
+        is_id = _durumla(proje, capsys, durum)
+        onceki = is_durumu.is_yukle(proje, is_id)
+        assert is_kaydi.main(["devam", "--proje", str(proje), "--is", is_id]) == 0
+        out = capsys.readouterr().out
+        if durum in ("kabul-edildi", "iptal"):
+            assert out.startswith("✗") and "DEVAM:" not in out and durum in out, durum
+        else:
+            assert re.search(rf"^DEVAM: {re.escape(is_id)}$", out, re.M) and "✗" not in out, durum
+            assert f"Durum: {durum}" in out, durum
+        assert is_durumu.is_yukle(proje, is_id) == onceki, durum  # the command itself only prints; binding is the hook's
+    assert is_kaydi.main(["devam", "--proje", str(tmp_path), "--is", "yok"]) == 0
+    assert capsys.readouterr().out.startswith("✗")
+
+
 def test_cli_first_document_needs_criteria(tmp_path, capsys):
     for ek, ilk in (((), "plan"), (("--karmasik",), "tarif")):
         proje = tmp_path / ilk

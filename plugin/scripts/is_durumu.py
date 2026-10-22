@@ -18,7 +18,7 @@ DURUMLAR = (
     "onaylandi:tarif", "onaylandi:plan",
     "plan-onaylandi", "uygulandi", "kabul-bekliyor", "kabul-edildi", "reddedildi", "iptal",
 )
-BITMIS = frozenset({"kabul-edildi", "reddedildi", "iptal"})
+BITMIS = frozenset({"kabul-edildi", "iptal"})  # closed; a rejected job still waits to be re-planned or cancelled
 KAYNAKLAR = frozenset({"ajan", "kullanici-mesaji", "hook-post", "hook-subagent", "hook-stop"})
 ASAMALAR = ("tarif", "plan", "gorevler")
 

@@ -151,12 +151,14 @@ yalnızca 'hayır' yazınız." Kabul sorusu da aynı biçimde sorulur.
 
 Revit'e yazan araçlar her çağrıdan önce kodla denetlenir:
 
-- Bu oturumda açılmış ve planı (karmaşık işte görevleri) onaylanmış bir iş yoksa `execute_revit_code`,
+- Bu oturuma bağlı ve planı (karmaşık işte görevleri) onaylanmış bir iş yoksa `execute_revit_code`,
   `place_family` ve `close_document` reddedilir. Bu araçlar plan onaylandıktan sonra, kontrolcü raporu kaydedilene
-  kadar çalışır. `execute_revit_code` okuma amacıyla kullanılsa da yazma sayılır.
+  kadar çalışır. `execute_revit_code` okuma amacıyla kullanılsa da yazma sayılır. `close_document` iş kabul
+  edildikten sonra da çalışır.
 - `sync_with_central` (merkez modelle eşitleme) her zaman reddedilir; eşitlemeyi kişi yapar.
-- `save_document` (kaydetme) yalnızca iş kişi tarafından kabul edildikten sonra çalışır.
-- İş kaydı okunamazsa Revit'e yazma durdurulur.
+- `save_document` (kaydetme) yalnızca iş kişi tarafından kabul edildikten sonra çalışır. `close_document` kaydetme
+  seçeneğiyle çağrılırsa kaydetme sayılır.
+- İş kaydı okunamazsa ya da eklentinin bir bileşeni yüklenemezse Revit'e yazma durdurulur.
 - DWG, Excel ve render işlerinde kod düzeyinde bir kilit yoktur; bu işlerde akış skill kurallarıyla yürür. AutoCAD ve
   Rhino bağlantıları eklendiğinde kilidin bu araçlara genişletilmesi planlanmaktadır.
 
@@ -189,8 +191,11 @@ durması hiçbir zaman engellenmez.
   her durum değişikliğinin kaynağı), `tarif.md`, `plan.md`, `gorevler.md` ve `dogrulama.md`. Kimlik tarih ve saatle
   başlar (ör. `20261022-1430-kapi-yerlestirme`).
 - İş, onu açan oturuma bağlıdır (`.aec/isler/aktif-<oturum>.json`); kişinin "evet"i yalnızca kendi oturumundaki işi
-  ilerletir. Yeni bir oturumun başında açık işler (en fazla üç) ajana bildirilir. Önceki oturumdan kalan iş yeni
-  oturumda sürdürülmez; kişi devam etmek isterse eski iş kişiye bildirilerek kapatılır ve yeni iş açılır.
+  ilerletir. Yeni bir oturumun başında açık işler (en fazla üç) ajana bildirilir ve ajan devam etmeyi önerir. Kişi
+  devam etmek isterse ajan işi `devam` komutuyla yeni oturuma bağlar. Önceki oturumda verilmiş plan onayı yeniden
+  istenir: iş `onay-bekliyor:plan` durumuna alınır. Kişi işi sürdürmek istemezse iş `iptal` ile kapatılır.
+  Kabulde reddedilen iş de açık iş olarak listelenir; modeldeki değişiklikler yeniden planlanana ya da iş
+  kapatılana kadar durur.
 - Kabul ve ret kararları ile doğrulama yapılmadan sonlanan işler `.aec/gunluk.md` dosyasına birer satır olarak yazılır.
 - `.aec/proje.md` dosyasının yapısı ve işlevi değişmemiştir. İş sırasında kalıcı yeni bir bilgi ortaya çıkarsa bu
   dosyaya eklenmesi kişiye sorulur ve yalnızca kişi onaylarsa eklenir.

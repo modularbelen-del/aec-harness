@@ -148,6 +148,19 @@ def test_changelog_mentions_workflow():
         assert s in sec, s
 
 
+def test_docs_describe_continue_path():
+    basla, sorun, guv = _doc("BASLA"), _doc("SORUN-GIDERME"), _doc("GUVENLIK")
+    readme = _readme_section("İş akışı")
+    assert "kaldığı yerden sürdürülmez" not in basla and "eski işi size bildirerek kapatır" not in basla
+    assert "yeni oturumda sürdürülmez" not in " ".join(readme.split())
+    assert "İş önceki bir oturumda açılmışsa yeni bir iş açılır" not in sorun
+    for ad, metin in (("BASLA", basla), ("README", readme), ("SORUN-GIDERME", sorun), ("GUVENLIK", guv)):
+        tek = " ".join(metin.split())
+        assert "devam" in tek and "yeniden" in tek and "bu oturumda açılmış" not in tek, ad
+    for ad, metin in (("BASLA", basla), ("README", readme)):
+        assert "iptal" in metin, ad
+
+
 def test_sorun_giderme_quotes_real_lock_messages():
     import onay
     import pre_tool

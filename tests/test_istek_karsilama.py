@@ -262,3 +262,13 @@ def test_readback_wording_and_ceiling_skill():
     assert "görüşmede" in tavan and "okuma ve çözümleme" in tavan and "onaylı planla" in tavan
     kural = (STANDARDS / "authority.md").read_text(encoding="utf-8")
     assert "geri okuyup doğrula" not in kural and "Revit okuma araçlarıyla" in kural
+
+
+def test_skill_continues_open_jobs_with_devam():
+    metin = SKILL.read_text(encoding="utf-8")
+    skill = _tek(metin)
+    assert "| `devam --is <kimlik>` |" in metin
+    assert "bu oturuma bağlanamaz" not in skill and "önceki oturumdan kalan iş)" not in skill
+    her = _tek(metin[metin.index("## Her işte"):])
+    for parca in ("`devam --is <kimlik>`", "`onay-bekliyor:plan`", "yeniden", "`iptal`"):
+        assert parca in her, parca

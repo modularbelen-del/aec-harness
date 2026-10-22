@@ -1,4 +1,5 @@
-"""Job record CLI for the agent: open a job, record criteria, submit documents for approval, mark an approved job applied.
+"""Job record CLI for the agent: open or continue a job, record criteria, submit documents for approval, mark an approved
+job applied.
 
 There is deliberately no approval or acceptance subcommand; only hooks record those, from the person's own message.
 `uygulandi` only moves an approved plan (plan-onaylandi) to applied, so that non-Revit work can reach the independent
@@ -47,6 +48,7 @@ def _parser() -> argparse.ArgumentParser:
     for ad in is_durumu.ASAMALAR:
         ekle(ad).add_argument("--dosya", required=True)
     ekle("durum")
+    ekle("devam")
     ekle("uygulandi")
     ekle("iptal").add_argument("--gerekce", required=True)
     ekle("proje-ekle", is_gerekli=False).add_argument("--metin", required=True)
@@ -100,6 +102,21 @@ def _durum(a) -> None:
     print(f"Sonuç: {kayit.get('sonuc') or '-'}")
 
 
+def _devam(a) -> None:
+    """Only prints the marker; the PostToolUse hook binds the job to the session (and asks again for a plan approval
+    given in another session). Nothing is approved here."""
+    kayit = is_durumu.is_yukle(Path(a.proje), a.is_id)
+    durum = kayit["durum"]
+    if durum in is_durumu.BITMIS:
+        print(f"✗ Bu iş kapatılmıştır (durum: {durum}); devam edilemez. İş sürecekse yeni bir iş açılmalıdır.")
+        return
+    print(f"DEVAM: {kayit['id']}")
+    print(f"Durum: {durum}. İş bu çıktıyla oturuma bağlanır; güncel durum `durum` komutuyla okunmalıdır.")
+    if durum == "plan-onaylandi":
+        print("Plan onayı başka bir oturumda verildiyse iş 'onay-bekliyor:plan' durumuna alınır; plan kişiye yeniden "
+              "gösterilmeli ve onay yeniden istenmelidir.")
+
+
 def _uygulandi(a) -> None:
     proje = Path(a.proje)
     kayit = is_durumu.is_yukle(proje, a.is_id)
@@ -143,7 +160,7 @@ def _proje_ekle(a) -> None:
 
 
 _KOMUTLAR = {"yeni": _yeni, "olcut": _olcut, "tarif": _asama, "plan": _asama, "gorevler": _asama,
-             "durum": _durum, "uygulandi": _uygulandi, "iptal": _iptal, "proje-ekle": _proje_ekle}
+             "durum": _durum, "devam": _devam, "uygulandi": _uygulandi, "iptal": _iptal, "proje-ekle": _proje_ekle}
 
 
 def main(argv: "list[str] | None" = None) -> int:
@@ -155,7 +172,7 @@ def main(argv: "list[str] | None" = None) -> int:
         a = _parser().parse_args(argv)
     except SystemExit as cikis:
         if cikis.code not in (0, None):
-            print("✗ Komut tanınmadı ya da eksik. Geçerli komutlar: yeni, olcut, tarif, plan, gorevler, durum, uygulandi, iptal, proje-ekle. "
+            print("✗ Komut tanınmadı ya da eksik. Geçerli komutlar: yeni, olcut, tarif, plan, gorevler, durum, devam, uygulandi, iptal, proje-ekle. "
                   "Onay ve kabul yalnızca kişinin kendi mesajıyla verilir; bu araçla verilemez.")
         return 0
     try:

@@ -109,6 +109,18 @@ def test_open_jobs_excludes_terminal(tmp_path):
     assert [k["id"] for k in is_durumu.acik_isler(tmp_path)] == [b["id"], a["id"]]
 
 
+def test_open_jobs_include_rejected(tmp_path):
+    # a job rejected at acceptance still has its changes in the model; it stays open until accepted or cancelled
+    assert is_durumu.BITMIS == {"kabul-edildi", "iptal"}
+    kayitlar = []
+    for gun, durum in ((23, "reddedildi"), (24, "kabul-edildi"), (25, "iptal")):
+        k = is_durumu.yeni_is(tmp_path, "render", durum, False, simdi=datetime(2026, 10, gun, 9, 0, tzinfo=timezone.utc))
+        k["durum"] = durum
+        is_durumu.is_kaydet(tmp_path, k)
+        kayitlar.append(k)
+    assert [k["id"] for k in is_durumu.acik_isler(tmp_path)] == [kayitlar[0]["id"]]
+
+
 def test_open_jobs_empty_project(tmp_path):
     assert is_durumu.acik_isler(tmp_path) == []
 

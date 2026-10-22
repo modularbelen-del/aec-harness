@@ -16,11 +16,13 @@ Revit'e yazan araçlar her çağrıdan önce eklentinin kancası tarafından den
 
 | İşlem | Ne zaman çalışır |
 |---|---|
-| Modeli değiştiren araçlar (`execute_revit_code`, `place_family`) ve belge kapatma (`close_document`) | Yalnızca bu oturumda açılmış işin planı (karmaşık işte görevleri) onaylandıktan sonra, kontrol raporu kaydedilene kadar |
+| Modeli değiştiren araçlar (`execute_revit_code`, `place_family`) | Yalnızca bu oturuma bağlı işin planı (karmaşık işte görevleri) onaylandıktan sonra, kontrol raporu kaydedilene kadar |
+| Belge kapatma (`close_document`) | Plan onaylandıktan sonra, kontrol raporu kaydedilene kadar; ayrıca iş kabul edildikten sonra. Kaydederek kapatma yalnızca iş kabul edildikten sonra |
 | Kaydetme (`save_document`) | Yalnızca iş sizin tarafınızdan kabul edildikten sonra |
 | Merkez modelle eşitleme (`sync_with_central`) | Hiçbir zaman |
 
-- Bu oturumda açılmış bir iş yoksa ya da iş kaydı okunamazsa Revit'e yazma reddedilir.
+- Bu oturuma bağlı bir iş yoksa, iş kaydı okunamazsa ya da eklentinin bir bileşeni yüklenemezse Revit'e yazma reddedilir.
+- Önceki bir oturumda açılan işe devam edildiğinde o oturumda verilmiş plan onayı geçerli sayılmaz; plan yeniden onayınıza sunulur.
 - `execute_revit_code` aracı okuma amacıyla kullanılsa da yazma sayılır.
 - Onay ve kabul yalnızca sizin kısa "evet" mesajınızla kaydedilir; ret için "hayır" yazılır. Soru işareti, şart ya da ek açıklama içeren bir mesaj onay sayılmaz.
 - Ajanın onay ya da kabul verebileceği bir komut yoktur. İş kayıtlarının tutulduğu `.aec/isler/` klasörüne dosya düzenleme araçlarıyla yazma da reddedilir.

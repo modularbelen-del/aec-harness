@@ -87,6 +87,66 @@ def test_plain_text_errors_do_not_advance(tmp_path):
     assert is_durumu.is_yukle(tmp_path, is_id)["durum"] == "uygulandi"
 
 
+def _eski_is(proje, durum, oturum="eski-oturum"):
+    kayit = is_durumu.yeni_is(proje, "revit-modelleme", "Eski", False)
+    kayit["durum"] = durum
+    is_durumu.is_kaydet(proje, kayit)
+    is_durumu.aktif_bagla(proje, oturum, kayit["id"])
+    return kayit["id"]
+
+
+def _devam(is_id, arac="Bash", komut=None, sid=SID):
+    return {"session_id": sid, "tool_name": arac,
+            "tool_input": {"command": komut or f'uv run python "x/is_kaydi.py" devam --proje "p" --is {is_id}'},
+            "tool_response": {"stdout": f"DEVAM: {is_id}\nDurum: x\n", "stderr": ""}}
+
+
+def test_continue_binds_open_job_from_earlier_session(tmp_path):
+    for durum in ("gorusme", "onay-bekliyor:tarif", "onay-bekliyor:plan", "onaylandi:plan", "uygulandi",
+                  "kabul-bekliyor", "reddedildi"):
+        proje = tmp_path / durum.replace(":", "-")
+        is_id = _eski_is(proje, durum)
+        post_tool.isle(_devam(is_id), proje)
+        kayit = is_durumu.aktif_is(proje, SID)
+        assert kayit["id"] == is_id and kayit["durum"] == durum, durum
+    proje = tmp_path / "ps"
+    is_id = _eski_is(proje, "kabul-bekliyor")
+    post_tool.isle(_devam(is_id, arac="PowerShell"), proje)
+    assert is_durumu.aktif_is(proje, SID)["id"] == is_id
+
+
+def test_continue_refuses_closed_jobs_and_foreign_output(tmp_path):
+    for durum in ("kabul-edildi", "iptal"):
+        proje = tmp_path / durum
+        is_id = _eski_is(proje, durum)
+        post_tool.isle(_devam(is_id), proje)
+        assert is_durumu.aktif_is(proje, SID) is None, durum
+    proje = tmp_path / "diger"
+    is_id = _eski_is(proje, "onay-bekliyor:plan")
+    for komut in (f"echo DEVAM: {is_id}", f"is_kaydi.py durum --is {is_id}", "is_kaydi.py yeni --kart x"):
+        post_tool.isle(_devam(is_id, komut=komut), proje)
+        assert is_durumu.aktif_is(proje, SID) is None, komut
+    post_tool.isle({**_devam(is_id), "tool_response": {"stdout": f"✗ DEVAM: {is_id}"}}, proje)
+    post_tool.isle(_devam("yok-boyle-is"), proje)
+    assert is_durumu.aktif_is(proje, SID) is None
+
+
+def test_continue_asks_again_for_plan_approved_elsewhere(tmp_path):
+    is_id = _eski_is(tmp_path, "plan-onaylandi")
+    post_tool.isle(_devam(is_id), tmp_path)
+    kayit = is_durumu.aktif_is(tmp_path, SID)
+    assert kayit["id"] == is_id and kayit["durum"] == "onay-bekliyor:plan"
+    olay = kayit["olaylar"][-1]
+    assert (olay["eski"], olay["yeni"], olay["kaynak"]) == ("plan-onaylandi", "onay-bekliyor:plan", "hook-post")
+    assert olay["not"] == "oturum değişti; onay yeniden istenecek"
+
+
+def test_continue_in_own_session_keeps_its_approval(tmp_path):
+    is_id = _eski_is(tmp_path, "plan-onaylandi", oturum=SID)
+    post_tool.isle(_devam(is_id), tmp_path)
+    assert is_durumu.aktif_is(tmp_path, SID)["durum"] == "plan-onaylandi"
+
+
 def test_read_tool_and_bad_input_do_nothing(tmp_path):
     is_id = _is(tmp_path, "plan-onaylandi")
     post_tool.isle({"session_id": SID, "tool_name": "mcp__revit__get_revit_status", "tool_response": {}}, tmp_path)

@@ -174,7 +174,44 @@ def test_open_jobs_dropped_by_size_limit(tmp_path):
     mod = _hook()
     _isler(tmp_path, 3)
     taban = len(mod.build_output("x").encode("utf-8"))  # no jobs under "x"
-    mod.MAX_BYTES = taban + 100
+    tam = len(mod.build_output(str(tmp_path)).encode("utf-8"))
+    mod.MAX_BYTES = taban + (tam - taban) // 2  # room for about one and a half job lines
     out = mod.build_output(str(tmp_path))
     sayi = _ctx(out).count("Açık iş: ")
     assert 0 < sayi < 3 and len(out.encode("utf-8")) <= mod.MAX_BYTES
+
+
+def _is_satirlari(ctx):
+    return [s for s in ctx.splitlines() if s.startswith("Açık iş: ")]
+
+
+def test_open_job_lines_offer_continue_command(tmp_path):
+    _isler(tmp_path, 2)
+    satirlar = _is_satirlari(_ctx(_hook().build_output(str(tmp_path))))
+    assert len(satirlar) == 2
+    for satir in satirlar:
+        is_id = satir.split()[2]
+        assert f"`devam --is {is_id}`" in satir and "devam etmeyi öner" in satir, satir
+
+
+def test_rejected_jobs_stay_listed(tmp_path):
+    import is_durumu
+    _isler(tmp_path, 3)
+    for kayit, durum in zip(is_durumu.acik_isler(tmp_path), ("reddedildi", "kabul-edildi", "iptal")):
+        kayit["durum"] = durum
+        is_durumu.is_kaydet(tmp_path, kayit)
+    satirlar = _is_satirlari(_ctx(_hook().build_output(str(tmp_path))))
+    assert len(satirlar) == 1 and "(reddedildi)" in satirlar[0]
+
+
+def test_three_longest_job_lines_fit_beside_longest_path(tmp_path, monkeypatch):
+    import is_durumu
+    uzun = "20261231-2359-" + "a" * 40 + "-9"
+    monkeypatch.setattr(is_durumu, "acik_isler",
+                        lambda proje: [{"id": uzun + str(i), "durum": "onay-bekliyor:gorevler"} for i in range(3)])
+    room = max(20, min(150, 240 - len(str(tmp_path)) - len("\\.aec")))
+    deep = tmp_path / ("Çakışma" * 22)[:room]
+    (deep / ".aec").mkdir(parents=True)
+    (deep / ".aec" / "proje.md").write_text("# Proje\n", encoding="utf-8")
+    out = _hook().build_output(str(deep), acik={"Revit", "AutoCAD", "Rhino"})
+    assert len(_is_satirlari(_ctx(out))) == 3 and len(out.encode("utf-8")) <= 4096

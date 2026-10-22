@@ -1,6 +1,9 @@
-"""PostToolUse hook: binds a newly created job to the session and marks 'uygulandi' after a successful Revit write.
+"""PostToolUse hook: binds a newly created or continued job to the session and marks 'uygulandi' after a successful
+Revit write.
 
-Standard library only. Never raises and prints nothing.
+A continued job ('is_kaydi.py devam') that was approved in another session goes back to 'onay-bekliyor:plan': the person
+confirms it again here. Binding grants nothing else. Standard library only. Never raises and prints nothing; it decides
+no permission, so a failed import only means no binding (the locks then stay closed).
 """
 import json
 import os
@@ -16,6 +19,9 @@ import is_durumu  # noqa: E402
 KAYNAK = "hook-post"
 ISARET = re.compile(r"^IS:\s*(\S+)\s*$", re.MULTILINE)
 YENI_KOMUT = re.compile(r"\bis_kaydi\.py\b.*\syeni(\s|$)", re.DOTALL)
+DEVAM_ISARET = re.compile(r"^DEVAM:\s*(\S+)\s*$", re.MULTILINE)
+DEVAM_KOMUT = re.compile(r"\bis_kaydi\.py\b.*\sdevam(\s|$)", re.DOTALL)
+DEVAM_NOTU = "oturum değişti; onay yeniden istenecek"
 NL = chr(10)
 UYGULAMA_ARACLARI = re.compile(r"^mcp__.*revit.*__(execute_revit_code|place_family)$", re.IGNORECASE)
 
@@ -54,6 +60,31 @@ def _bagla(girdi: dict, proje: pathlib.Path, oturum: str) -> None:
             return
 
 
+def _devam(girdi: dict, proje: pathlib.Path, oturum: str) -> None:
+    """Binds a job continued with 'is_kaydi.py devam'; a plan approved in another session must be confirmed again."""
+    komut = (girdi.get("tool_input") or {}).get("command")
+    if not isinstance(komut, str) or not DEVAM_KOMUT.search(komut):
+        return
+    for is_id in DEVAM_ISARET.findall(_metin(girdi.get("tool_response"))):
+        try:
+            kayit = is_durumu.is_yukle(proje, is_id)
+        except (ValueError, OSError):
+            continue
+        if not isinstance(kayit, dict) or kayit.get("id") != is_id:
+            continue
+        durum = kayit.get("durum")
+        if durum not in is_durumu.IZINLI or durum in is_durumu.BITMIS:
+            continue
+        mevcut = is_durumu.aktif_is(proje, oturum)
+        if isinstance(mevcut, dict) and mevcut.get("id") == is_id:
+            return  # already this session's job: its approvals were given here
+        if durum == "plan-onaylandi":  # regress before binding: a failed save leaves the job unbound
+            is_durumu.gecis(kayit, "onay-bekliyor:plan", KAYNAK, DEVAM_NOTU)
+            is_durumu.is_kaydet(proje, kayit)
+        is_durumu.aktif_bagla(proje, oturum, is_id)
+        return
+
+
 def _uygulandi(girdi: dict, proje: pathlib.Path, oturum: str) -> None:
     if _hatali(girdi.get("tool_response")):
         return
@@ -73,6 +104,7 @@ def isle(girdi, proje: pathlib.Path) -> None:
         proje = pathlib.Path(proje)
         if arac in ("Bash", "PowerShell"):
             _bagla(girdi, proje, oturum)
+            _devam(girdi, proje, oturum)
         elif UYGULAMA_ARACLARI.match(arac):
             _uygulandi(girdi, proje, oturum)
     except Exception:

@@ -49,6 +49,7 @@ Komutları Bash ile ve tek tek çalıştır:
 | `olcut --is <kimlik> --olcut "<ölçüt>" --yontem <yöntem> [--beklenen <değer>] [--tolerans <değer>]` | Kabul ölçütü ekler; yalnızca görüşme aşamasında çalışır. Yöntem: `revit-okuma`, `dosya`, `olcu`, `kisi-gorsel`. |
 | `tarif`, `plan` ya da `gorevler` ile `--is <kimlik> --dosya -` | Belgeyi kaydeder; iş `onay-bekliyor:<aşama>` durumuna geçer. |
 | `durum --is <kimlik>` | Durumu, sınıfı, ölçüt sayısını ve kontrol sonucunu yazar; hiçbir şeyi değiştirmez. |
+| `devam --is <kimlik>` | Önceki bir oturumdan kalan açık işi `DEVAM: <kimlik>` satırıyla bu oturuma bağlar; başka bir oturumda verilmiş plan onayı düşer ve iş `onay-bekliyor:plan` durumuna alınır. Kabul edilmiş ya da iptal edilmiş işte reddedilir. |
 | `uygulandi --is <kimlik>` | Onaylı planı (`plan-onaylandi`) uygulandı olarak kaydeder ve kontrolcünün önünü açar; başka durumda reddedilir. |
 | `iptal --is <kimlik> --gerekce "<gerekçe>"` | İşi kapatır (aşağıdaki iptal kuralına bak). |
 | `proje-ekle --metin "<bilgi>"` | `.aec/proje.md` dosyasına kalıcı bir bilgi ekler; yalnızca kişi istediğinde. |
@@ -65,14 +66,14 @@ EOF
   metnini boruyla verme (Türkçe karakterler bozulur); metni önce taslak dosyasına yaz ve `--dosya` ile bu yolu ver.
   **Tek istisna:** "onaydan önce yazma aracı çağrılmaz" kuralının tek istisnası bu taslaktır. Taslak yalnızca
   `.aec/taslak/` klasörüne, `<aşama>.md` adıyla yazılır ve içine yalnızca iş kaydına verilecek belge metni yazılır.
-- `yeni` komutunu başka komutlarla zincirleme; oturum bağı bu komutun çıktısındaki `IS:` satırından kurulur.
+- `yeni` ve `devam` komutlarını başka komutlarla zincirleme; oturum bağı bu komutların çıktısındaki `IS:` ya da
+  `DEVAM:` satırından kurulur.
 - "✗" ile başlayan satır, işlemin yapılmadığını gösterir; satırı kişiye aktar ve akışa göre düzelt. `yeni` ev
   klasöründe ya da sürücü kökünde olunduğunu söylerse işi başlatma; kişiden Claude'u projenin klasöründe açmasını iste.
 - Onay ya da kabul komutu yoktur; böyle bir komut deneme. `.aec/isler/` altındaki kayıtları yalnızca bu komutlar
   değiştirir: oraya Write ya da Edit ile yazma (reddedilir), Bash, PowerShell ya da Python ile de dokunma.
 - **İptal kuralı:** `iptal` yalnızca kişi işten vazgeçtiğinde ya da iş yeniden açılmak zorunda kaldığında (sınıf
-  yükseltme, ölçüt değişikliği, yazmadan sonra plan değişikliği, önceki oturumdan kalan iş) ve kişiye bildirilerek
-  kullanılır. Onay ya da kabul
+  yükseltme, ölçüt değişikliği, yazmadan sonra plan değişikliği) ve kişiye bildirilerek kullanılır. Onay ya da kabul
   bekleyen bir iş, kararı atlamak için iptal edilmez.
 
 ## Akış
@@ -235,5 +236,9 @@ kişinin yanıtını bekle.
 - Ölçüyü ekran görüntüsünden çıkarma. Araçla oku ya da kişiden al; alamadığını VARSAYIM diye yaz.
 - Bir iş onay ya da kabul beklerken yeni bir iş istenirse bunu kişiye söyle: bekleyen karar verilmeden ya da iş
   kişinin isteğiyle iptal edilmeden yeni iş açılmaz.
-- Önceki oturumdan kalan açık iş bu oturuma bağlanamaz. Kişi devam etmek isterse eski işi kişiye bildirerek `iptal`
-  ile kapat ve yeni iş aç; eski işin belgelerini `.aec/isler/<kimlik>/` klasöründen okuyabilirsin.
+- Önceki oturumdan kalan açık işler oturumun başında `Açık iş:` satırlarıyla bildirilir. Kişiye devam etmeyi öner;
+  kişi isterse `devam --is <kimlik>` komutunu çalıştır, ardından `durum` ile kaydı oku ve akışa o durumdan devam et.
+  Onay ya da kabul bekleyen belgeyi ya da raporu kişiye yeniden göster ve soruyu yeniden sor. Başka bir oturumda
+  verilmiş plan onayı bu oturumda geçerli değildir: iş `onay-bekliyor:plan` durumuna alınır, plan yeniden gösterilir
+  ve onay yeniden istenir (karmaşık işte ardından görevler de yeniden onaya sunulur). Kişi işi sürdürmek istemezse işi
+  kişiye bildirerek `iptal` ile kapat. Eski işin belgeleri `.aec/isler/<kimlik>/` klasöründedir.

@@ -80,7 +80,7 @@ Eklenti her işi aynı adımlarla yürütür. İlk istekte aşağıdaki sıra iz
 7. **Kabul kararı sizindir.** Kabul için yalnızca "evet", ret için yalnızca "hayır" yazılır. Ret durumunda gerekçeniz sorulur ve plan düzeltilerek yeniden onaya sunulur. Karar `.aec/gunluk.md` dosyasına kaydedilir.
 8. **Kaydetme ve eşitleme.** Model, iş kabul edildikten sonra ve yalnızca istemeniz hâlinde kaydedilir. Merkez modelle eşitlemeyi siz yaparsınız.
 
-Yarım kalan bir iş yeni bir oturumda kaldığı yerden sürdürülmez. Devam etmek istediğinizde ajan eski işi size bildirerek kapatır ve yeni bir iş açar; önceki belgeler iş klasöründe kalır ve yeni işte kullanılabilir.
+Yarım kalan bir iş yeni bir oturumda kaldığı yerden sürdürülebilir. Oturumun başında ajan açık işleri bildirir ve devam etmeyi önerir; devam etmek isterseniz ajan işi `devam` komutuyla yeni oturuma bağlar. Önceki oturumda verilmiş plan onayı bu oturumda yeniden sorulur; yanıt olarak yine yalnızca "evet" yazılır. İşi sürdürmek istemezseniz ajan işi size bildirerek `iptal` komutuyla kapatır; belgeler iş klasöründe kalır.
 
 Cowork'te kancalar çalışmazsa onaylar kaydedilemez; ajan bunu size bildirir. Bu durumda Revit'e yazmadan önce bir izin ekranı açılabilir ve onay bu ekrandan verilir. Bağımsız kontrol ve kabul o oturumda kaydedilmez.
 
