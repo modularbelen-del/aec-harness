@@ -8,11 +8,15 @@ from datetime import datetime
 
 MAKS_ISARET_SANIYE = 30 * 60
 _GECERSIZ = re.compile(r"[^A-Za-z0-9_-]")
+_GIT_BASH_SURUCU = re.compile(r"^/([a-zA-Z])(?=/|$)")
 
 
 def mutlak(yol: str, proje: pathlib.Path) -> str:
-    """Normalized absolute path with forward slashes, lower-cased on Windows."""
-    p = pathlib.Path(yol.replace("\\", "/"))
+    """Normalized absolute path with forward slashes, lower-cased on Windows (Git Bash "/c/..." becomes "c:/...")."""
+    yol = yol.replace("\\", "/")
+    if os.name == "nt":
+        yol = _GIT_BASH_SURUCU.sub(lambda m: f"{m.group(1)}:/", yol, count=1)
+    p = pathlib.Path(yol)
     if not p.is_absolute():
         p = pathlib.Path(proje) / p
     s = os.path.normpath(str(p)).replace("\\", "/")

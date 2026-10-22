@@ -245,6 +245,25 @@ def test_prompt_hook_modules_are_not_imported(tmp_path, modul):
     assert (karar, neden) == ("ask", pre_tool.NEDEN_YUMUSAK)  # the real decision: no heartbeat in this session
 
 
+def _git_bash(yol):
+    s = str(yol).replace("\\", "/")
+    return f"/{s[0].lower()}{s[2:]}"  # D:/proje/x -> /d/proje/x
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Git Bash drive paths exist only on Windows")
+def test_git_bash_paths_match_windows_paths(tmp_path):
+    import yol
+    assert yol.mutlak(_git_bash(tmp_path / "a"), tmp_path) == yol.mutlak(str(tmp_path / "a"), tmp_path)
+    assert yol.mutlak(_git_bash(tmp_path).upper(), tmp_path) == yol.mutlak(str(tmp_path), tmp_path)
+    assert yol.mutlak("/c", tmp_path) == "c:/"
+    for baska in ("/tmp/x", "/cc/x"):  # only a single drive letter is mapped
+        assert ":" not in yol.mutlak(baska, tmp_path)[2:], baska
+    kayit = _is(tmp_path, "uygulandi")
+    g = _girdi("Agent", {"subagent_type": "aec:dogrulayici",
+                         "prompt": _git_bash(tmp_path / ".aec" / "isler" / kayit["id"])})
+    assert pre_tool.karar(g, tmp_path, tmp_path / "sd") is None
+
+
 def test_close_document_allowed_after_acceptance(tmp_path):
     sd = tmp_path / "sd"
     _kalp(sd)
