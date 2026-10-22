@@ -182,8 +182,9 @@ Uygulamadan sonra ajan, bağımsız kontrolcü `aec:dogrulayici` ajanını çal�
   toleransla geri okuma, `verify.py`) Faz 1C ile eklenecektir.
 
 İş uygulandıktan sonra ajan kontrolcüyü çalıştırmadan durmak isterse bir kez uyarılır. İkinci denemede durmasına izin
-verilir ve günlüğe "doğrulama yapılmadan durdu" satırı yazılır. İş kişinin onayını ya da kabulünü beklerken ajanın
-durması hiçbir zaman engellenmez.
+verilir ve günlüğe "doğrulama yapılmadan durdu" satırı yazılır. Bu satır işin bittiğini değil, ajanın kontrolcüyü
+çalıştırmadan durduğunu gösterir; iş açık kalabilir ve kontrol daha sonra yapılabilir. İş kişinin onayını ya da
+kabulünü beklerken ajanın durması hiçbir zaman engellenmez.
 
 ### Kayıtlar
 
@@ -196,7 +197,8 @@ durması hiçbir zaman engellenmez.
   istenir: iş `onay-bekliyor:plan` durumuna alınır. Kişi işi sürdürmek istemezse iş `iptal` ile kapatılır.
   Kabulde reddedilen iş de açık iş olarak listelenir; modeldeki değişiklikler yeniden planlanana ya da iş
   kapatılana kadar durur.
-- Kabul ve ret kararları ile doğrulama yapılmadan sonlanan işler `.aec/gunluk.md` dosyasına birer satır olarak yazılır.
+- Kabul ve ret kararları ile ajanın kontrolcüyü çalıştırmadan durduğu işler `.aec/gunluk.md` dosyasına birer satır
+  olarak yazılır. "doğrulama yapılmadan durdu" satırı işin bittiğini göstermez; iş açık kalabilir.
 - `.aec/proje.md` dosyasının yapısı ve işlevi değişmemiştir. İş sırasında kalıcı yeni bir bilgi ortaya çıkarsa bu
   dosyaya eklenmesi kişiye sorulur ve yalnızca kişi onaylarsa eklenir.
 - İş kaydı kullanıcı (ev) klasöründe ya da sürücü kökünde açılmaz; Claude'un projenin klasöründe başlatılması gerekir.

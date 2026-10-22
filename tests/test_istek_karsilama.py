@@ -264,6 +264,24 @@ def test_readback_wording_and_ceiling_skill():
     assert "geri okuyup doğrula" not in kural and "Revit okuma araçlarıyla" in kural
 
 
+def test_skill_keeps_substituted_paths_in_powershell():
+    skill = SKILL.read_text(encoding="utf-8")
+    assert "$env:CLAUDE_" not in skill
+    arac = _tek(_bolum(skill, "## İş kaydı aracı", "## Akış"))
+    assert "PowerShell'de de" in arac and "`$env:` biçimini kullanma" in arac and "aynen" in arac
+
+
+def test_complex_job_revises_earlier_document_by_rejection():
+    yedi = _tek(_bolum(SKILL.read_text(encoding="utf-8"), "### 7.", "### 8."))
+    assert ('Karmaşık işte kişi önceki bir belgenin değişmesini isterse bekleyen onay sorusuna "hayır" yazar ve '
+            "gerekçesini belirtir; ret kaydedildikten sonra akış o belgeye döner.") in yedi
+
+
+def test_soft_mode_skips_verifier_step():
+    uygula = _tek(_bolum(SKILL.read_text(encoding="utf-8"), "### 8.", "### 9."))
+    assert uygula.count("9. adıma geç") == uygula.count("yumuşak mod dışında 9. adıma geç") >= 2
+
+
 def test_skill_checks_binding_before_soft_mode():
     skill = SKILL.read_text(encoding="utf-8")
     yedi = _tek(_bolum(skill, "### 7.", "### 8."))

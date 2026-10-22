@@ -14,6 +14,8 @@
 - Onay, ret ve kabul yalnızca kişinin kısa "evet" ya da "hayır" mesajından, kod tarafından kaydedilir. Soru, şart ya da ek açıklama içeren mesaj onay sayılmaz. İş kaydı aracında onay ya da kabul komutu bulunmaz.
 - Revit yazma kilidi eklendi: onaylanmış plan olmadan Revit'e yazma reddedilir, merkez modelle eşitleme her zaman reddedilir, kaydetme yalnızca iş kabul edildikten sonra yapılabilir. Kancaların çalışmadığı oturumlarda Revit'e yazmadan önce izin ekranında onay istenebilir.
 - Bağımsız ve salt okuyan kontrolcü (`aec:dogrulayici`) eklendi: kabul ölçütlerini GEÇTİ, KALDI ya da DOĞRULANAMADI olarak raporlar; rapor kod tarafından iş klasörüne kaydedilir. Ölçü doğrulaması Faz 1C ile eklenecektir.
-- İş kayıtları `.aec/isler/` klasöründe, kabul ve ret kararları `.aec/gunluk.md` dosyasında tutulur. Yeni oturumun başında açık işler ajana bildirilir.
+- İş kayıtları `.aec/isler/` klasöründe, kabul ve ret kararları `.aec/gunluk.md` dosyasında tutulur. Yeni oturumun başında açık işler ajana bildirilir ve devam etmesi önerilir.
+- Açık bir işe yeni oturumda devam etmek için iş kaydı aracına `devam` komutu eklendi. Komut işi yeni oturuma bağlar; önceki oturumda verilmiş plan onayı yeniden istenir. Kabulde reddedilen işler de açık iş olarak listelenir.
+- Kabul ölçütü zorunlu hâle getirildi: ilk belge (basit işte plan, karmaşık işte tarif) en az bir kabul ölçütü kaydedilmeden onaya sunulamaz. Ölçütü bulunmayan bir işin kontrol sonucu DOĞRULANAMADI olarak kaydedilir.
 - Ajan, uygulanan bir işi bağımsız kontrol yapmadan bırakıp durmak isterse bir kez uyarılır.
 - Belgeler iş akışına göre güncellendi. `THIRD_PARTY_NOTICES.md` eklendi: superpowers ve spec-kit projelerinden uyarlanan bölümlerin MIT lisans metinleri.

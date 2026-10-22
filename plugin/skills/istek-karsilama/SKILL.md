@@ -47,7 +47,7 @@ Komutları Bash ile ve tek tek çalıştır:
 |---|---|
 | `yeni --kart <kart> --baslik "<kısa başlık>"`; karmaşık işte ayrıca `--karmasik` | İşi açar ve `IS: <kimlik>` satırını yazar. İş bu oturuma kendiliğinden bağlanır. |
 | `olcut --is <kimlik> --olcut "<ölçüt>" --yontem <yöntem> [--beklenen <değer>] [--tolerans <değer>]` | Kabul ölçütü ekler; yalnızca görüşme aşamasında çalışır. Yöntem: `revit-okuma`, `dosya`, `olcu`, `kisi-gorsel`. |
-| `tarif`, `plan` ya da `gorevler` ile `--is <kimlik> --dosya -` | Belgeyi kaydeder; iş `onay-bekliyor:<aşama>` durumuna geçer. |
+| `tarif`, `plan` ya da `gorevler` ile `--is <kimlik> --dosya -` | Belgeyi kaydeder; iş `onay-bekliyor:<aşama>` durumuna geçer. İlk belge (basit işte `plan`, karmaşık işte `tarif`) en az bir kabul ölçütü kaydedilmeden reddedilir. |
 | `durum --is <kimlik>` | Durumu, sınıfı, ölçüt sayısını ve kontrol sonucunu yazar; hiçbir şeyi değiştirmez. |
 | `devam --is <kimlik>` | Önceki bir oturumdan kalan açık işi `DEVAM: <kimlik>` satırıyla bu oturuma bağlar; başka bir oturumda verilmiş plan onayı düşer ve iş `onay-bekliyor:plan` durumuna alınır. Kabul edilmiş ya da iptal edilmiş işte reddedilir. |
 | `uygulandi --is <kimlik>` | Onaylı planı (`plan-onaylandi`) uygulandı olarak kaydeder ve kontrolcünün önünü açar; başka durumda reddedilir. |
@@ -62,8 +62,10 @@ uv run --no-project python "${CLAUDE_PLUGIN_ROOT}/scripts/is_kaydi.py" plan --pr
 EOF
 ```
 
-- Komutu PowerShell ile çalıştırman gerekirse ortam değişkenlerini `$env:CLAUDE_PROJECT_DIR` biçiminde yaz ve belge
-  metnini boruyla verme (Türkçe karakterler bozulur); metni önce taslak dosyasına yaz ve `--dosya` ile bu yolu ver.
+- Yukarıdaki komutlarda eklenti ve proje klasörü tam yol olarak yazılmıştır. Bu yolları PowerShell'de de gösterildiği
+  gibi, tırnak içinde aynen kullan. Bu yollar için `$env:` biçimini kullanma; bu değişkenler araç ortamında tanımlı
+  değildir. Komutu PowerShell ile çalıştırman gerekirse belge metnini boruyla verme (Türkçe karakterler bozulur);
+  metni önce taslak dosyasına yaz ve `--dosya` ile bu yolu ver.
   **Tek istisna:** "onaydan önce yazma aracı çağrılmaz" kuralının tek istisnası bu taslaktır. Taslak yalnızca
   `.aec/taslak/` klasörüne, `<aşama>.md` adıyla yazılır ve içine yalnızca iş kaydına verilecek belge metni yazılır.
 - `yeni` ve `devam` komutlarını başka komutlarla zincirleme; oturum bağı bu komutların çıktısındaki `IS:` ya da
@@ -139,17 +141,21 @@ kişinin yanıtını bekle.
 - "[aec] Bu mesaj onay olarak kaydedilmedi" satırı gelirse kişinin mesajını yanıtla. Belge değiştiyse yeni hâlini
   aynı komutla yeniden kaydet ve göster; ardından onay sorusunu yeniden sor.
 - "[aec] Ret kaydedildi" satırı gelirse gerekçeyi sor, belgeyi düzelt ve yeniden kaydet. Karmaşık işte önceki bir
-  belge de değişiyorsa tariften başla; değişmiyorsa plandan devam edilebilir.
-- "[aec] Bu oturuma bağlı bir iş bulunmadığından" satırı gelirse iş önceki bir oturumda açılmıştır: `devam --is <kimlik>`
-  komutunu çalıştır, ardından bekleyen belgeyi ya da raporu yeniden göster ve soruyu yeniden sor.
+  belge de değişiyorsa tariften başla; değişmiyorsa plandan devam edilebilir. Karmaşık işte kişi önceki bir belgenin
+  değişmesini isterse bekleyen onay sorusuna "hayır" yazar ve gerekçesini belirtir; ret kaydedildikten sonra akış o
+  belgeye döner.
+- "[aec] Bu oturuma bağlı bir iş bulunmadığından" satırı gelirse iş önceki bir oturumda açılmıştır:
+  `devam --is <kimlik>` komutunu çalıştır, ardından bekleyen belgeyi ya da raporu yeniden göster ve soruyu yeniden
+  sor.
 - Hiçbir `[aec]` satırı gelmezse aşağıdaki yumuşak mod kuralını uygula.
 
 ### 8. Uygula
 - Yalnızca onaylı plandaki (karmaşık işte görevlerdeki) adımları sırayla uygula; kapsam dışına çıkma.
 - Plan değişmesi gerekirse dur. Henüz hiçbir şey yazılmadıysa yeni planı `plan` komutuyla yeniden kaydet ve onaya sun;
-  önceki onay düşer. Bir şey yazıldıktan sonra plan yeniden kaydedilemez: 9. adıma geç, raporu göster ve değişiklik
-  gerekçesini kişiye bildir; kişi kabulde reddederse yeni plan `reddedildi` durumundan kaydedilir. Diğer yol, kişiye
-  bildirerek işi `iptal` ile kapatmaktır.
+  önceki onay düşer. Bir şey yazıldıktan sonra plan yeniden kaydedilemez: yumuşak mod dışında 9. adıma geç, raporu
+  göster ve değişiklik gerekçesini kişiye bildir; kişi kabulde reddederse yeni plan `reddedildi` durumundan
+  kaydedilir. Diğer yol, kişiye bildirerek işi `iptal` ile kapatmaktır. Yumuşak modda aşağıdaki yumuşak mod kuralına
+  göre ilerle.
 - Revit'e yazma kodla kilitlidir: onaylı plan olmadan yazma reddedilir, `sync_with_central` hiçbir zaman çalışmaz,
   `save_document` yalnızca iş kabul edildikten sonra çalışır. Kaydetme ve merkez modelle eşitleme kişinin işidir;
   `save_document` ve `sync_with_central` araçlarını kendiliğinden çağırma.
@@ -158,8 +164,8 @@ kişinin yanıtını bekle.
 - İlk başarılı Revit yazması işi kendiliğinden `uygulandi` durumuna geçirir. Onaydan sonra okumak için de
   `execute_revit_code` çalıştırma; okuma araçlarını kullan.
 - Revit'e yazmayan işlerde (Excel, DXF, render metni) kod düzeyinde kilit yoktur; aynı kurallara yine uyulur.
-- Uygulama sırasında hata çıkarsa: henüz hiçbir şey yazılmadıysa dur ve kişiye bildir. Bir kısmı yazıldıysa 9. adıma
-  geç; rapor eksikleri gösterir, kararı kişi verir.
+- Uygulama sırasında hata çıkarsa: henüz hiçbir şey yazılmadıysa dur ve kişiye bildir. Bir kısmı yazıldıysa yumuşak
+  mod dışında 9. adıma geç; rapor eksikleri gösterir, kararı kişi verir.
 - Uygulama bitince kartın "Geri okuma" adımını yalnızca okuma araçlarıyla ve kontrolcüden önce yap. Bu okuma
   kontrolcü raporunun yerine geçmez.
 
@@ -214,9 +220,9 @@ kişinin yanıtını bekle.
   sorman gerekirse `AskUserQuestion` kullan ya da soruyu karar kaydedildikten sonra sor.
 - **Yumuşak mod:** kişi yalnızca "evet" yazdığı hâlde hiçbir `[aec]` satırı gelmezse yumuşak moda geçmeden önce
   `durum` ile kaydı oku ve işin bu oturuma bağlı olduğunu denetle. İş bu oturumda `yeni` ya da `devam` ile
-  bağlanmadıysa (ör. iş önceki bir oturumda açıldıysa) `devam --is <kimlik>` komutunu çalıştır, belgeyi ya da raporu yeniden
-  göster ve soruyu yeniden sor. İş bu oturuma bağlıysa durumuna göre ilerle (işin sınıfını çıktıdaki "Karmaşık"
-  satırı gösterir):
+  bağlanmadıysa (ör. iş önceki bir oturumda açıldıysa) `devam --is <kimlik>` komutunu çalıştır, belgeyi ya da raporu
+  yeniden göster ve soruyu yeniden sor. İş bu oturuma bağlıysa durumuna göre ilerle (işin sınıfını çıktıdaki
+  "Karmaşık" satırı gösterir):
   - `onaylandi:tarif`, `onaylandi:plan`, `plan-onaylandi`, `uygulandi` ya da `kabul-edildi`: kayıt yapılmıştır,
     yalnızca bağlam satırı görünmemiştir. Akışa bu durumdan devam et.
   - `gorusme` ya da `reddedildi`: onay bekleyen kayıtlı bir belge yoktur. Belgeyi kaydet, göster ve onay sorusunu

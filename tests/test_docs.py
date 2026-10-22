@@ -148,6 +148,18 @@ def test_changelog_mentions_workflow():
         assert s in sec, s
 
 
+def test_stop_journal_line_means_agent_stopped_not_job_ended():
+    readme = " ".join(_readme_section("İş akışı").split())
+    assert "doğrulama yapılmadan sonlanan işler" not in readme
+    assert '"doğrulama yapılmadan durdu"' in readme and "iş açık kalabilir" in readme
+
+
+def test_changelog_mentions_continue_and_required_criteria():
+    sec = " ".join(_sections((ROOT / "CHANGELOG.md").read_text(encoding="utf-8")).get("Yayınlanmamış (dev)", "").split())
+    for s in ("`devam`", "en az bir kabul ölçütü", "DOĞRULANAMADI"):
+        assert s in sec, s
+
+
 def test_docs_describe_continue_path():
     basla, sorun, guv = _doc("BASLA"), _doc("SORUN-GIDERME"), _doc("GUVENLIK")
     readme = _readme_section("İş akışı")
