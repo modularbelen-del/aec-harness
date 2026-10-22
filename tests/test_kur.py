@@ -184,3 +184,35 @@ def test_ayar_backup_once_not_overwritten(tmp_path):
 @needs_ps
 def test_dry_run_exit_zero_without_exit_statement():
     assert "\nexit " not in (ROOT / "kur.ps1").read_text(encoding="utf-8-sig")
+
+
+@needs_ps
+def test_ayar_output_readable_two_space_indent(tmp_path):
+    p = tmp_path / "settings.json"
+    orig = {"model": "x", "tricky": 'a{b}c[d]e"f\\g, h: i', "list": [1, {"k": []}], "obj": {}}
+    p.write_text(json.dumps(orig), encoding="utf-8")
+    _ayar(p)
+    d = _entry(p)
+    for k, v in orig.items():
+        assert d[k] == v
+    lines = p.read_text(encoding="utf-8").split("\n")
+    assert lines[0] == "{"
+    assert lines[1].startswith('  "') and not lines[1].startswith("   ")
+    for ln in lines:
+        assert (len(ln) - len(ln.lstrip(" "))) % 2 == 0
+    assert '"model": "x"' in lines[1] or any('"model": "x"' in ln for ln in lines)
+
+
+@needs_ps
+def test_ayar_foreign_backup_not_overwritten(tmp_path):
+    p = tmp_path / "settings.json"
+    p.write_text('{"model": "yeni"}', encoding="utf-8")
+    yedek = tmp_path / "settings.json.aec-yedek"
+    yedek.write_text('{"baska": 1}', encoding="utf-8")
+    _ayar(p)
+    assert yedek.read_text(encoding="utf-8") == '{"baska": 1}'
+
+
+def test_dry_run_text_mentions_source():
+    text = (ROOT / "kur.ps1").read_text(encoding="utf-8-sig")
+    assert "yalnızca extraKnownMarketplaces.aec-office.autoUpdate = true" not in text

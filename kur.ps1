@@ -36,6 +36,45 @@ function Yaz-Not([string]$metin) {
     Write-Output "      $metin"
 }
 
+function Format-AecJson([string]$Json) {
+    # PS 5.1 ConvertTo-Json çok geniş girinti yazar; sıkı çıktıyı 2 boşlukla yeniden düzenler.
+    $sb = New-Object Text.StringBuilder
+    $girinti = 0
+    $metinde = $false
+    $kacis = $false
+    for ($i = 0; $i -lt $Json.Length; $i++) {
+        $c = $Json[$i]
+        if ($metinde) {
+            [void]$sb.Append($c)
+            if ($kacis) { $kacis = $false }
+            elseif ($c -eq '\') { $kacis = $true }
+            elseif ($c -eq '"') { $metinde = $false }
+            continue
+        }
+        switch ($c) {
+            '"' { $metinde = $true; [void]$sb.Append($c) }
+            { $_ -eq '{' -or $_ -eq '[' } {
+                $sonraki = if ($i + 1 -lt $Json.Length) { $Json[$i + 1] } else { '' }
+                if ($sonraki -eq '}' -or $sonraki -eq ']') {
+                    [void]$sb.Append($c).Append($sonraki)
+                    $i++
+                } else {
+                    $girinti++
+                    [void]$sb.Append($c).Append("`n").Append(' ' * (2 * $girinti))
+                }
+            }
+            { $_ -eq '}' -or $_ -eq ']' } {
+                $girinti--
+                [void]$sb.Append("`n").Append(' ' * (2 * $girinti)).Append($c)
+            }
+            ',' { [void]$sb.Append(",`n").Append(' ' * (2 * $girinti)) }
+            ':' { [void]$sb.Append(': ') }
+            default { [void]$sb.Append($c) }
+        }
+    }
+    return $sb.ToString()
+}
+
 function Set-AecOtomatikGuncelleme {
     param([string]$Yol, [string]$Kanal)
     $kaynak = [ordered]@{ source = 'github'; repo = 'modularbelen-del/aec-harness' }
@@ -86,7 +125,7 @@ function Set-AecOtomatikGuncelleme {
         }
         if ($ofis.PSObject.Properties['autoUpdate']) { $ofis.autoUpdate = $true }
         else { $ofis | Add-Member -NotePropertyName autoUpdate -NotePropertyValue $true }
-        $json = $ayar | ConvertTo-Json -Depth 32
+        $json = Format-AecJson ($ayar | ConvertTo-Json -Depth 32 -Compress)
         [IO.File]::WriteAllText($Yol, $json, (New-Object Text.UTF8Encoding($false)))
         return ('Otomatik güncelleme açıldı.' + $yedekMetni)
     } catch {
@@ -151,7 +190,7 @@ if (Komut-Var 'claude') {
     if ($Kuru) {
         Yaz-Not "(kuru) çalıştırılacak: claude plugin marketplace add $Kaynak"
         Yaz-Not '(kuru) çalıştırılacak: claude plugin install aec@aec-office'
-        Yaz-Not '(kuru) önce ~/.claude/settings.json yedeklenecek (settings.json.aec-yedek), sonra yalnızca extraKnownMarketplaces.aec-office.autoUpdate = true yazılacak.'
+        Yaz-Not '(kuru) önce ~/.claude/settings.json yedeklenecek (settings.json.aec-yedek), sonra yalnızca AEC kaynağının adresi ve otomatik güncelleme anahtarı eklenecek, diğer ayarlara dokunulmayacak.'
     } else {
         $eklendi = $false
         try {
@@ -174,7 +213,9 @@ if (Komut-Var 'claude') {
             Yaz-Not (Set-AecOtomatikGuncelleme -Yol (Join-Path $env:USERPROFILE '.claude\settings.json') -Kanal $Kanal)
         } else {
             Yaz-Not 'Eklenti kaynağı eklenemediği için otomatik güncelleme ayarına dokunulmadı.'
-        }    }
+        }
+    }
+
     Yaz-Adim 4 'Claude Code bulundu; bu adım gerekmiyor.'
 } else {
     Yaz-Adim 3 'Claude Code (terminal) bulunamadı; eklenti burada kurulmayacak.'
