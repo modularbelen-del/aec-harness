@@ -10,9 +10,9 @@ from pathlib import Path
 from programlar import durum_satiri, running_programs
 
 MARKETPLACE = "aec-office"
-UV_YOK = "✗ uv: kurulu değil → BASLA.md'deki tek satırlık kurulumu yeniden çalıştırın"
+UV_YOK = "✗ uv: kurulu değil → BASLA.md'deki tek satırlık kurulum komutunu yeniden çalıştırınız"
 GUNCELLEME_YOK = (
-    "✗ Otomatik güncelleme: kapalı ya da bilinmiyor → terminalde /plugin > Marketplaces > aec-office > "
+    "✗ Otomatik güncelleme: kapalı ya da durumu belirlenemedi → terminalde /plugin > Marketplaces > aec-office > "
     "Enable auto-update; Cowork'te Customize > Plugins > \"Sync automatically\""
 )
 PROJE_BASLAT = "/aec:proje-baslat"
@@ -30,15 +30,15 @@ def _otomatik_guncelleme(*dizinler: Path) -> bool:
 
 
 def _var_yok(ok: bool, ad: str, var: str) -> str:
-    return f"✓ {ad}: {var}" if ok else f"✗ {ad}: yok → {PROJE_BASLAT}"
+    return f"✓ {ad}: {var}" if ok else f"✗ {ad}: bulunamadı → {PROJE_BASLAT}"
 
 
 def satirlar(proje_dir: Path, ev_dir: Path, acik: "set[str] | None", uv_surumu: "str | None") -> "list[str]":
     proje_dir, ev_dir = Path(proje_dir), Path(ev_dir)
     out = [f"✓ uv: {uv_surumu}" if uv_surumu else UV_YOK]
     out.append("✓ Otomatik güncelleme: açık" if _otomatik_guncelleme(proje_dir, ev_dir) else GUNCELLEME_YOK)
-    out.append(_var_yok((proje_dir / "CLAUDE.md").is_file(), "Proje CLAUDE.md", "var"))
-    out.append(_var_yok((proje_dir / ".aec" / "proje.md").is_file(), "Proje bilgisi (.aec/proje.md)", "var"))
+    out.append(_var_yok((proje_dir / "CLAUDE.md").is_file(), "Proje CLAUDE.md", "mevcut"))
+    out.append(_var_yok((proje_dir / ".aec" / "proje.md").is_file(), "Proje bilgisi (.aec/proje.md)", "mevcut"))
     durum = durum_satiri(acik)
     out.append(f"✓ Açık programlar: {durum.split(': ', 1)[1]}" if durum else "✗ Açık programlar: kontrol edilemedi")
     return out

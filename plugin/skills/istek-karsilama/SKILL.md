@@ -37,12 +37,13 @@ en fazla 3 soruyla sor, ardından 4. adımdaki gibi taslak plan ve onay sorusuyl
    Kartı okumadan plan yazma. Kartı okur okumaz, soru sormadan önce, gereken aracın bu oturumda olup olmadığına
    bak; yoksa 6. adımdaki "Yapamıyorsam" metnini hemen söyle.
 3. **Proje MD'sini oku.** Proje klasöründeki `CLAUDE.md` ve `.aec/proje.md` dosyaları. Yoksa bir cümleyle
-   `/aec:proje-baslat`'ı öner ("projeyi bir kez tanıtırsanız bunları her seferinde sormam") ve işe devam et.
+   `/aec:proje-baslat`'ı öner ("Proje bilgileri /aec:proje-baslat ile bir kez kaydedilirse bu bilgiler her istekte
+   yeniden sorulmaz.") ve işe devam et.
 4. **Eksiği doldur.** Kartın "Kritik gerekenler" listesini önce proje MD'sinden, sonra açık model ya da çizimden
    araçla okuyarak doldur. Kalanlar için en fazla 3 soru sor; bütün soruları tek mesajda numaralı liste hâlinde
    sor, mümkünse seçenek ver. Sormadığın her şeyi planda VARSAYIM diye yaz.
    Soruların altına planı VARSAYIM'larıyla taslak olarak da ekle ve mesajı açık bir onay sorusuyla bitir
-   ("Bu varsayımlarla ilerleyeyim mi?"). Soruya cevap beklemek, onay istemeyi ortadan kaldırmaz.
+   ("Bu varsayımlarla devam edilmesini onaylıyor musunuz?"). Soruya cevap beklemek, onay istemeyi ortadan kaldırmaz.
 5. **Planı yaz, onay iste.** Planda adımlar, hangi kopya dosyada çalışılacağı ve VARSAYIM'lar olur. Kartın
    "Plan şablonu"nu kullan. Onay gelmeden hiçbir yazma aracını çağırma: dosya yazma, Revit'e yerleştirme,
    modeli değiştiren kod çalıştırma dahil. Okuma araçları serbest.

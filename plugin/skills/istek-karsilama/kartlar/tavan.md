@@ -39,6 +39,6 @@
 - Tutmayanı oda oda tabloda göster.
 
 ## Yapamıyorsam
-- "Tavan modülü yakında geliyor (Faz 1D). Bu bilgisayarda tavan aracı yüklü değil, bu yüzden tavanı çizimden otomatik kuramıyorum."
-- "Revit bağlantısı yoksa modele de yazamam. Durumu /aec:kontrol-et ile görebilirsiniz."
-- "Bu arada odaları, sistemi ve kotları birlikte bir plana dökebiliriz; araç gelince hazır olur."
+- "Tavan modülü yakında eklenecektir (Faz 1D). Bu bilgisayarda tavan aracı yüklü olmadığından tavan çizimden otomatik olarak oluşturulamıyor."
+- "Revit bağlantısı bulunmadığında modele yazma yapılamaz. Bağlantı durumu /aec:kontrol-et komutuyla görüntülenebilir."
+- "Bu süreçte odalar, tavan sistemi ve kotlar bir plan hâlinde hazırlanabilir; plan, araç kullanıma sunulduğunda uygulanmaya hazır olur."

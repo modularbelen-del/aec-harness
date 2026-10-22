@@ -39,5 +39,5 @@
 - Rhino'daki sayı ve ölçülerle karşılaştır; farkları tabloda göster.
 
 ## Yapamıyorsam
-- Kişi kurulu olduğunu söylemediyse: "Rhino'dan Revit'e geçişi Rhino.Inside.Revit üzerinden kodla yapmayı hedefliyoruz. Bu bilgisayarda kurulu olup olmadığını bilmiyorum, kurulu değil varsayıyorum; Revit 2027 ile çalıştığı da henüz doğrulanmadı. Bu yüzden şu an doğrudan aktaramıyorum."
-- "Kuruluysa (Revit'te üstte 'Rhinoceros' sekmesi görünür) söyleyin; sizin Grasshopper'da çalıştıracağınız kodu adım adım yazarım. Durumu /aec:kontrol-et ile görebilirsiniz."
+- Kişi kurulu olduğunu söylemediyse: "Rhino'dan Revit'e aktarımın Rhino.Inside.Revit üzerinden kodla yapılması hedeflenmektedir. Bu bilgisayarda kurulu olup olmadığı bilinmediğinden kurulu olmadığı varsayılmıştır; Revit 2027 ile uyumluluğu da henüz doğrulanmamıştır. Bu nedenle şu aşamada doğrudan aktarım yapılamıyor."
+- "Rhino.Inside.Revit kuruluysa (Revit'in üst menüsünde 'Rhinoceros' sekmesi görünür) lütfen belirtiniz; bu durumda Grasshopper'da çalıştırılacak kod adım adım hazırlanabilir. Bağlantı durumu /aec:kontrol-et komutuyla görüntülenebilir."

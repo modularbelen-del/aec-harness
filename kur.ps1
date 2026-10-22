@@ -1,11 +1,11 @@
-﻿# AEC ofis kurulumu. Bir kez çalıştırılır.
-# Normal kurulum (kararlı kanal):
+﻿# AEC ofis kurulum betiği. Her bilgisayarda bir kez çalıştırılır.
+# Standart kurulum (kararlı kanal):
 #   powershell -ExecutionPolicy Bypass -c "iex ((irm https://raw.githubusercontent.com/modularbelen-del/aec-harness/main/kur.ps1).TrimStart([char]0xFEFF))"
-# Deneme (dev) kanalı, şampiyon için (Win+R ya da cmd penceresine yazın; PowerShell penceresinde $env: önce açılır):
+# Pilot (dev) kanalı, pilot kullanıcılar içindir. Komut Win+R ya da cmd penceresine yazılır (PowerShell penceresinde $env: ifadesi önceden çözümlenir):
 #   powershell -ExecutionPolicy Bypass -c "$env:AEC_KANAL='dev'; iex ((irm https://raw.githubusercontent.com/modularbelen-del/aec-harness/dev/kur.ps1).TrimStart([char]0xFEFF))"
-# (TrimStart, dosyanın başındaki BOM işaretini ayıklar; olmazsa iex ilk satırda hata verir.)
-# Pilot süresince yalnızca dev satırı çalışır; main satırı, değişiklikler main'e geçince çalışır.
-# Yalnızca ne yapacağını görmek için (hiçbir şey kurmaz): -KuruCalistir ya da $env:AEC_KURU='1'
+# (TrimStart, dosya başındaki BOM işaretini kaldırır; aksi hâlde iex ilk satırda hata verir.)
+# Pilot dönemi boyunca yalnızca dev satırı çalışır; main satırı, değişiklikler main dalına aktarıldıktan sonra çalışacaktır.
+# Yapılacak işlemleri yalnızca görüntülemek için (hiçbir şey kurulmaz): -KuruCalistir ya da $env:AEC_KURU='1'
 param(
     [ValidateSet('stable', 'dev')]
     [string]$Kanal = 'stable',
@@ -87,14 +87,14 @@ function Set-AecOtomatikGuncelleme {
             $ham = [IO.File]::ReadAllText($Yol, (New-Object Text.UTF8Encoding($false)))
             if ($ham -and $ham.Trim()) {
                 try { $ayar = $ham | ConvertFrom-Json -ErrorAction Stop }
-                catch { return 'Ayar dosyanız (settings.json) okunamadı, bu yüzden dokunulmadı. Dosyayı şampiyona gösterin.' }
+                catch { return 'Ayar dosyası (settings.json) okunamadığından dosyaya dokunulmadı. Dosyayı sistem sorumlusuna iletiniz.' }
                 if ($ayar -isnot [pscustomobject]) {
-                    return 'Ayar dosyanız (settings.json) beklenen biçimde değil, bu yüzden dokunulmadı. Dosyayı şampiyona gösterin.'
+                    return 'Ayar dosyası (settings.json) beklenen biçimde olmadığından dosyaya dokunulmadı. Dosyayı sistem sorumlusuna iletiniz.'
                 }
                 $yedek = $Yol + '.aec-yedek'
                 if (-not (Test-Path -LiteralPath $yedek)) {
                     Copy-Item -LiteralPath $Yol -Destination $yedek
-                    $yedekMetni = ' Eski ayarlar settings.json.aec-yedek olarak saklandı.'
+                    $yedekMetni = ' Önceki ayarlar settings.json.aec-yedek adıyla yedeklendi.'
                 }
             }
         } else {
@@ -138,7 +138,7 @@ function Set-AecOtomatikGuncelleme {
         }
         return ('Otomatik güncelleme açıldı.' + $yedekMetni)
     } catch {
-        return 'Otomatik güncelleme açılamadı. Eklenti yine de çalışır; şampiyona haber verin.'
+        return 'Otomatik güncelleme açılamadı; eklentinin kullanımı bundan etkilenmez. Durumu sistem sorumlusuna bildiriniz.'
     }
 }
 
@@ -150,14 +150,14 @@ if ($Kuru) {
 Write-Output "Kanal: $Kanal  |  Kaynak: $Kaynak"
 
 # --- 1/5 uv ---
-Yaz-Adim 1 'uv aracı kontrol ediliyor (Python işlerini çalıştırır).'
+Yaz-Adim 1 'uv aracı kontrol ediliyor (eklentinin Python betiklerini çalıştırır).'
 if (Komut-Var 'uv') {
     Yaz-Not 'uv zaten kurulu.'
 } elseif ($Kuru) {
     if (Komut-Var 'winget') {
         Yaz-Not '(kuru) uv kurulacak: winget install --id=astral-sh.uv -e'
     } else {
-        Yaz-Not '(kuru) winget yok; uv şu adresten kurulacak: https://astral.sh/uv/install.ps1'
+        Yaz-Not '(kuru) winget bulunamadı; uv şu adresten kurulacak: https://astral.sh/uv/install.ps1'
     }
 } else {
     try {
@@ -171,23 +171,23 @@ if (Komut-Var 'uv') {
         # Yeni kurulan uv bu pencerede bulunsun diye yolu yenile.
         $env:Path = $env:Path + ';' + [Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' + [Environment]::GetEnvironmentVariable('Path', 'User') + ';' + (Join-Path $env:USERPROFILE '.local\bin')
         if (Komut-Var 'uv') { Yaz-Not 'uv kuruldu.' }
-        else { Yaz-Not 'uv kurulamadı. Bu pencereyi kapatıp yeniden deneyin; olmazsa şampiyona haber verin.' }
+        else { Yaz-Not 'uv kurulamadı. Pencereyi kapatıp kurulumu yeniden başlatınız; sorun devam ederse sistem sorumlusuna bildiriniz.' }
     } catch {
-        Yaz-Not 'uv kurulurken bir sorun çıktı. Şampiyona haber verin.'
+        Yaz-Not 'uv kurulumu sırasında hata oluştu. Durumu sistem sorumlusuna bildiriniz.'
     }
 }
 
 # --- 2/5 Python ---
-Yaz-Adim 2 'Python 3.12 hazırlanıyor (ilk kullanımda beklememek için).'
+Yaz-Adim 2 'Python 3.12 hazırlanıyor (ilk kullanımda bekleme yaşanmaması için).'
 if ($Kuru) {
     Yaz-Not '(kuru) çalıştırılacak: uv python install 3.12'
 } elseif (Komut-Var 'uv') {
     try {
         uv python install 3.12
         if ($LASTEXITCODE -eq 0) { Yaz-Not 'Python 3.12 hazır.' }
-        else { Yaz-Not 'Python 3.12 hazırlanamadı. Şampiyona haber verin.' }
+        else { Yaz-Not 'Python 3.12 hazırlanamadı. Durumu sistem sorumlusuna bildiriniz.' }
     } catch {
-        Yaz-Not 'Python 3.12 hazırlanırken bir sorun çıktı. Şampiyona haber verin.'
+        Yaz-Not 'Python 3.12 hazırlanırken hata oluştu. Durumu sistem sorumlusuna bildiriniz.'
     }
 } else {
     Yaz-Not 'uv bulunamadığı için Python adımı atlandı.'
@@ -206,15 +206,15 @@ if (Komut-Var 'claude') {
             $cikti = & claude plugin marketplace add $Kaynak 2>&1 | Out-String
             if ($LASTEXITCODE -eq 0 -or $cikti -match 'already') {
                 $eklendi = $true
-                Yaz-Not 'Eklenti kaynağı eklendi (ya da zaten vardı).'
-            } else { Yaz-Not 'Eklenti kaynağı eklenemedi. Şampiyona haber verin.' }
+                Yaz-Not 'Eklenti kaynağı eklendi (ya da zaten tanımlıydı).'
+            } else { Yaz-Not 'Eklenti kaynağı eklenemedi. Durumu sistem sorumlusuna bildiriniz.' }
             if ($eklendi) {
                 $cikti = & claude plugin install aec@aec-office 2>&1 | Out-String
-                if ($LASTEXITCODE -eq 0 -or $cikti -match 'already') { Yaz-Not 'AEC eklentisi kuruldu (ya da zaten vardı).' }
-                else { Yaz-Not 'AEC eklentisi kurulamadı. Şampiyona haber verin.' }
+                if ($LASTEXITCODE -eq 0 -or $cikti -match 'already') { Yaz-Not 'AEC eklentisi kuruldu (ya da zaten kuruluydu).' }
+                else { Yaz-Not 'AEC eklentisi kurulamadı. Durumu sistem sorumlusuna bildiriniz.' }
             }
         } catch {
-            Yaz-Not 'Eklenti kurulurken bir sorun çıktı. Şampiyona haber verin.'
+            Yaz-Not 'Eklenti kurulurken hata oluştu. Durumu sistem sorumlusuna bildiriniz.'
         }
 
         # Otomatik güncelleme için CLI bayrağı yok; ayar dosyasına yalnızca tek kayıt yazılır.
@@ -225,19 +225,19 @@ if (Komut-Var 'claude') {
         }
     }
 
-    Yaz-Adim 4 'Claude Code bulundu; bu adım gerekmiyor.'
+    Yaz-Adim 4 'Claude Code bulundu; bu adıma gerek yoktur.'
 } else {
-    Yaz-Adim 3 'Claude Code (terminal) bulunamadı; eklenti burada kurulmayacak.'
-    Yaz-Adim 4 "Cowork kullanıyorsanız BASLA.md'deki ekran adımlarına geçin."
+    Yaz-Adim 3 'Claude Code (terminal) bulunamadı; eklenti bu betikle kurulmayacak.'
+    Yaz-Adim 4 "Cowork kullanılıyorsa kurulum BASLA.md'deki Cowork adımlarıyla tamamlanır."
 }
 
 # --- 5/5 Revit ---
-Yaz-Adim 5 'Revit tarafı kontrol ediliyor (yalnızca bilgi verilir, bir şey kurulmaz).'
+Yaz-Adim 5 'Revit bileşenleri kontrol ediliyor (yalnızca bilgi verilir; kurulum yapılmaz).'
 if (Komut-Var 'pyrevit') { Yaz-Not 'pyRevit bulundu.' } else { Yaz-Not 'pyRevit bulunamadı.' }
 $uzanti = Join-Path $env:APPDATA 'pyRevit\Extensions\mcp-server-for-revit-python.extension'
-if (Test-Path -LiteralPath $uzanti) { Yaz-Not 'Revit bağlantı eklentisi bulundu.' } else { Yaz-Not 'Revit bağlantı eklentisi bulunamadı (sonraki sürümde kurulacak).' }
+if (Test-Path -LiteralPath $uzanti) { Yaz-Not 'Revit bağlantı eklentisi bulundu.' } else { Yaz-Not 'Revit bağlantı eklentisi bulunamadı (kurulumu sonraki bir sürümde eklenecektir).' }
 
 Write-Output ''
-if ($Kuru) { Write-Output '(kuru) Deneme bitti. Hiçbir şey değiştirilmedi.' }
-Write-Output "Claude'u yeniden açın ve /aec:kontrol-et yazın."
-if (-not $Kuru) { Read-Host 'Kapatmak için Enter''a basın' }
+if ($Kuru) { Write-Output '(kuru) Deneme çalıştırması tamamlandı. Hiçbir değişiklik yapılmadı.' }
+Write-Output "Claude'u yeniden başlatıp /aec:kontrol-et komutunu çalıştırınız."
+if (-not $Kuru) { Read-Host 'Pencereyi kapatmak için Enter tuşuna basınız' }

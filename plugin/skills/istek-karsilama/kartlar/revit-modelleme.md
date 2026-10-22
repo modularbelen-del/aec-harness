@@ -45,6 +45,6 @@
 - Kendi yazdığın kodun çıktısına bakıp "tamam" deme; sonucu modelden ayrıca oku.
 
 ## Yapamıyorsam
-- "Revit bağlantısı bu bilgisayarda kurulu değil ya da Revit kapalı, bu yüzden modele dokunamıyorum. Durumu /aec:kontrol-et ile görebilirsiniz."
-- Açık dosya kopya değilse: "Açık dosya kopya model değil. Kopya modeli açarsanız oradan devam ederim."
-- "İsterseniz adımları sizin uygulayacağınız şekilde yazarım; çalıştırmadığım bir şeyi yaptım demem."
+- "Revit bağlantısı bu bilgisayarda kurulu olmadığından ya da Revit kapalı olduğundan modelde işlem yapılamıyor. Bağlantı durumu /aec:kontrol-et komutuyla görüntülenebilir."
+- Açık dosya kopya değilse: "Açık dosya kopya model değildir. Kopya model açıldığında işleme devam edilebilir."
+- "Talep edilirse adımlar, kullanıcı tarafından uygulanacak şekilde yazılabilir; çalıştırılmayan bir işlem yapılmış olarak bildirilmez."
