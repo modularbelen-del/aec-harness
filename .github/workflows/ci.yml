@@ -2,7 +2,7 @@ name: ci
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
   pull_request:
 
 jobs:
@@ -13,3 +13,12 @@ jobs:
       - uses: astral-sh/setup-uv@v5
       - run: uv sync --project plugin --locked
       - run: uv run --project plugin pytest -q
+      - name: Claude Code CLI kur
+        shell: pwsh
+        run: |
+          irm https://claude.ai/install.ps1 | iex
+          "$env:USERPROFILE\.local\bin" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+      - name: Marketplace manifesti doğrula
+        run: claude plugin validate .
+      - name: Plugin manifesti doğrula
+        run: claude plugin validate plugin

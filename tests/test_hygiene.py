@@ -8,6 +8,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 SCAN_DIRS = ("plugin", "tests", "tools", ".claude-plugin")
 TEXT_SUFFIXES = {".py", ".json", ".md", ".ps1", ".toml", ".yml", ".yaml", ".ini", ".txt"}
 SKIP_PARTS = {".venv", "__pycache__", ".pytest_cache"}
+SKIP_PREFIX = ("plugin", "evals", "results")
 # Written so that this pattern's own text does not match it.
 USER_PATH = re.compile(r"[A-Za-z]:[\\/]+Users[\\/]|/[a-zA-Z]/Users/")
 
@@ -18,7 +19,12 @@ def _files(suffixes):
         if not base.is_dir():
             continue
         for path in base.rglob("*"):
-            if path.is_file() and path.suffix.lower() in suffixes and not SKIP_PARTS & set(path.parts):
+            if (
+                path.is_file()
+                and path.suffix.lower() in suffixes
+                and not SKIP_PARTS & set(path.parts)
+                and path.relative_to(ROOT).parts[:3] != SKIP_PREFIX
+            ):
                 yield path
 
 

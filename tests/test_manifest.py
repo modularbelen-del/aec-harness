@@ -34,3 +34,24 @@ def test_owner_and_author_are_the_office():
     assert _load(".claude-plugin/marketplace.json")["owner"]["name"] == "BelenPartners"
     assert _load("plugin/.claude-plugin/plugin.json")["author"]["name"] == "BelenPartners"
     assert "<ofis>" not in (ROOT / "README.md").read_text(encoding="utf-8")
+
+
+def test_no_bin_dir_in_plugin():
+    assert not (ROOT / "plugin" / "bin").exists()
+
+
+def test_user_config_options_have_defaults():
+    cfg = _load("plugin/.claude-plugin/plugin.json").get("userConfig", {})
+    assert all("default" in opt for opt in cfg.values())
+
+
+def test_ci_runs_on_main_and_dev():
+    text = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+    assert "branches: [main, dev]" in text
+    assert "claude plugin validate" in text
+
+
+def test_descriptions_are_honest():
+    for d in (_load(".claude-plugin/marketplace.json")["description"],
+              _load("plugin/.claude-plugin/plugin.json")["description"]):
+        assert "Grasshopper" not in d and "doğrular" not in d and "ön kapı" in d

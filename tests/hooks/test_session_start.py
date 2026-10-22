@@ -74,8 +74,9 @@ def test_under_4kb(tmp_path):
     room = max(20, min(150, 240 - len(str(tmp_path)) - len("\\.aec")))
     deep = tmp_path / ("Çakışma" * 22)[:room]
     (deep / ".aec").mkdir(parents=True)
-    out = _hook().build_output(str(deep))
+    out = _hook().build_output(str(deep), acik={"Revit", "AutoCAD", "Rhino"})
     assert PROJECT_MARK in _ctx(out)
+    assert "Açık programlar" in _ctx(out)
     assert len(out.encode("utf-8")) <= 4096
 
 
@@ -93,3 +94,24 @@ def test_stdin_cwd_used_without_env(tmp_path):
     result = _run(None, json.dumps({"cwd": str(project)}).encode("utf-8"))
     assert result.returncode == 0, result.stderr
     assert str(project) in _ctx(result.stdout.decode("utf-8"))
+
+
+def test_authority_has_ask_little_rule():
+    ctx = _ctx(_hook().build_output("x"))
+    assert "Az sor, çok göster" in ctx and "en fazla 3 soru" in ctx
+
+
+def test_role_mcp_is_conditional():
+    ctx = _ctx(_hook().build_output("x"))
+    assert "araç listende" in ctx and "/aec:kontrol-et" in ctx
+
+
+def test_status_line_after_authority_and_under_4kb(tmp_path):
+    ctx = _ctx(_hook().build_output(str(tmp_path), acik={"Revit", "AutoCAD", "Rhino"}))
+    assert ctx.index("Yetki sırası") < ctx.index("Açık programlar")
+
+
+def test_authority_selects_document_by_path():
+    text = AUTH.read_text(encoding="utf-8")
+    assert "başlığıyla" not in text
+    assert "dosya yolunu" in text and "kopya yolu" in text and "başlık yetmez" in text

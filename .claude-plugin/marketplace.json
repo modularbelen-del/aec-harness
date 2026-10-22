@@ -1,12 +1,12 @@
 {
   "name": "aec-office",
   "owner": { "name": "BelenPartners" },
-  "description": "Mimarlık ofisi için Claude Code araçları: DWG okuma, Revit, AutoCAD ve Grasshopper ile ölç, uygula, doğrula.",
+  "description": "Mimarlık ofisi için Claude eklentisi: isteği tanıyan ön kapı, ofis kuralları, kontrol ve proje başlatma komutları. Revit, AutoCAD ve Rhino bağlantıları adım adım geliyor.",
   "plugins": [
     {
       "name": "aec",
       "source": "./plugin",
-      "description": "Çizimi araçla ölçer, Revit'e planla uygular, Revit'ten geri okuyup toleransla doğrular."
+      "description": "Mimarlık ofisi için Claude eklentisi: isteği tanıyan ön kapı, ofis kuralları, kontrol ve proje başlatma komutları. Revit, AutoCAD ve Rhino bağlantıları adım adım geliyor."
     }
   ]
 }
