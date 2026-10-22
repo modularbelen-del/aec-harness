@@ -88,7 +88,7 @@ Koşu komutu (yalnızca bu vakalar, bir koşu, `--max-cost-usd 3`):
 claude plugin eval plugin --trust-plugin --allow-tools Write Edit --case "akis-*" --runs 1 --ablation none --threshold 0.8 --no-publish --max-cost-usd 3 --json plugin/evals/results/akis.json
 ```
 
-`Bash` yetkisi verilmemiştir: Windows'ta kabuk aracı kısıtlanamadığından eval aracı koşuyu reddetmektedir (ilk deneme bu nedenle ajan çalışmadan sona ermiştir). Bu yüzden `is_kaydi.py` ölçütleri bu ortamda yalnızca Bash verilebilen bir makinede anlamlıdır.
+`Bash` yetkisi verilmemiştir: Windows'ta kabuk aracı kısıtlanamadığından eval aracı koşuyu reddetmektedir (ilk deneme bu nedenle ajan çalışmadan sona ermiştir). Bilinen eksik: eval aracı Windows'ta Bash'i reddettiği sürece `is_kaydi.py (onay|kabul)` ölçütleri (`is-kaydi-onay-yok`) başarısız olamaz; ajan bu komutu hiç çalıştıramaz. Bu ölçütler yalnızca Bash'in kısıtlanabildiği bir makinede anlamlıdır.
 
 | vaka | skor (1 koşu) |
 |---|---|
@@ -100,4 +100,4 @@ claude plugin eval plugin --trust-plugin --allow-tools Write Edit --case "akis-*
 
 ## Eski vakaların durumu
 
-`revit-modelleme`, `dwg-cizim`, `rhino-revit`, `tavan` ve `ascii-revit` vakalarının `davranis` ölçütleri yeni akışa göre güncellenmiştir (karmaşık sınıf gerekçesi, soru sınırı olmaksızın görüşme, onayın varsayılmaması). `dwg-okuma`, `metraj-liste`, `render` ve `belirsiz` vakalarında yalnızca "plan ve onay istiyor" maddesi, onayın ancak kaydedilmiş plandan sonra istenmesi kuralına uyarlanmıştır. Bu vakalar yeniden koşulmamıştır; yukarıdaki "Son sonuç" tablosundaki skorlar önceki akışa aittir.
+`revit-modelleme`, `dwg-cizim`, `rhino-revit`, `tavan`, `ascii-revit` ve `dwg-okuma` (istek Revit'e aktarmayı içerdiğinden karmaşık sınıftadır) vakalarının `davranis` ölçütleri yeni akışa göre güncellenmiştir (karmaşık sınıf gerekçesi, soru sınırı olmaksızın görüşme, onayın varsayılmaması). `metraj-liste`, `render` ve `belirsiz` vakalarında yalnızca "plan ve onay istiyor" maddesi, onayın ancak kaydedilmiş plandan sonra istenmesi kuralına uyarlanmıştır. Bu vakalar yeniden koşulmamıştır; yukarıdaki "Son sonuç" tablosundaki skorlar önceki akışa aittir.
