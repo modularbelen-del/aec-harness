@@ -29,6 +29,11 @@ def oturum_temiz(oturum: str) -> str:
     return _GECERSIZ.sub("", str(oturum or ""))[:64]
 
 
+def calisti_yolu(state_dir: pathlib.Path, oturum: str) -> pathlib.Path:
+    """Per-session heartbeat file: UserPromptSubmit writes it, the PreToolUse Revit lock reads it."""
+    return pathlib.Path(state_dir) / f"calisti-{oturum_temiz(oturum) or 'bilinmeyen'}"
+
+
 def _isaret_yolu(state_dir: pathlib.Path, oturum: str, is_id: str) -> "pathlib.Path | None":
     sid, kimlik = oturum_temiz(oturum), _GECERSIZ.sub("", str(is_id or ""))
     return pathlib.Path(state_dir) / f"dogrulama-{sid}-{kimlik}" if sid and kimlik else None

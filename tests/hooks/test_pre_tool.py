@@ -1,5 +1,12 @@
 import io
 import json
+import os
+import pathlib
+import shutil
+import subprocess
+import sys
+
+import pytest
 
 import is_durumu
 import is_kaydi
@@ -8,6 +15,7 @@ import user_prompt
 
 REVIT = "mcp__revit__execute_revit_code"
 SID = "s1"
+PLUGIN = pathlib.Path(__file__).resolve().parents[2] / "plugin"
 
 
 def _girdi(tool, tool_input=None, sid=SID):
@@ -196,3 +204,68 @@ def test_cli_applied_unlocks_verifier_for_job(tmp_path, capsys):
     assert "✗" not in capsys.readouterr().out
     assert is_durumu.is_yukle(tmp_path, kayit["id"])["durum"] == "uygulandi"
     assert pre_tool.karar(g, tmp_path, sd) is None
+
+
+def _bozuk_eklenti(tmp_path, modul):
+    """Copy of the plugin's hooks and scripts with one module replaced by code that fails on import."""
+    kok = tmp_path / "eklenti"
+    for klasor in ("hooks", "scripts"):
+        shutil.copytree(PLUGIN / klasor, kok / klasor, ignore=shutil.ignore_patterns("__pycache__"))
+    hedef = next(p for p in (kok / "hooks" / f"{modul}.py", kok / "scripts" / f"{modul}.py") if p.is_file())
+    hedef.write_text("raise ImportError('bozuk modül')\n", encoding="utf-8")
+    return kok / "hooks" / "pre_tool.py"
+
+
+def _calistir(betik, girdi, tmp_path):
+    env = {k: v for k, v in os.environ.items() if k not in ("PYTHONIOENCODING", "PYTHONUTF8")}
+    env.update(CLAUDE_PROJECT_DIR=str(tmp_path), CLAUDE_PLUGIN_DATA=str(tmp_path / "pd"))
+    return subprocess.run([sys.executable, "-B", str(betik)], input=json.dumps(girdi).encode("utf-8"),
+                          capture_output=True, env=env)
+
+
+@pytest.mark.parametrize("modul", ["yol", "is_durumu", "proje_baslat"])
+def test_broken_sibling_module_fails_closed_for_revit_only(tmp_path, modul):
+    betik = _bozuk_eklenti(tmp_path, modul)
+    sonuc = _calistir(betik, _girdi(REVIT), tmp_path)
+    assert sonuc.returncode == 0, sonuc.stderr
+    karar, neden = _karar(json.loads(sonuc.stdout.decode("utf-8")))
+    assert karar == "deny" and neden == pre_tool.NEDEN_BILESEN
+    assert neden == ("Eklenti bileşeni yüklenemedi; Revit'e yazma güvenlik için durduruldu. "
+                     "/aec:kontrol-et çalıştırınız.")
+    sonuc = _calistir(betik, _girdi("Read", {"file_path": "x"}), tmp_path)
+    assert sonuc.returncode == 0 and sonuc.stdout == b""
+
+
+@pytest.mark.parametrize("modul", ["user_prompt", "onay", "onkapi"])
+def test_prompt_hook_modules_are_not_imported(tmp_path, modul):
+    betik = _bozuk_eklenti(tmp_path, modul)
+    sonuc = _calistir(betik, _girdi(REVIT), tmp_path)
+    assert sonuc.returncode == 0, sonuc.stderr
+    karar, neden = _karar(json.loads(sonuc.stdout.decode("utf-8")))
+    assert (karar, neden) == ("ask", pre_tool.NEDEN_YUMUSAK)  # the real decision: no heartbeat in this session
+
+
+def test_close_document_allowed_after_acceptance(tmp_path):
+    sd = tmp_path / "sd"
+    _kalp(sd)
+    kayit = _is(tmp_path, "kabul-bekliyor")
+    g = _girdi("mcp__revit__close_document")
+    assert _karar(pre_tool.karar(g, tmp_path, sd))[0] == "deny"
+    kayit["durum"] = "kabul-edildi"
+    is_durumu.is_kaydet(tmp_path, kayit)
+    assert pre_tool.karar(g, tmp_path, sd) is None
+    for arac in (REVIT, "mcp__revit__place_family"):
+        assert _karar(pre_tool.karar(_girdi(arac), tmp_path, sd))[0] == "deny", arac
+    assert pre_tool.karar(_girdi("mcp__revit__close_document", {"save": True}), tmp_path, sd) is None
+
+
+def test_close_with_save_waits_for_acceptance(tmp_path):
+    sd = tmp_path / "sd"
+    _kalp(sd)
+    kayit = _is(tmp_path, "plan-onaylandi")
+    for durum in ("plan-onaylandi", "uygulandi"):
+        kayit["durum"] = durum
+        is_durumu.is_kaydet(tmp_path, kayit)
+        assert pre_tool.karar(_girdi("mcp__revit__close_document", {"save": False}), tmp_path, sd) is None
+        karar, neden = _karar(pre_tool.karar(_girdi("mcp__revit__close_document", {"save": True}), tmp_path, sd))
+        assert karar == "deny" and neden == pre_tool.NEDEN_KAYDETME, durum

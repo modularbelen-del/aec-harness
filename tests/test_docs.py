@@ -157,3 +157,11 @@ def test_sorun_giderme_quotes_real_lock_messages():
     assert "Bu mesaj onay olarak kaydedilmedi" in text
     assert pre_tool.NEDEN_IS_YOK.split(". ")[0] in text
     assert '"evet"' in text
+    # an unreadable job record goes to the office's system contact, as the page says; kontrol-et cannot repair it
+    okunamadi = _sections(text)["Revit'e yazma reddedildi ya da onay kaydedilmedi"]
+    okunamadi = okunamadi[okunamadi.index('**"İş kaydı okunamadı":**'):].split("\n- ")[0]
+    assert "kontrol-et" not in pre_tool.NEDEN_OKUNAMADI and "kontrol-et" not in okunamadi
+    for parca in ("İş kaydı okunamadı", "elle düzenlen", "sistem sorumlusuna iletil"):
+        assert parca in pre_tool.NEDEN_OKUNAMADI and parca in okunamadi, parca
+    # a plugin file that failed to load is an installation problem: kontrol-et applies there
+    assert pre_tool.NEDEN_BILESEN.split(";")[0] in text and "/aec:kontrol-et" in pre_tool.NEDEN_BILESEN

@@ -24,17 +24,11 @@ def varsayilan_durum_klasoru() -> pathlib.Path:
     return yol.durum_klasoru()
 
 
-def calisti_yolu(state_dir: pathlib.Path, oturum: str) -> pathlib.Path:
-    """Path of the per-session heartbeat file (shared with the PreToolUse lock)."""
-    temiz = yol.oturum_temiz(oturum) or "bilinmeyen"
-    return pathlib.Path(state_dir) / f"calisti-{temiz}"
-
-
 def calisti_isareti(state_dir: pathlib.Path, oturum: str) -> None:
     """Marks that this hook ran in the session (the Revit lock relies on it); never raises."""
     try:
         pathlib.Path(state_dir).mkdir(parents=True, exist_ok=True)
-        calisti_yolu(state_dir, oturum).touch()
+        yol.calisti_yolu(state_dir, oturum).touch()
     except Exception:
         pass
 
