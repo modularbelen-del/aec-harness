@@ -56,3 +56,23 @@ def test_subprocess_turkish_prompt(tmp_path):
     assert result.returncode == 0, result.stderr
     out = json.loads(result.stdout.decode("utf-8"))
     assert "Metraj/liste" in out["hookSpecificOutput"]["additionalContext"]
+
+
+def test_heartbeat_written(tmp_path):
+    user_prompt.build_output(_msg("merhaba", "sid-1"), tmp_path)
+    assert (tmp_path / "calisti-sid-1").exists()
+
+
+def test_approval_context_returned(tmp_path):
+    import is_durumu
+    proje = tmp_path / "proje"
+    proje.mkdir()
+    kayit = is_durumu.yeni_is(proje, "revit-modelleme", "Kapı", False)
+    kayit["durum"] = "onay-bekliyor:plan"
+    is_durumu.is_kaydet(proje, kayit)
+    is_durumu.aktif_bagla(proje, "sid-2", kayit["id"])
+    stdin = json.dumps({"prompt": "evet", "session_id": "sid-2", "cwd": str(proje)})
+    out = user_prompt.build_output(stdin, tmp_path / "durum")
+    assert "Onayınız kaydedildi" in json.loads(out)["hookSpecificOutput"]["additionalContext"]
+    assert len(out.encode("utf-8")) <= 1024
+    assert is_durumu.aktif_is(proje, "sid-2")["durum"] == "plan-onaylandi"
