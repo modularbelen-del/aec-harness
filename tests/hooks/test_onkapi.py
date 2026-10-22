@@ -20,6 +20,8 @@ def test_suffix_tolerance():
 def test_everyday_words_do_not_route():
     assert onkapi.match("yarın toplantıdan önce bana kısa bir özet al", CARDS) == []
     assert "revit-modelleme" not in onkapi.match("katmanları düzelt", CARDS)
+    assert onkapi.match("bana detaylı anlat", CARDS) == []
+    assert "metraj-liste" not in onkapi.match("klasördeki dosyaları listele", CARDS)
 
 
 def test_rhino_to_revit():
@@ -42,3 +44,16 @@ def test_same_card_once_per_session(tmp_path):
     assert onkapi.unseen("s1", ["tavan"], tmp_path) == ["tavan"]
     assert onkapi.unseen("s1", ["tavan", "render"], tmp_path) == ["render"]
     assert onkapi.unseen("s2", ["tavan"], tmp_path) == ["tavan"]
+
+
+def test_revit_draw_is_not_autocad():
+    assert onkapi.match("Revit'te 2. kata duvar çiz", CARDS) == ["revit-modelleme"]
+
+
+def test_autocad_draw_routes():
+    assert "dwg-cizim" in onkapi.match("AutoCAD'de yeni bir detay çiz", CARDS)
+    assert "dwg-cizim" in onkapi.match("bu DWG'ye kesit detayını çiz", CARDS)
+
+
+def test_rhino_transfer_with_aktar():
+    assert "rhino-revit" in onkapi.match("Rhino'daki cepheyi Revit'e aktar", CARDS)
