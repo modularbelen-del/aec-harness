@@ -1,6 +1,6 @@
 ---
 name: istek-karsilama
-description: Her Revit, AutoCAD/DWG/DXF, Rhino, metraj, tavan ya da render isteğinde işe başlamadan ÖNCE kullan. Kullanıcı kendi sözleriyle Revit'te duvar, kapı, kolon, aile ya da seviye işi, DWG'den ölçü okuma ya da Revit'e aktarma, AutoCAD'de çizim, detay çizme ya da DXF üretme, Rhino'dan Revit'e geçirme, metraj, alan hesabı, mahal ya da kapı/pencere listesi, Excel tablosu, asma tavan (baffle, bandraster, open cell, menfez) ya da render/görsel istediğinde doğru iş kartını yükler. Eksik bilgiyi proje MD'sinden doldurur, en fazla 3 soru sorar, planı VARSAYIM'larla gösterir, onay alır, uyguladıktan sonra geri okur.
+description: Her Revit, AutoCAD/DWG/DXF, Rhino, metraj, tavan ya da render isteğinde işe başlamadan ÖNCE kullan. Kullanıcı kendi sözleriyle Revit'te duvar, kapı, kolon, aile ya da seviye işi, DWG'den ölçü okuma ya da Revit'e aktarma, AutoCAD'de çizim, detay çizme ya da DXF üretme, Rhino'dan Revit'e geçirme, metraj, alan hesabı, mahal ya da kapı/pencere listesi, Excel tablosu, asma tavan (baffle, bandraster, open cell, menfez) ya da render/görsel istediğinde doğru iş kartını yükler. Hangi iş olduğu belli olmayan kısa ofis isteklerinde ("şu planı düzelt") de kullan. Eksik bilgiyi proje MD'sinden doldurur, en fazla 3 soru sorar, planı VARSAYIM'larla gösterir, onay alır, uyguladıktan sonra geri okur.
 ---
 
 # İstek karşılama (ön kapı)
@@ -24,6 +24,10 @@ Ofisin döngüsü: ölç (görselden tahmin etme) → planla → onay al → kop
 
 İstek iki işe giriyorsa iki kartı da oku. Hiçbirine uymuyorsa bu skill'i bırak, normal çalış.
 
+İş türü belli değilse ama işin ofis çalışması olduğu belliyse (ör. "şu planı düzelt", "şunu hazırla": hangi dosya,
+hangi program, neyin düzeltileceği yok) skill'i bırakma. Kart seçme; dosyayı, programı ve neyin düzeltileceğini
+en fazla 3 soruyla sor, ardından 4. adımdaki gibi taslak plan ve onay sorusuyla bitir.
+
 ## Prosedür
 
 1. **Kartı seç.** Bağlamda `[aec ön kapı]` kartı varsa onun söylediği kartı kullan. Yoksa isteği yukarıdaki
@@ -36,6 +40,8 @@ Ofisin döngüsü: ölç (görselden tahmin etme) → planla → onay al → kop
 4. **Eksiği doldur.** Kartın "Kritik gerekenler" listesini önce proje MD'sinden, sonra açık model ya da çizimden
    araçla okuyarak doldur. Kalanlar için en fazla 3 soru sor; bütün soruları tek mesajda numaralı liste hâlinde
    sor, mümkünse seçenek ver. Sormadığın her şeyi planda VARSAYIM diye yaz.
+   Soruların altına planı VARSAYIM'larıyla taslak olarak da ekle ve mesajı açık bir onay sorusuyla bitir
+   ("Bu varsayımlarla ilerleyeyim mi?"). Soruya cevap beklemek, onay istemeyi ortadan kaldırmaz.
 5. **Planı yaz, onay iste.** Planda adımlar, hangi kopya dosyada çalışılacağı ve VARSAYIM'lar olur. Kartın
    "Plan şablonu"nu kullan. Onay gelmeden hiçbir yazma aracını çağırma: dosya yazma, Revit'e yerleştirme,
    modeli değiştiren kod çalıştırma dahil. Okuma araçları serbest.

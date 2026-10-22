@@ -8,3 +8,4 @@
 - `kur.ps1` ve `kur.cmd` ile tek adımda kurulum geldi. İki kanal var: `main` (herkes) ve `dev` (şampiyonlar).
 - Kurulum ayar dosyasının yedeğini alır (`settings.json.aec-yedek`).
 - Türkçe dokümanlar eklendi: başlangıç, örnek istekler, güvenlik, sorun giderme, sözlük.
+- Ön kapı iyileştirildi: sorular sorulduktan sonra da taslak plan ve açık onay sorusu gelir; "şu planı düzelt" gibi iş türü belli olmayan kısa isteklerde de ön kapı devreye girer.

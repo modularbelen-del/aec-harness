@@ -7,7 +7,7 @@ import re
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SCAN_DIRS = ("plugin", "tests", "tools", ".claude-plugin")
 TEXT_SUFFIXES = {".py", ".json", ".md", ".ps1", ".toml", ".yml", ".yaml", ".ini", ".txt"}
-SKIP_PARTS = {".venv", "__pycache__", ".pytest_cache"}
+SKIP_PARTS = {".venv", "__pycache__", ".pytest_cache", "results"}
 # Written so that this pattern's own text does not match it.
 USER_PATH = re.compile(r"[A-Za-z]:[\\/]+Users[\\/]|/[a-zA-Z]/Users/")
 
