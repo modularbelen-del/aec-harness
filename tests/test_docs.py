@@ -105,3 +105,55 @@ def test_hook_error_not_blamed_on_uv():
     sec = _sections(_doc("SORUN-GIDERME"))['"hook error"']
     assert "uv` yoktur" not in sec
     assert "yeniden" in sec and "sorumlu" in sec
+
+
+def _readme_section(baslik):
+    return _sections((ROOT / "README.md").read_text(encoding="utf-8")).get(baslik, "")
+
+
+def test_readme_has_workflow_section():
+    sec = _readme_section("İş akışı")
+    assert sec, "README'de '## İş akışı' bölümü yok"
+    for s in ("aec:dogrulayici", '"evet"', '"hayır"', "sync_with_central", "save_document",
+              ".aec/isler", ".aec/gunluk.md", "kazara", "kasıtlı", "DOĞRULANAMADI", "Faz 1C"):
+        assert s in sec, s
+
+
+def test_guvenlik_describes_lock_honestly():
+    guv = _doc("GUVENLIK")
+    for s in ("kazara", "kasıtlı", "sync_with_central", "save_document", "Cowork"):
+        assert s in guv, s
+    assert "Kaydetme ve merkez modelle eşitleme (sync) tüm ekibi etkilediğinden" not in guv  # save is allowed after acceptance
+
+
+def test_third_party_notices():
+    text = (ROOT / "THIRD_PARTY_NOTICES.md").read_text(encoding="utf-8")
+    for s in ("github/spec-kit", "obra/superpowers", "MIT", "Copyright GitHub, Inc.",
+              "Copyright (c) 2025 Jesse Vincent"):
+        assert s in text, s
+    # the MIT body is the same as the repo's own LICENSE below its copyright line; both copies must be verbatim
+    govde = "\n".join((ROOT / "LICENSE").read_text(encoding="utf-8").splitlines()[3:])
+    assert text.count(govde) == 2
+    for yol in [ROOT / "plugin/skills/istek-karsilama/gorusme.md",
+                *(ROOT / "plugin/skills/istek-karsilama/sablonlar").glob("*.md")]:
+        kaynak = re.search(r"^Uyarlanmıştır: ([\w.-]+/[\w.-]+),", yol.read_text(encoding="utf-8"), re.M)
+        assert kaynak, yol.name
+        assert kaynak.group(1) in text and yol.name in text, yol.name
+
+
+def test_changelog_mentions_workflow():
+    text = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    sec = _sections(text).get("Yayınlanmamış (dev)", "")
+    for s in ("kontrolcü", "aec:dogrulayici", "THIRD_PARTY_NOTICES.md"):
+        assert s in sec, s
+
+
+def test_sorun_giderme_quotes_real_lock_messages():
+    import onay
+    import pre_tool
+
+    text = _doc("SORUN-GIDERME")
+    assert "Bu mesaj onay olarak kaydedilmedi" in onay.BELIRSIZ_METNI
+    assert "Bu mesaj onay olarak kaydedilmedi" in text
+    assert pre_tool.NEDEN_IS_YOK.split(". ")[0] in text
+    assert '"evet"' in text

@@ -52,6 +52,15 @@ Eklenti hiç yanıt vermiyorsa şu noktalar kontrol edilir:
 
 `/plugin` komutu çalıştırılarak Marketplaces > aec-office > Enable auto-update yolu izlenir.
 
+## Revit'e yazma reddedildi ya da onay kaydedilmedi
+
+Eklenti onay kaydını ve Revit'e yazmayı kodla denetler. Aşağıdaki bildirimler bu denetimden gelir; bir arıza değildir.
+
+- **"Bu mesaj onay olarak kaydedilmedi":** Onay sorusuna verilen yanıt soru işareti, şart ya da ek bir açıklama içerdiği için onay sayılmamıştır (ör. "evet ama önce kapıyı 90 yap", "olur mu?"). Varsa soru ya da değişiklik isteği ayrı bir mesajla yazılır. Belge yeniden sunulduğunda yanıt olarak yalnızca "evet" yazılır.
+- **"Revit'e yazma işlemi için onaylanmış bir iş kaydı bulunmamaktadır":** Bu oturumda açılmış ve planı onaylanmış bir iş yoktur. Plan henüz onaylanmamışsa ya da onay kaydedilmemişse ajandan planı yeniden onaya sunması istenir ve yanıt olarak yalnızca "evet" yazılır. İş önceki bir oturumda açılmışsa yeni bir iş açılır. İş kontrol ya da kabul aşamasındaysa yeni yazma yapılmaz; değişiklik gerekiyorsa kabul sorusuna "hayır" yazılır ve gerekçe belirtilir.
+- **Kaydetme ya da eşitleme reddedildi:** Model, kontrol raporu incelenip iş kabul edildikten sonra kaydedilebilir. Merkez modelle eşitleme aracı eklenti tarafından her zaman reddedilir; eşitleme Revit'te kullanıcı tarafından yapılır.
+- **"İş kaydı okunamadı":** İşin kayıt dosyası (`.aec/isler/` altında) okunamadığı için yazma güvenlik nedeniyle durdurulmuştur. Kayıt dosyası elle düzenlenmez; durum ofisteki sistem sorumlusuna iletilir.
+
 ## Sorun devam ediyorsa
 
 Ekrandaki hata metni kopyalanır ve yazılan istek eklenir. Metinde müşteri bilgisi varsa çıkarılır. Hazırlanan metin ofisteki sistem sorumlusuna iletilir.

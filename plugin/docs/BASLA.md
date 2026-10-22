@@ -67,6 +67,23 @@ Kurulumun ardından aşağıdaki üç komutun sırasıyla çalıştırılması �
 
 Proje dosyalarıyla çalışmaya başlamadan önce [Güvenlik İlkeleri](GUVENLIK.md) sayfasının okunması gerekir.
 
+## İlk işte beklenecekler
+
+Eklenti her işi aynı adımlarla yürütür. İlk istekte aşağıdaki sıra izlenir; adımların örnekleri [Örnek İstekler](ORNEK-ISTEKLER.md) sayfasında yer almaktadır.
+
+1. **İşin sınıfı bildirilir.** Revit, Rhino ya da AutoCAD'de çizim veya model oluşturan ya da değiştiren her iş karmaşık iş olarak yürütülür; diğer işler basit iştir. Sınıf size sorulmaz; ajan gerekçesiyle bildirir.
+2. **Görüşme yapılır.** Basit işte en fazla 3 soru tek mesajda sorulur. Karmaşık işte görüşme konu konu ilerler; her bölümün sonunda bir özet sunulur ve teyidiniz istenir. Görüşmede kabul ölçütleri de belirlenir: iş bittiğinde neyin, hangi yöntemle kontrol edileceği.
+3. **İş kaydı açılır.** Proje klasöründe `.aec/isler/` altında işe ait bir klasör oluşturulur. Claude kullanıcı klasöründe ya da sürücü kökünde açılmışsa iş kaydı açılmaz; bu nedenle Claude'un projenin klasöründe başlatılması gerekir.
+4. **Belgeler onayınıza sunulur.** Basit işte yalnızca plan, karmaşık işte sırasıyla tarif, plan ve görevler gösterilir; her belge ayrı onaylanır. Mesaj "Onaylıyorsanız yalnızca 'evet', reddediyorsanız yalnızca 'hayır' yazınız." cümlesiyle biter. Yanıt olarak yalnızca "evet" ya da "hayır" yazılır. Değişiklik isteği ya da soru ayrı bir mesajla yazılır; belge düzeltilerek yeniden onaya sunulur.
+5. **Uygulama onaydan sonra başlar.** Revit'e yazma, onay kaydedilmeden reddedilir. Çalışma sırasında izin ekranı görüntülenirse [Güvenlik İlkeleri](GUVENLIK.md) sayfasındaki adımlar izlenir.
+6. **Bağımsız kontrol yapılır.** Uygulamadan sonra ayrı bir kontrolcü, kabul ölçütlerini tek tek denetler ve sonucu tablo hâlinde sunar: GEÇTİ, KALDI ya da DOĞRULANAMADI. DOĞRULANAMADI olarak işaretlenen ölçütlerin sizin tarafınızdan kontrol edilmesi gerekir; Revit'teki konum ve ölçü ölçütleri bugün çoğunlukla bu durumdadır.
+7. **Kabul kararı sizindir.** Kabul için yalnızca "evet", ret için yalnızca "hayır" yazılır. Ret durumunda gerekçeniz sorulur ve plan düzeltilerek yeniden onaya sunulur. Karar `.aec/gunluk.md` dosyasına kaydedilir.
+8. **Kaydetme ve eşitleme.** Model, iş kabul edildikten sonra ve yalnızca istemeniz hâlinde kaydedilir. Merkez modelle eşitlemeyi siz yaparsınız.
+
+Yarım kalan bir iş yeni bir oturumda kaldığı yerden sürdürülmez. Devam etmek istediğinizde ajan eski işi size bildirerek kapatır ve yeni bir iş açar; önceki belgeler iş klasöründe kalır ve yeni işte kullanılabilir.
+
+Cowork'te kancalar çalışmazsa onaylar kaydedilemez; ajan bunu size bildirir. Bu durumda Revit'e yazmadan önce bir izin ekranı açılabilir ve onay bu ekrandan verilir. Bağımsız kontrol ve kabul o oturumda kaydedilmez.
+
 ## Kanallar
 
 Kullanıcıların büyük çoğunluğu için doğru kanal `main` kanalıdır; bu kanal sınanmış, kararlı sürümü içerir. Yeni özellikleri önceden deneyen pilot kullanıcılar `dev` kanalını kurar. Aşağıdaki satır Win+R ya da `cmd` penceresine yazılır:

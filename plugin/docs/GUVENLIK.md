@@ -8,13 +8,35 @@ Orijinal DWG ve RVT dosyalarına yazılmaz. Eklenti yalnızca kopya ya da yeni d
 
 ## 2. Merkez modelle eşitleme yalnızca kullanıcı tarafından yapılır
 
-Kaydetme ve merkez modelle eşitleme (sync) tüm ekibi etkilediğinden bu işlemler yalnızca kullanıcı tarafından yapılır. Eklenti bu işlemleri kendiliğinden başlatmayacak şekilde yapılandırılmıştır. İzin ekranında kaydetme ya da eşitleme (save, sync) işlemi yer alıyorsa isteği reddediniz.
+Merkez modelle eşitleme (sync) tüm ekibi etkiler; bu nedenle yalnızca kullanıcı tarafından yapılır. Eklentinin Revit kilidi eşitleme aracını (`sync_with_central`) her zaman reddeder. Kaydetme aracı (`save_document`) iş sizin tarafınızdan kabul edilmeden reddedilir; kabulden sonra da yalnızca siz açıkça isterseniz kullanılacak şekilde yapılandırılmıştır. İzin ekranında eşitleme (sync) ya da talep etmediğiniz bir kaydetme (save) işlemi yer alıyorsa isteği reddediniz.
 
-## 3. Müşteri çizimleri ücretsiz yapay zekâ sitelerine yüklenmez
+## 3. Revit'e yazma kilidi
+
+Revit'e yazan araçlar her çağrıdan önce eklentinin kancası tarafından denetlenir. Bu denetim ajanın talimatlarından bağımsız olarak kodla yapılır.
+
+| İşlem | Ne zaman çalışır |
+|---|---|
+| Modeli değiştiren araçlar (`execute_revit_code`, `place_family`) ve belge kapatma (`close_document`) | Yalnızca bu oturumda açılmış işin planı (karmaşık işte görevleri) onaylandıktan sonra, kontrol raporu kaydedilene kadar |
+| Kaydetme (`save_document`) | Yalnızca iş sizin tarafınızdan kabul edildikten sonra |
+| Merkez modelle eşitleme (`sync_with_central`) | Hiçbir zaman |
+
+- Bu oturumda açılmış bir iş yoksa ya da iş kaydı okunamazsa Revit'e yazma reddedilir.
+- `execute_revit_code` aracı okuma amacıyla kullanılsa da yazma sayılır.
+- Onay ve kabul yalnızca sizin kısa "evet" mesajınızla kaydedilir; ret için "hayır" yazılır. Soru işareti, şart ya da ek açıklama içeren bir mesaj onay sayılmaz.
+- Ajanın onay ya da kabul verebileceği bir komut yoktur. İş kayıtlarının tutulduğu `.aec/isler/` klasörüne dosya düzenleme araçlarıyla yazma da reddedilir.
+- DWG, Excel ve render işlerinde kod düzeyinde bir kilit yoktur. Bu işlerde de aynı akış izlenir, ancak denetim ajanın talimatlarına dayanır; izin ekranı bu işlerde daha dikkatli incelenmelidir.
+
+**Cowork'te kancalar çalışmadığında:** Onay bu oturumda kaydedilemez. Revit'e yazmadan önce "Onay kaydı bu oturumda doğrulanamadı. Bu yazma işlemini onaylıyor musunuz?" açıklamalı bir izin ekranı açılabilir. Bu ekranda yapılacak işlem onayladığınız planla karşılaştırılır; uyumluysa onay verilir. Bağımsız kontrol ve kabul bu oturumda kaydedilmez. Kancaların hiç çalışmadığı bir oturumda kod düzeyindeki kilit de devreye girmez; bu durumda izin ekranında eşitleme (sync) ya da talep etmediğiniz bir kaydetme (save) işlemi yer alıyorsa isteği reddediniz.
+
+## 4. Korumanın sınırı
+
+Revit kilidi ve iş kayıtlarının korunması **kazara** yapılan hatalara karşı tasarlanmıştır: ajanın bir mesajı yanlışlıkla onay sayması, onaysız yazmaya başlaması ya da kendi işini onaylaması gibi. Bu korumalar **kasıtlı** bir aşmaya karşı tam güvence sağlamaz. Örneğin komut satırı araçları (Bash, PowerShell) tümüyle kapatılamadığından iş kayıtları bu yolla değiştirilebilir. Bu nedenle izin ekranının okunması ve plana uymayan işlemlerin reddedilmesi her durumda gereklidir.
+
+## 5. Müşteri çizimleri ücretsiz yapay zekâ sitelerine yüklenmez
 
 Müşteriye ait çizim, plan ve fotoğraflar herkese açık, ücretsiz yapay zekâ sitelerine yüklenmez ve ofisin onayladığı araçlar dışında hiçbir yere gönderilmez.
 
-## 4. İzin ekranı görüntülendiğinde
+## 6. İzin ekranı görüntülendiğinde
 
 Çalışma sırasında izin isteyen bir ekran görüntülenebilir. Bu ekran incelenmeden onaylanmamalıdır.
 
@@ -25,10 +47,10 @@ Müşteriye ait çizim, plan ve fotoğraflar herkese açık, ücretsiz yapay zek
 
 Emin olunamayan durumlarda reddetmek her zaman güvenli seçenektir.
 
-## 5. Birim fiyatlar
+## 7. Birim fiyatlar
 
 Bakanlık birim fiyatları kullanılmaz. Fiyat gerektiğinde ofisin belirlediği fiyat listesi esas alınır.
 
-## 6. Dışarıdan aktarılan metinler
+## 8. Dışarıdan aktarılan metinler
 
 Müşteri e-postasından ya da çizimden kopyalanan metinler gizli talimatlar içerebilir. Yapay zekâ bu tür bir talimatı kullanıcının isteği olarak yorumlayabilir. Kaynağı belirsiz metinlerin yapıştırılmaması önerilir; bu tür bir metin yapıştırıldıysa izin ekranı daha dikkatli incelenmelidir.
