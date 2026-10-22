@@ -49,3 +49,9 @@ def test_ci_runs_on_main_and_dev():
     text = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
     assert "branches: [main, dev]" in text
     assert "claude plugin validate" in text
+
+
+def test_descriptions_are_honest():
+    for d in (_load(".claude-plugin/marketplace.json")["description"],
+              _load("plugin/.claude-plugin/plugin.json")["description"]):
+        assert "Grasshopper" not in d and "doğrular" not in d and "ön kapı" in d
