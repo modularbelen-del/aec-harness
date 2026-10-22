@@ -6,12 +6,12 @@ Standard library only, so it runs under `uv run --no-project` without installing
 import json
 import os
 import pathlib
+import re
 import sys
 
 PLUGIN_ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PLUGIN_ROOT / "scripts"))
 
-import is_durumu  # noqa: E402
 from programlar import durum_satiri, running_programs  # noqa: E402
 
 STANDARDS_DIR = PLUGIN_ROOT / "standards"
@@ -21,6 +21,7 @@ PROJECT_LINE = "Bu projede .aec klasörü var: {}. Proje kuralları ofis kuralla
 NO_PROJECT_LINE = "Bu klasörde proje bilgisi bulunmamaktadır; ilk istekte /aec:proje-baslat önerilmelidir."
 OPEN_JOB_LINE = "Açık iş: {} ({})"
 MAX_OPEN_JOBS = 3
+JOB_ID = re.compile(r"\d{8}-\d{4}-[a-z0-9-]+")
 MAX_BYTES = 4096
 NL = chr(10)
 
@@ -34,8 +35,11 @@ def _read(path: pathlib.Path) -> str:
 
 def _open_job_lines(project_dir: str | None) -> list[str]:
     try:
+        import is_durumu  # inside the try: a job-library fault must not take the role and authority text down
         jobs = is_durumu.acik_isler(pathlib.Path(project_dir)) if project_dir else []
-        return [OPEN_JOB_LINE.format(j.get("id"), j.get("durum")) for j in jobs[:MAX_OPEN_JOBS]]
+        jobs = [j for j in jobs if isinstance(j.get("id"), str) and JOB_ID.fullmatch(j["id"])
+                and j.get("durum") in is_durumu.DURUMLAR]
+        return [OPEN_JOB_LINE.format(j["id"], j["durum"]) for j in jobs[:MAX_OPEN_JOBS]]
     except Exception:
         return []
 

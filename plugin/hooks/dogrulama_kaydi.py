@@ -1,9 +1,10 @@
 """SubagentStop hook: records the independent verifier's report (written by code, not by the main agent) and moves the
 job from 'uygulandi' to 'kabul-bekliyor' with a 'sonuc'.
 
-The verifier is trusted only when its transcript holds exactly one genuine user message and that message is the job
-folder path; a continued conversation (SendMessage) is recorded as 'DOĞRULANAMADI'. The transcript is JSONL whose line
-format is not formally documented, so it is parsed defensively. Standard library only; never raises, prints nothing.
+The verifier is trusted only when its transcript holds exactly one genuine user message (the job folder path) and no
+line injected from elsewhere (a SendMessage continuation or a queued_command attachment); otherwise the result is
+recorded as 'DOĞRULANAMADI'. The transcript is JSONL whose line format is not formally documented, so it is parsed
+defensively. Standard library only; never raises, prints nothing.
 """
 import json
 import os
@@ -16,16 +17,18 @@ sys.path.insert(0, str(PLUGIN_ROOT / "scripts"))
 sys.path.insert(0, str(PLUGIN_ROOT / "hooks"))
 
 import is_durumu  # noqa: E402
-from yol import mutlak as _mutlak  # noqa: E402  (same path normalization as the verifier-prompt lock)
+import yol  # noqa: E402
 from proje_baslat import _yaz_metin  # noqa: E402
 
 KAYNAK = "hook-subagent"
 AJANLAR = frozenset({"aec:dogrulayici", "dogrulayici"})
-SONUC_SATIRI = re.compile(r"^\s*SONU[ÇC]:\s*(GEÇTİ|GECTI|KALDI|DOĞRULANAMADI|DOGRULANAMADI)\s*$", re.MULTILINE)
+SONUC_SATIRI = re.compile(
+    r"^[\s*`]*SONU[ÇC]:[\s*`]*(GEÇTİ|GECTI|KALDI|DOĞRULANAMADI|DOGRULANAMADI)[\s*`]*$", re.MULTILINE)
 SONUC_ADI = {"GEÇTİ": "GEÇTİ", "GECTI": "GEÇTİ", "KALDI": "KALDI",
              "DOĞRULANAMADI": "DOĞRULANAMADI", "DOGRULANAMADI": "DOĞRULANAMADI"}
 DOGRULANAMADI = "DOĞRULANAMADI"
 NOT_YONERGE = "kontrolcü yönergesi doğrulanamadı"
+IZINLI_KAYNAKLAR = frozenset({"task-notification"})  # the verifier's own background tasks
 NL = chr(10)
 
 
@@ -55,27 +58,42 @@ def _rapor(icerik) -> str:
     return son
 
 
-def _kaynak_var(origin) -> bool:
-    """True when a line comes from somewhere other than the harness itself (e.g. origin kind 'coordinator')."""
-    if isinstance(origin, dict):
-        return bool(origin.get("kind"))
-    return bool(origin)
+def _tur(origin) -> "str | None":
+    kind = origin.get("kind") if isinstance(origin, dict) else origin
+    return kind if isinstance(kind, str) and kind else None
 
 
-def _transcript(yol) -> "tuple[str, bool, str]":
-    """(genuine prompt, trusted, text of the last assistant message that has text).
+def _yabanci(origin) -> bool:
+    """True when the origin is neither absent (the harness itself) nor an allowed kind (e.g. 'coordinator')."""
+    return bool(origin) and _tur(origin) not in IZINLI_KAYNAKLAR
 
-    The genuine prompt is the first non-meta user text line. The transcript is not trusted when another user text line
-    has a different promptId or a non-empty origin, or when a second non-meta user text line exists. Harness
-    reminders (isMeta, same promptId, no origin), tool_result-only lines and other line types are ignored.
+
+def _transcript(yol_) -> "tuple[str, bool, str]":
+    """(genuine prompt, trusted, report text).
+
+    The genuine prompt is the first non-meta user text line. The transcript is not trusted when any line (user or
+    attachment, such as a queued_command from a SendMessage) carries an origin outside the allowlist, when another
+    user text line has a different promptId, or when a second non-meta user text line exists. Harness reminders
+    (isMeta, same promptId, no origin), tool_result-only lines and other line types are ignored.
     """
-    kullanici, asistan = [], ""
-    for satir in pathlib.Path(yol).read_text(encoding="utf-8", errors="replace").splitlines():
+    kullanici, asistan, yabanci = [], "", False
+    for satir in pathlib.Path(yol_).read_text(encoding="utf-8", errors="replace").splitlines():
         try:
             kayit = json.loads(satir)
         except ValueError:
             continue
-        ileti = kayit.get("message") if isinstance(kayit, dict) else None
+        if not isinstance(kayit, dict):
+            continue
+        ek = kayit.get("attachment")
+        if isinstance(ek, dict):
+            # a queued_command is a message injected while the agent runs, whoever sent it
+            if ek.get("type") == "queued_command" and _tur(ek.get("origin")) not in IZINLI_KAYNAKLAR:
+                yabanci = True
+            if _yabanci(ek.get("origin")):
+                yabanci = True
+        if _yabanci(kayit.get("origin")):
+            yabanci = True
+        ileti = kayit.get("message")
         if not isinstance(ileti, dict):
             continue
         tur = kayit.get("type") or ileti.get("role")
@@ -83,29 +101,26 @@ def _transcript(yol) -> "tuple[str, bool, str]":
             asistan = _rapor(ileti.get("content")) or asistan
             continue
         metin = _metinler(ileti.get("content")).strip()
-        if tur == "user" and metin:
-            kullanici.append((metin, bool(kayit.get("isMeta")), kayit.get("promptId"), kayit.get("origin")))
+        if tur == "user" and metin and _tur(kayit.get("origin")) not in IZINLI_KAYNAKLAR:
+            kullanici.append((metin, bool(kayit.get("isMeta")), kayit.get("promptId")))
     gercek = next((k for k in kullanici if not k[1]), None)
     if gercek is None:
         return "", False, asistan
     pid = gercek[2]
-    guvenilir = True
-    for k in kullanici:
-        if _kaynak_var(k[3]) or (pid is not None and k[2] != pid):
-            guvenilir = False
-    if sum(1 for k in kullanici if not k[1]) != 1:
+    guvenilir = not yabanci and sum(1 for k in kullanici if not k[1]) == 1
+    if pid is not None and any(k[2] != pid for k in kullanici):
         guvenilir = False
     return gercek[0], guvenilir, asistan
 
 
 def _is_kimligi(metin: str, proje: pathlib.Path) -> "str | None":
     """Job id when the text (minus quotes/backticks) is exactly a job folder directly under <proje>/.aec/isler."""
-    yol = metin.strip().strip("\"'`").strip()
-    if not yol or NL in yol:
+    yol_ = metin.strip().strip("\"'`").strip()
+    if not yol_ or NL in yol_:
         return None
-    mutlak = _mutlak(yol, proje)
+    mutlak = yol.mutlak(yol_, proje)
     ust, _, ad = mutlak.rpartition("/")
-    if ust != _mutlak(str(pathlib.Path(proje) / is_durumu.ISLER), proje) or not ad:
+    if ust != yol.mutlak(str(pathlib.Path(proje) / is_durumu.ISLER), proje) or not ad:
         return None
     return ad
 
@@ -115,7 +130,7 @@ def _sonuc(rapor: str) -> str:
     return SONUC_ADI[bulunan[-1]] if bulunan else DOGRULANAMADI
 
 
-def isle(girdi, proje: pathlib.Path) -> None:
+def isle(girdi, proje: pathlib.Path, state_dir: "pathlib.Path | None" = None) -> None:
     try:
         if not isinstance(girdi, dict):
             return
@@ -135,13 +150,19 @@ def isle(girdi, proje: pathlib.Path) -> None:
         kayit = is_durumu.is_yukle(proje, is_id)
         if not isinstance(kayit, dict) or kayit.get("durum") != "uygulandi":
             return
+        oturum = str(girdi.get("session_id") or "")
+        aktif = is_durumu.aktif_is(proje, oturum)
+        if not isinstance(aktif, dict) or aktif.get("id") != is_id:
+            return  # only the session's own active job is recorded
         sonuc = _sonuc(rapor) if guvenilir else DOGRULANAMADI
         not_ = f"kontrol sonucu: {sonuc}" if guvenilir else f"{NOT_YONERGE}; kontrol sonucu: {sonuc}"
-        baslik = f"# Kontrol raporu — {is_id}{NL}{NL}Zaman: {is_durumu._zaman()}{NL}Sonuç: {sonuc}{NL}{NL}"
+        uyari = "" if guvenilir else f"Not: {NOT_YONERGE}{NL}"
+        baslik = f"# Kontrol raporu — {is_id}{NL}{NL}Zaman: {is_durumu._zaman()}{NL}Sonuç: {sonuc}{NL}{uyari}{NL}"
         _yaz_metin(is_durumu._is_klasoru(proje, is_id) / "dogrulama.md", baslik + rapor.rstrip() + NL)
         kayit["sonuc"] = sonuc
         is_durumu.gecis(kayit, "kabul-bekliyor", KAYNAK, not_)
         is_durumu.is_kaydet(proje, kayit)
+        yol.isaret_sil(state_dir or yol.durum_klasoru(), oturum, is_id)
     except Exception:
         pass
 

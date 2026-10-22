@@ -19,6 +19,7 @@ sys.path.insert(0, str(PLUGIN_ROOT / "hooks"))
 
 import is_durumu  # noqa: E402
 import user_prompt  # noqa: E402  (shared heartbeat path and state directory)
+import yol as yol_modulu  # noqa: E402
 from yol import mutlak as _mutlak  # noqa: E402
 
 REVIT_YAZMA = re.compile(r"^mcp__.*revit.*__(execute_revit_code|place_family|close_document|save_document|sync_with_central)$", re.IGNORECASE)
@@ -76,7 +77,7 @@ def _revit_karari_ic(eylem: str, oturum: str, proje: pathlib.Path, state_dir: pa
     return _cikti("deny", NEDEN_IS_YOK)
 
 
-def _dogrulayici_karari(arac_girdisi: dict, oturum: str, proje: pathlib.Path):
+def _dogrulayici_karari(arac_girdisi: dict, oturum: str, proje: pathlib.Path, state_dir: pathlib.Path):
     tur = arac_girdisi.get("subagent_type")
     if not isinstance(tur, str) or tur.strip().casefold() not in DOGRULAYICI:
         return None
@@ -90,6 +91,7 @@ def _dogrulayici_karari(arac_girdisi: dict, oturum: str, proje: pathlib.Path):
     beklenen = _mutlak(str(pathlib.Path(proje) / is_durumu.ISLER / str(kayit.get("id"))), proje)
     if _mutlak(yol, proje) != beklenen:
         return _cikti("deny", NEDEN_DOGRULAYICI)
+    yol_modulu.isaret_yaz(state_dir, oturum, str(kayit.get("id")))  # the Stop lock waits for this verifier
     return None
 
 
@@ -113,7 +115,7 @@ def karar(girdi, proje: pathlib.Path, state_dir: pathlib.Path):
                 return _cikti("deny", NEDEN_ISLER)
             return None
         if arac in AJAN_ARACLARI:
-            return _dogrulayici_karari(arac_girdisi, oturum, pathlib.Path(proje))
+            return _dogrulayici_karari(arac_girdisi, oturum, pathlib.Path(proje), pathlib.Path(state_dir))
         return None
     except Exception:  # fail open
         return None

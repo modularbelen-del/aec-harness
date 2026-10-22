@@ -173,3 +173,14 @@ def test_main_prints_json_for_deny(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr("sys.stdin", io.TextIOWrapper(io.BytesIO(json.dumps(_girdi(REVIT)).encode())))
     assert pre_tool.main() == 0
     assert json.loads(capsys.readouterr().out)["hookSpecificOutput"]["permissionDecision"] == "deny"
+
+
+def test_allowed_verifier_spawn_writes_marker(tmp_path):
+    import yol
+    kayit = _is(tmp_path, "uygulandi")
+    sd = tmp_path / "sd"
+    yol_ = str(tmp_path / ".aec" / "isler" / kayit["id"])
+    assert pre_tool.karar(_girdi("Agent", {"subagent_type": "aec:dogrulayici", "prompt": "baska"}), tmp_path, sd)
+    assert not yol.isaret_taze(sd, SID, kayit["id"])
+    assert pre_tool.karar(_girdi("Agent", {"subagent_type": "aec:dogrulayici", "prompt": yol_}), tmp_path, sd) is None
+    assert yol.isaret_taze(sd, SID, kayit["id"])

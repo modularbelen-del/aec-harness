@@ -5,13 +5,13 @@ Standard library only. Recognition is deliberately narrow: only short, unambiguo
 import pathlib
 import re
 import sys
-from datetime import datetime
 
 PLUGIN_ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PLUGIN_ROOT / "scripts"))
 
 import is_durumu  # noqa: E402
 import onkapi  # noqa: E402
+from yol import gunluk_satiri as _gunluk_satiri  # noqa: E402
 
 KAYNAK = "kullanici-mesaji"
 EN_FAZLA_KELIME = 4
@@ -53,12 +53,6 @@ def siniflandir(mesaj: str, kabul: bool = False) -> str:
     if all(k in RET or k in DOLGU for k in kelimeler) and any(k in RET for k in kelimeler):
         return "ret"
     return "belirsiz"
-
-
-def _gunluk_satiri(kayit: dict, olay: str) -> str:
-    return "- {} | {} | {} | {} | {} | {}".format(
-        datetime.now().strftime("%Y-%m-%d %H:%M"), kayit.get("id"), kayit.get("kart"),
-        "karmaşık" if kayit.get("karmasik") else "basit", kayit.get("sonuc") or "-", olay)
 
 
 def _gunluge_yaz(proje: pathlib.Path, satir: str) -> None:

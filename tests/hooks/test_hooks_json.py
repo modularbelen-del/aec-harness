@@ -85,3 +85,11 @@ def test_tool_hooks_commands_and_matchers():
     assert all(e["hooks"][0]["command"] == HOOK_CMD.format("pre_tool") for e in h["PreToolUse"])
     assert h["PostToolUse"][0]["matcher"] == "Bash|PowerShell|" + REVIT_POST
     assert h["PostToolUse"][0]["hooks"][0]["command"] == HOOK_CMD.format("post_tool")
+
+
+def test_stop_hooks_commands_and_matcher():
+    h = _hooks()
+    assert "matcher" not in h["Stop"][0]
+    assert h["Stop"][0]["hooks"][0]["command"] == HOOK_CMD.format("stop_kontrol")
+    assert h["SubagentStop"][0]["matcher"] == "dogrulayici|aec:dogrulayici"
+    assert h["SubagentStop"][0]["hooks"][0]["command"] == HOOK_CMD.format("dogrulama_kaydi")

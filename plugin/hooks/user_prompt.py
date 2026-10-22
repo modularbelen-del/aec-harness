@@ -6,15 +6,14 @@ Standard library only. On any error or no match it prints nothing.
 import json
 import os
 import pathlib
-import re
 import sys
-import tempfile
 
 PLUGIN_ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PLUGIN_ROOT / "scripts"))
 
 import onay  # noqa: E402
 import onkapi  # noqa: E402
+import yol  # noqa: E402
 
 MAX_CONTEXT_BYTES = 1024
 SHORT_REPLY_WORDS = 3
@@ -22,12 +21,12 @@ CARD_DIR = pathlib.Path(__file__).resolve().parent.parent / "skills/istek-karsil
 
 
 def varsayilan_durum_klasoru() -> pathlib.Path:
-    return pathlib.Path(os.environ.get("CLAUDE_PLUGIN_DATA") or tempfile.gettempdir()) / "aec-onkapi"
+    return yol.durum_klasoru()
 
 
 def calisti_yolu(state_dir: pathlib.Path, oturum: str) -> pathlib.Path:
     """Path of the per-session heartbeat file (shared with the PreToolUse lock)."""
-    temiz = re.sub(r"[^A-Za-z0-9_-]", "", oturum)[:64] or "bilinmeyen"
+    temiz = yol.oturum_temiz(oturum) or "bilinmeyen"
     return pathlib.Path(state_dir) / f"calisti-{temiz}"
 
 

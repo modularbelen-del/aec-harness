@@ -37,3 +37,49 @@ def test_stop_ignores_other_sessions(tmp_path):
 def test_stop_bad_input_allows(tmp_path):
     assert stop_kontrol.karar(None, tmp_path) is None
     assert stop_kontrol.karar({}, tmp_path) is None
+
+
+def _eski_yap(state_dir, oturum, is_id, saniye):
+    import os
+    import time
+
+    import yol
+    yol.isaret_yaz(state_dir, oturum, is_id)
+    dosya = state_dir / f"dogrulama-{oturum}-{is_id}"
+    os.utime(dosya, (time.time() - saniye, time.time() - saniye))
+
+
+def test_stop_waits_for_running_verifier_marker(tmp_path):
+    import yol
+    sd = tmp_path / "sd"
+    is_id = _is(tmp_path, "uygulandi")
+    yol.isaret_yaz(sd, SID, is_id)
+    for aktif in (False, True):
+        assert stop_kontrol.karar({"session_id": SID, "stop_hook_active": aktif}, tmp_path, sd) is None
+    assert not (tmp_path / ".aec" / "gunluk.md").exists()
+
+
+def test_stale_marker_does_not_protect(tmp_path):
+    sd = tmp_path / "sd"
+    is_id = _is(tmp_path, "uygulandi")
+    _eski_yap(sd, SID, is_id, 31 * 60)
+    assert stop_kontrol.karar({"session_id": SID, "stop_hook_active": False}, tmp_path, sd)["decision"] == "block"
+
+
+def test_journal_line_format_and_only_once(tmp_path):
+    sd = tmp_path / "sd"
+    is_id = _is(tmp_path, "uygulandi")
+    for _ in range(3):
+        assert stop_kontrol.karar({"session_id": SID, "stop_hook_active": True}, tmp_path, sd) is None
+    satirlar = [s for s in (tmp_path / ".aec" / "gunluk.md").read_text(encoding="utf-8").splitlines()
+                if "doğrulama yapılmadan durdu" in s]
+    assert len(satirlar) == 1
+    alanlar = [a.strip() for a in satirlar[0].lstrip("- ").split("|")]
+    assert len(alanlar) == 6 and alanlar[1] == is_id and alanlar[2] == "revit-modelleme"
+    assert alanlar[3] == "basit" and alanlar[4] == "-"
+
+
+def test_stop_empty_session_allows(tmp_path):
+    _is(tmp_path, "uygulandi", oturum="")
+    assert stop_kontrol.karar({"session_id": "", "stop_hook_active": False}, tmp_path, tmp_path / "sd") is None
+    assert stop_kontrol.karar({"session_id": "///", "stop_hook_active": False}, tmp_path, tmp_path / "sd") is None
