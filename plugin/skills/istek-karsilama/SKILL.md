@@ -22,7 +22,7 @@ Ofisin döngüsü: ölç (görselden tahmin etme) → planla → onay al → kop
 | `tavan` | Asma tavan, baffle, bandraster, open cell, menfez, lineer armatür, LED panel |
 | `render` | Render, görsel, perspektif, atmosfer |
 
-İstek iki işe giriyorsa iki kartı da oku. Hiçbirine uymuyorsa bu skill'i bırak, normal çalış.
+İstek iki işe giriyorsa iki kartı da oku. Ofis işi değilse bu skill'i bırak, normal çalış.
 
 İş türü belli değilse ama işin ofis çalışması olduğu belliyse (ör. "şu planı düzelt", "şunu hazırla": hangi dosya,
 hangi program, neyin düzeltileceği yok) skill'i bırakma. Kart seçme; dosyayı, programı ve neyin düzeltileceğini
