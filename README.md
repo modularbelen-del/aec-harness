@@ -1,7 +1,8 @@
 # aec-harness
 
 Mimarlık ofisleri için bir Claude eklentisi (Claude Code plugin marketplace: `aec-office`, eklenti: `aec`). Revit,
-AutoCAD ve Rhino ile çalışan, bilgisayar ve yapay zekâyla arası çok iyi olmayan mimarlar düşünülerek yazıldı.
+AutoCAD ve Rhino ile yapılan günlük işler için hazırlandı. İsteği gündelik dille yazmanız yeter: eklenti işi tanır,
+eksik bilgiyi sorar ve uygulamadan önce planı gösterir.
 
 Hedef: ajan ölçüyü görselden tahmin etmesin, araçla okusun. Revit'e yalnızca onaylanmış bir plan üzerinden ve kopya
 dosyada yazsın. Yazdıktan sonra sonucu Revit'ten okuyup toleransla karşılaştırsın. Kısacası **ölç → planla → onayla →
