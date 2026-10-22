@@ -118,3 +118,73 @@ def test_journal_line_appended(tmp_path):
     is_durumu.gunluge_yaz(tmp_path, "ikinci\n")
     s = (tmp_path / ".aec" / "gunluk.md").read_text(encoding="utf-8")
     assert s == "# İş günlüğü\n\nbirinci\nikinci\n"
+
+
+def test_table_only_defined_states():
+    for eski, hedefler in is_durumu.IZINLI.items():
+        assert eski in is_durumu.DURUMLAR
+        assert hedefler <= set(is_durumu.DURUMLAR)
+    assert set(is_durumu.IZINLI) == set(is_durumu.DURUMLAR)
+
+
+def test_gecis_refuses_undefined_onaylandi_gorevler(tmp_path):
+    k = _yeni(tmp_path)
+    for yeni in ("onay-bekliyor:tarif", "onaylandi:tarif", "onay-bekliyor:plan", "onaylandi:plan", "onay-bekliyor:gorevler"):
+        is_durumu.gecis(k, yeni, "ajan")
+    with pytest.raises(ValueError):
+        is_durumu.gecis(k, "onaylandi:gorevler", "ajan")
+
+
+def test_first_stage_depends_on_complexity(tmp_path):
+    basit = _yeni(tmp_path, "Basit", karmasik=False)
+    karma = _yeni(tmp_path, "Karma", karmasik=True)
+    with pytest.raises(ValueError):
+        is_durumu.gecis(basit, "onay-bekliyor:tarif", "ajan")
+    with pytest.raises(ValueError):
+        is_durumu.gecis(karma, "onay-bekliyor:plan", "ajan")
+
+
+def test_approved_stage_must_match_waiting_stage(tmp_path):
+    k = _yeni(tmp_path)
+    is_durumu.gecis(k, "onay-bekliyor:tarif", "ajan")
+    with pytest.raises(ValueError):
+        is_durumu.gecis(k, "onaylandi:plan", "ajan")
+
+
+@pytest.mark.parametrize("kotu", ["", "..", "a/b", "a\b", "C:x"])
+def test_unsafe_job_ids_refused(tmp_path, kotu):
+    with pytest.raises(ValueError):
+        is_durumu.is_yukle(tmp_path, kotu)
+    with pytest.raises(ValueError):
+        is_durumu.is_kaydet(tmp_path, {"id": kotu})
+
+
+def test_cancel_exits(tmp_path):
+    for yol in (["onay-bekliyor:tarif", "onaylandi:tarif"], ["onay-bekliyor:tarif", "onaylandi:tarif", "onay-bekliyor:plan", "onaylandi:plan"],
+                ["onay-bekliyor:tarif", "plan-onaylandi", "uygulandi", "kabul-bekliyor"]):
+        k = _yeni(tmp_path)
+        for y in yol:
+            is_durumu.gecis(k, y, "ajan")
+        is_durumu.gecis(k, "iptal", "ajan")
+        assert k["durum"] == "iptal"
+
+
+def test_rejected_resubmission_by_complexity(tmp_path):
+    karma = _yeni(tmp_path, "Karma")
+    for y in ("onay-bekliyor:tarif", "reddedildi", "onay-bekliyor:tarif"):
+        is_durumu.gecis(karma, y, "ajan")
+    basit = _yeni(tmp_path, "Basit", karmasik=False)
+    for y in ("onay-bekliyor:plan", "reddedildi", "onay-bekliyor:plan"):
+        is_durumu.gecis(basit, y, "ajan")
+    karma2 = _yeni(tmp_path, "Karma iki")
+    for y in ("onay-bekliyor:tarif", "reddedildi"):
+        is_durumu.gecis(karma2, y, "ajan")
+    with pytest.raises(ValueError):
+        is_durumu.gecis(karma2, "onay-bekliyor:plan", "ajan")
+
+
+def test_session_id_capped(tmp_path):
+    k = _yeni(tmp_path)
+    is_durumu.aktif_bagla(tmp_path, "x" * 200, k["id"])
+    assert is_durumu.aktif_is(tmp_path, "x" * 200)["id"] == k["id"]
+    assert all(len(p.name) <= len("aktif-.json") + 64 for p in (tmp_path / ".aec" / "isler").glob("aktif-*"))

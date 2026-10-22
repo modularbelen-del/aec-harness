@@ -122,7 +122,10 @@ _KOMUTLAR = {"yeni": _yeni, "olcut": _olcut, "tarif": _asama, "plan": _asama, "g
 
 
 def main(argv: "list[str] | None" = None) -> int:
-    sys.stdout.reconfigure(encoding="utf-8")
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except (AttributeError, OSError, ValueError):
+        pass
     try:
         a = _parser().parse_args(argv)
     except SystemExit as cikis:
@@ -132,8 +135,10 @@ def main(argv: "list[str] | None" = None) -> int:
         return 0
     try:
         _KOMUTLAR[a.komut](a)
-    except ValueError as hata:
-        print(str(hata))
+    except (ValueError, KeyError, TypeError) as hata:
+        iletisi = str(hata)
+        print(iletisi if iletisi.startswith("✗") else
+              "✗ İş kaydı okunamadı ya da bozuk. Kayıt dosyasını kontrol ediniz; hiçbir değişiklik yapılmadı.")
     except OSError as hata:
         print(f"✗ Dosya işlemi yapılamadı ({hata.__class__.__name__}). Proje klasörüne yazma izni olup olmadığını kontrol ediniz.")
     return 0

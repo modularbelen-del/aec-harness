@@ -71,3 +71,25 @@ def test_cli_cancel_and_status(tmp_path, capsys):
 def test_cli_unknown_job_message(tmp_path, capsys):
     assert is_kaydi.main(["durum", "--proje", str(tmp_path), "--is", "yok"]) == 0
     assert "✗" in capsys.readouterr().out
+
+
+def test_cli_approval_attempts_rejected_with_message(tmp_path, capsys):
+    is_id = _yeni(tmp_path, capsys)
+    ortak = ["--proje", str(tmp_path), "--is", is_id]
+    denemeler = [["onay", *ortak], ["kabul", *ortak], ["plan", *ortak, "--dosya", "x", "--onayla"],
+                 ["durum", *ortak, "--durum", "plan-onaylandi"]]
+    for d in denemeler:
+        assert is_kaydi.main(d) == 0
+        out = capsys.readouterr().out
+        assert "✗" in out and "onay" in out.lower()
+        assert is_durumu.is_yukle(tmp_path, is_id)["durum"] == "gorusme"
+
+
+def test_cli_malformed_job_file_returns_zero_with_message(tmp_path, capsys):
+    is_id = _yeni(tmp_path, capsys)
+    yol = tmp_path / ".aec" / "isler" / is_id / "is.json"
+    for ham in (b"{bozuk", b"\xff\xfe\x00", b"[]"):
+        yol.write_bytes(ham)
+        assert is_kaydi.main(["durum", "--proje", str(tmp_path), "--is", is_id]) == 0
+        out = capsys.readouterr().out
+        assert out.startswith("✗") and "Traceback" not in out

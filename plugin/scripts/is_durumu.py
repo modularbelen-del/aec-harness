@@ -24,19 +24,18 @@ ASAMALAR = ("tarif", "plan", "gorevler")
 
 IZINLI: "dict[str, set[str]]" = {
     "gorusme": {"onay-bekliyor:plan", "onay-bekliyor:tarif", "iptal"},
-    **{f"onay-bekliyor:{a}": {f"onaylandi:{a}", "plan-onaylandi", "reddedildi", "iptal", f"onay-bekliyor:{a}"}
-       for a in ASAMALAR},
-    "onaylandi:tarif": {"onay-bekliyor:plan"},
-    "onaylandi:plan": {"onay-bekliyor:gorevler"},
+    "onay-bekliyor:tarif": {"onaylandi:tarif", "plan-onaylandi", "reddedildi", "iptal", "onay-bekliyor:tarif"},
+    "onay-bekliyor:plan": {"onaylandi:plan", "plan-onaylandi", "reddedildi", "iptal", "onay-bekliyor:plan"},
+    "onay-bekliyor:gorevler": {"plan-onaylandi", "reddedildi", "iptal", "onay-bekliyor:gorevler"},
+    "onaylandi:tarif": {"onay-bekliyor:plan", "iptal"},
+    "onaylandi:plan": {"onay-bekliyor:gorevler", "iptal"},
     "plan-onaylandi": {"uygulandi", "onay-bekliyor:plan", "iptal"},
     "uygulandi": {"kabul-bekliyor", "iptal"},
-    "kabul-bekliyor": {"kabul-edildi", "reddedildi"},
-    "reddedildi": {"onay-bekliyor:plan", "iptal"},
+    "kabul-bekliyor": {"kabul-edildi", "reddedildi", "iptal"},
+    "reddedildi": {"onay-bekliyor:tarif", "onay-bekliyor:plan", "iptal"},
     "kabul-edildi": set(),
     "iptal": set(),
 }
-# onaylandi:X is only reachable from onay-bekliyor:X, whatever the table above lists as a superset.
-_ONAYLANDI = {"onaylandi:tarif": "onay-bekliyor:tarif", "onaylandi:plan": "onay-bekliyor:plan"}
 
 _ASCII = str.maketrans({"İ": "i", "I": "i", "ı": "i", "ç": "c", "Ç": "c", "ğ": "g", "Ğ": "g",
                         "ö": "o", "Ö": "o", "ş": "s", "Ş": "s", "ü": "u", "Ü": "u"})
@@ -112,12 +111,10 @@ def gecis(kayit: dict, yeni: str, kaynak: str, not_: str = "") -> dict:
         raise ValueError(f"✗ Geçersiz geçiş kaynağı: {kaynak}.")
     if yeni not in IZINLI.get(eski, set()):
         raise ValueError(f"✗ '{eski}' durumundan '{yeni}' durumuna geçişe izin verilmemektedir.")
-    if eski == "gorusme" and yeni.startswith("onay-bekliyor:"):
+    if eski in ("gorusme", "reddedildi") and yeni.startswith("onay-bekliyor:"):
         beklenen = "onay-bekliyor:tarif" if kayit.get("karmasik") else "onay-bekliyor:plan"
         if yeni != beklenen:
             raise ValueError(f"✗ Bu iş için ilk aşama '{beklenen}' olmalıdır.")
-    if yeni in _ONAYLANDI and eski != _ONAYLANDI[yeni]:
-        raise ValueError(f"✗ '{eski}' durumundan '{yeni}' durumuna geçişe izin verilmemektedir.")
     kayit["durum"] = yeni
     kayit.setdefault("olaylar", []).append(
         {"zaman": _zaman(), "eski": eski, "yeni": yeni, "kaynak": kaynak, "not": not_})
@@ -136,7 +133,7 @@ def onay_sonrasi(kayit: dict, asama: str) -> str:
 
 
 def _aktif_yol(proje: Path, oturum: str) -> Path:
-    temiz = _GECERSIZ_KIMLIK.sub("", oturum) or "bilinmeyen"
+    temiz = _GECERSIZ_KIMLIK.sub("", oturum)[:64] or "bilinmeyen"
     return Path(proje) / ISLER / f"aktif-{temiz}.json"
 
 
