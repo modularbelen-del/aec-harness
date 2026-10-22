@@ -1,3 +1,5 @@
+import unicodedata
+
 import onkapi
 
 CARDS = onkapi.load_cards()
@@ -57,3 +59,47 @@ def test_autocad_draw_routes():
 
 def test_rhino_transfer_with_aktar():
     assert "rhino-revit" in onkapi.match("Rhino'daki cepheyi Revit'e aktar", CARDS)
+
+
+def test_dwg_draw_noun_forms_do_not_route_to_cizim():
+    for p in ("DWG çizimini oku", "DWG çizimindeki katmanları listele",
+              "Revit'teki detay çizimlerini kontrol et", "Revit'te çizimi düzelt"):
+        assert "dwg-cizim" not in onkapi.match(p, CARDS), p
+
+
+def test_dwg_draw_verb_forms_route_to_cizim():
+    for p in ("AutoCAD'de yeni bir detay çiz", "bu DWG'ye kesit detayını çiz", "DWG'ye çiz"):
+        assert "dwg-cizim" in onkapi.match(p, CARDS), p
+
+
+def test_mahal_rooms_vs_neighbourhood():
+    assert "metraj-liste" in onkapi.match("zemin kattaki mahalleri listele", CARDS)
+    assert "metraj-liste" in onkapi.match("mahallerde net alan", CARDS)
+    assert "metraj-liste" not in onkapi.match("Kadıköy mahallesindeki proje için not yaz", CARDS)
+
+
+def test_kolon_and_m2_boundaries():
+    assert "revit-modelleme" not in onkapi.match("kolonya şişesi", CARDS)
+    assert "revit-modelleme" in onkapi.match("kolonları yerleştir", CARDS)
+    assert "metraj-liste" not in onkapi.match("M20 cıvata", CARDS)
+    assert "metraj-liste" in onkapi.match("toplam m² ne", CARDS)
+
+
+def test_unicode_decomposed_and_acute_apostrophe():
+    nfd = unicodedata.normalize("NFD", "kapı yerleştir")
+    assert onkapi.match("revit " + nfd, CARDS) == ["revit-modelleme"]
+    assert "dwg-cizim" in onkapi.match("DWG´ye çiz", CARDS)
+    assert onkapi.normalize("m²") == "m2"
+
+
+def test_regex_keyword_prefix_and_bad_regex():
+    cards = [{"id": "a", "baslik": "A", "anahtar": ["re:ab+c", "re:("], "eksikler": []}]
+    assert onkapi.match("xx abbc", cards) == ["a"]
+    assert onkapi.match("zabc", cards) == []
+
+
+def test_seen_any(tmp_path):
+    assert onkapi.seen_any("s", tmp_path) is False
+    onkapi.unseen("s", ["tavan"], tmp_path)
+    assert onkapi.seen_any("s", tmp_path) is True
+    assert onkapi.seen_any("other", tmp_path) is False

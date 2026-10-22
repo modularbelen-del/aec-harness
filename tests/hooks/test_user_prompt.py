@@ -37,6 +37,18 @@ def test_same_card_not_repeated_in_session(tmp_path):
     assert user_prompt.build_output(msg, tmp_path) == ""
 
 
+def _msg(prompt, sid):
+    return json.dumps({"prompt": prompt, "session_id": sid}, ensure_ascii=False)
+
+
+def test_short_replies_after_a_card_print_nothing(tmp_path):
+    assert user_prompt.build_output(_msg("Revit'te kapı yerleştir", "s"), tmp_path)
+    assert user_prompt.build_output(_msg("Revit", "s"), tmp_path) == ""
+    assert user_prompt.build_output(_msg("DWG", "s"), tmp_path) == ""
+    out = user_prompt.build_output(_msg("DWG", "fresh"), tmp_path)
+    assert "DWG okuma" in json.loads(out)["hookSpecificOutput"]["additionalContext"]
+
+
 def test_subprocess_turkish_prompt(tmp_path):
     stdin = json.dumps({"prompt": "Şu DWG'deki mahalleri listele", "session_id": "x"}, ensure_ascii=False)
     env = dict(os.environ, CLAUDE_PLUGIN_DATA=str(tmp_path))

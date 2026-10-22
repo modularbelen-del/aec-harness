@@ -10,6 +10,7 @@ import tempfile
 
 import onkapi
 
+SHORT_REPLY_WORDS = 3
 CARD_DIR = pathlib.Path(__file__).resolve().parent.parent / "skills/istek-karsilama/kartlar"
 
 
@@ -19,9 +20,12 @@ def build_output(stdin_text: str, state_dir: pathlib.Path) -> str:
         prompt = data.get("prompt")
         if not isinstance(prompt, str):
             return ""
+        session_id = str(data.get("session_id") or "")
+        if len(onkapi.normalize(prompt).split()) <= SHORT_REPLY_WORDS and onkapi.seen_any(session_id, state_dir):
+            return ""  # a short follow-up ("evet", "Revit") answers a question; it is not a new job
         cards = onkapi.load_cards()
         ids = onkapi.match(prompt, cards)
-        ids = onkapi.unseen(str(data.get("session_id") or ""), ids, state_dir) if ids else []
+        ids = onkapi.unseen(session_id, ids, state_dir) if ids else []
         if not ids:
             return ""
         text = onkapi.card_text(ids, cards, CARD_DIR)
