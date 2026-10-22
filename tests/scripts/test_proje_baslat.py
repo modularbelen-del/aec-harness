@@ -145,4 +145,4 @@ def test_skill_names_target_folder():
     text = (SKILLS / "proje-baslat" / "SKILL.md").read_text(encoding="utf-8")
     assert "${CLAUDE_PLUGIN_ROOT}/scripts/proje_baslat.py" in text and '--proje "${CLAUDE_PROJECT_DIR}"' in text
     assert "../../scripts" not in text
-    assert "şu klasöre yazacağım" in text
+    assert "şu klasöre yazılacak" in text

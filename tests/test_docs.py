@@ -50,7 +50,7 @@ def test_each_example_routes_to_its_own_card():
     secs = _sections(text)
     cards = onkapi.load_cards()
     for c in cards:
-        examples = re.findall(r"\*\*Böyle yazın:\*\* `([^`]+)`", secs[c["baslik"]])
+        examples = re.findall(r"\*\*Önerilen istek:\*\* `([^`]+)`", secs[c["baslik"]])
         assert examples, c["baslik"]
         for ex in examples:
             assert c["id"] in onkapi.match(ex, cards), (c["id"], ex, onkapi.match(ex, cards))
@@ -74,7 +74,7 @@ def test_basla_pilot_dev_line_and_project_folder():
     text = (ROOT / "plugin/docs/BASLA.md").read_text(encoding="utf-8")
     secs = _sections(text)
     assert "pilot" in secs["Kanallar"].lower()
-    assert "projenin klasöründe başlatın" in secs["Terminal kullanıyorsanız"]
+    assert "projenin klasöründe başlatın" in secs["Terminal ile kurulum"]
     assert "hiçbir dosyayı değiştirmez" not in text
 
 
@@ -87,7 +87,7 @@ def test_docs_do_not_state_model_rules_as_guarantees():
     for phrase in ("dosyaları değişmez", "kendiliğinden yapmaz", "Siz onaylamadan hiçbir şey değişmez",
                    "eklenti yine çalışır", "Eklenti bunlara uyar", "Orijinal dosyaya yazılmaz, eşitlemeyi"):
         assert phrase not in guv and phrase not in neler, phrase
-    assert "ayarlandı" in guv and "ayarlandı" in neler
+    assert "yapılandırılmıştır" in guv and "yapılandırılmıştır" in neler
     assert "izin ekranını okuyun" in guv
     assert "Yine de kaynağı" not in guv
     assert "Revit köprüsü (Faz 1C)" in neler and "temel" in neler
