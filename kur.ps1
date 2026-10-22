@@ -1,8 +1,9 @@
 ﻿# AEC ofis kurulumu. Bir kez çalıştırılır.
 # Normal kurulum (kararlı kanal):
-#   powershell -ExecutionPolicy Bypass -c "irm https://raw.githubusercontent.com/modularbelen-del/aec-harness/main/kur.ps1 | iex"
-# Deneme (dev) kanalı, şampiyon için:
-#   powershell -ExecutionPolicy Bypass -c "$env:AEC_KANAL='dev'; irm https://raw.githubusercontent.com/modularbelen-del/aec-harness/dev/kur.ps1 | iex"
+#   powershell -ExecutionPolicy Bypass -c "iex ((irm https://raw.githubusercontent.com/modularbelen-del/aec-harness/main/kur.ps1).TrimStart([char]0xFEFF))"
+# Deneme (dev) kanalı, şampiyon için (Win+R ya da cmd penceresine yazın; PowerShell penceresinde $env: önce açılır):
+#   powershell -ExecutionPolicy Bypass -c "$env:AEC_KANAL='dev'; iex ((irm https://raw.githubusercontent.com/modularbelen-del/aec-harness/main/kur.ps1).TrimStart([char]0xFEFF))"
+# (TrimStart, dosyanın başındaki BOM işaretini ayıklar; olmazsa iex ilk satırda hata verir.)
 # Yalnızca ne yapacağını görmek için (hiçbir şey kurmaz): -KuruCalistir ya da $env:AEC_KURU='1'
 param(
     [ValidateSet('stable', 'dev')]
