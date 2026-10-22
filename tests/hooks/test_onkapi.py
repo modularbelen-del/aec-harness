@@ -56,6 +56,15 @@ def test_card_text_question_limit_follows_complexity(tmp_path):
     assert "en fazla 3 soru" in onkapi.card_text(["yok"], CARDS, tmp_path)
 
 
+def test_simple_card_ends_with_verifier_and_acceptance(tmp_path):
+    for card in CARDS:
+        if card["karmasik"]:
+            continue
+        text = onkapi.card_text([card["id"]], CARDS, tmp_path)
+        assert "geri oku" not in text, card["id"]
+        assert text.endswith("sonucu bağımsız kontrolcü denetler, kabulü kişi verir."), card["id"]
+
+
 def test_same_card_once_per_session(tmp_path):
     assert onkapi.unseen("s1", ["tavan"], tmp_path) == ["tavan"]
     assert onkapi.unseen("s1", ["tavan", "render"], tmp_path) == ["render"]

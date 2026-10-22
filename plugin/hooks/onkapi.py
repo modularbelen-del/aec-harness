@@ -22,7 +22,7 @@ _CARD_HEAD = (
 )
 CARD_TEMPLATE = _CARD_HEAD + (
     "Az sor, çok göster: proje MD'sine bak, en fazla 3 soru sor, varsayımları VARSAYIM diye yaz, "
-    "planı göster, onay al; uyguladıktan sonra geri oku."
+    "planı göster, onay al; uygulamadan sonra sonucu bağımsız kontrolcü denetler, kabulü kişi verir."
 )
 # Complex card (kartlar.json "karmasik": true): the full interview applies, not the 3-question limit.
 CARD_TEMPLATE_KARMASIK = _CARD_HEAD + (
