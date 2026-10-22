@@ -10,7 +10,7 @@ SKILLS = pathlib.Path(__file__).resolve().parents[2] / "plugin" / "skills"
 
 def test_missing_uv(tmp_path):
     lines = kontrol.satirlar(tmp_path, tmp_path, set(), None)
-    assert lines[0].startswith("✗ uv") and "kur.cmd" in lines[0]
+    assert lines[0].startswith("✗ uv") and "BASLA" in lines[0] and "kur.cmd" not in lines[0]
 
 
 def test_auto_update(tmp_path):
@@ -65,3 +65,11 @@ def test_auto_update_bom_settings(tmp_path):
 def test_skill_connection_definition():
     text = (SKILLS / "kontrol-et" / "SKILL.md").read_text(encoding="utf-8")
     assert "yanıt doğrulanamadı" in text and "ipucu" in text
+
+
+def test_skill_paths_and_remedies():
+    text = (SKILLS / "kontrol-et" / "SKILL.md").read_text(encoding="utf-8")
+    assert "${CLAUDE_PLUGIN_ROOT}/scripts/kontrol.py" in text and '--proje "${CLAUDE_PROJECT_DIR}"' in text
+    assert "../../scripts" not in text and "kur.cmd" not in text
+    assert kontrol.UV_YOK in text
+    assert "bu bilgisayarda kurulu değil → ofisteki sorumluya (şampiyona) haber verin" in text

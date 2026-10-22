@@ -109,3 +109,9 @@ def test_role_mcp_is_conditional():
 def test_status_line_after_authority_and_under_4kb(tmp_path):
     ctx = _ctx(_hook().build_output(str(tmp_path), acik={"Revit", "AutoCAD", "Rhino"}))
     assert ctx.index("Yetki sırası") < ctx.index("Açık programlar")
+
+
+def test_authority_selects_document_by_path():
+    text = AUTH.read_text(encoding="utf-8")
+    assert "başlığıyla" not in text
+    assert "dosya yolunu" in text and "kopya yolu" in text and "başlık yetmez" in text

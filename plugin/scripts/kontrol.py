@@ -10,7 +10,7 @@ from pathlib import Path
 from programlar import durum_satiri, running_programs
 
 MARKETPLACE = "aec-office"
-UV_YOK = "✗ uv: kurulu değil → kur.cmd'yi çalıştırın (BASLA.md)"
+UV_YOK = "✗ uv: kurulu değil → BASLA.md'deki tek satırlık kurulumu yeniden çalıştırın"
 GUNCELLEME_YOK = (
     "✗ Otomatik güncelleme: kapalı ya da bilinmiyor → terminalde /plugin > Marketplaces > aec-office > "
     "Enable auto-update; Cowork'te Customize > Plugins > \"Sync automatically\""

@@ -2,8 +2,9 @@
 # Normal kurulum (kararlı kanal):
 #   powershell -ExecutionPolicy Bypass -c "iex ((irm https://raw.githubusercontent.com/modularbelen-del/aec-harness/main/kur.ps1).TrimStart([char]0xFEFF))"
 # Deneme (dev) kanalı, şampiyon için (Win+R ya da cmd penceresine yazın; PowerShell penceresinde $env: önce açılır):
-#   powershell -ExecutionPolicy Bypass -c "$env:AEC_KANAL='dev'; iex ((irm https://raw.githubusercontent.com/modularbelen-del/aec-harness/main/kur.ps1).TrimStart([char]0xFEFF))"
+#   powershell -ExecutionPolicy Bypass -c "$env:AEC_KANAL='dev'; iex ((irm https://raw.githubusercontent.com/modularbelen-del/aec-harness/dev/kur.ps1).TrimStart([char]0xFEFF))"
 # (TrimStart, dosyanın başındaki BOM işaretini ayıklar; olmazsa iex ilk satırda hata verir.)
+# Pilot süresince yalnızca dev satırı çalışır; main satırı, değişiklikler main'e geçince çalışır.
 # Yalnızca ne yapacağını görmek için (hiçbir şey kurmaz): -KuruCalistir ya da $env:AEC_KURU='1'
 param(
     [ValidateSet('stable', 'dev')]
@@ -126,7 +127,15 @@ function Set-AecOtomatikGuncelleme {
         if ($ofis.PSObject.Properties['autoUpdate']) { $ofis.autoUpdate = $true }
         else { $ofis | Add-Member -NotePropertyName autoUpdate -NotePropertyValue $true }
         $json = Format-AecJson ($ayar | ConvertTo-Json -Depth 32 -Compress)
-        [IO.File]::WriteAllText($Yol, $json, (New-Object Text.UTF8Encoding($false)))
+        # Önce aynı klasörde geçici dosyaya yaz, sonra tek adımda yerine koy: yarım yazılmış ayar dosyası kalmaz.
+        $gecici = $Yol + '.aec-gecici'
+        try {
+            [IO.File]::WriteAllText($gecici, $json, (New-Object Text.UTF8Encoding($false)))
+            if (Test-Path -LiteralPath $Yol) { [IO.File]::Replace($gecici, $Yol, [NullString]::Value) }
+            else { [IO.File]::Move($gecici, $Yol) }
+        } finally {
+            if (Test-Path -LiteralPath $gecici) { Remove-Item -LiteralPath $gecici -Force -ErrorAction SilentlyContinue }
+        }
         return ('Otomatik güncelleme açıldı.' + $yedekMetni)
     } catch {
         return 'Otomatik güncelleme açılamadı. Eklenti yine de çalışır; şampiyona haber verin.'

@@ -14,7 +14,11 @@ def running_programs(timeout: float = 2.0) -> "set[str] | None":
     if not sys.platform.startswith("win"):
         return None
     try:
-        done = subprocess.run(["tasklist", "/FO", "CSV", "/NH"], capture_output=True, timeout=timeout)
+        # No console window flashes up when the parent (Cowork, Desktop) has none.
+        done = subprocess.run(
+            ["tasklist", "/FO", "CSV", "/NH"], capture_output=True, timeout=timeout,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+        )
         if done.returncode != 0:
             return None
         text = done.stdout.decode("utf-8", errors="replace")

@@ -1,6 +1,7 @@
 import json
 import os
 import shutil
+import stat
 import subprocess
 from pathlib import Path
 
@@ -216,3 +217,49 @@ def test_ayar_foreign_backup_not_overwritten(tmp_path):
 def test_dry_run_text_mentions_source():
     text = (ROOT / "kur.ps1").read_text(encoding="utf-8-sig")
     assert "yalnızca extraKnownMarketplaces.aec-office.autoUpdate = true" not in text
+
+def test_kur_cmd_two_lines_without_pause():
+    lines = [ln for ln in (ROOT / "kur.cmd").read_text(encoding="utf-8").splitlines() if ln.strip()]
+    assert len(lines) == 2 and lines[0].strip().lower() == "@echo off"
+    assert all("pause" not in ln.lower() for ln in lines)
+
+
+def test_gitattributes_cmd_crlf():
+    assert "*.cmd text eol=crlf" in (ROOT / ".gitattributes").read_text(encoding="utf-8").splitlines()
+
+
+def test_ayar_write_goes_through_temp_and_replace():
+    text = (ROOT / "kur.ps1").read_text(encoding="utf-8-sig")
+    body = text[text.index("function Set-AecOtomatikGuncelleme"):text.index("# Testler için")]
+    assert "[IO.File]::Replace(" in body
+    assert "WriteAllText($Yol" not in body
+
+
+@needs_ps
+def test_ayar_no_temp_file_left(tmp_path):
+    p = tmp_path / "settings.json"
+    p.write_text('{"model": "x"}', encoding="utf-8")
+    _ayar(p)
+    _ayar(p, "dev")
+    assert sorted(f.name for f in tmp_path.iterdir()) == ["settings.json", "settings.json.aec-yedek"]
+    assert _entry(p)["extraKnownMarketplaces"]["aec-office"]["source"]["ref"] == "dev"
+    yeni = tmp_path / "yeni" / "settings.json"
+    _ayar(yeni)
+    assert [f.name for f in yeni.parent.iterdir()] == ["settings.json"]
+
+
+@needs_ps
+def test_ayar_failed_write_keeps_file_and_no_temp(tmp_path):
+    p = tmp_path / "settings.json"
+    p.write_text('{"model": "x"}', encoding="utf-8")
+    os.chmod(p, stat.S_IREAD)
+    try:
+        out = _ayar(p)
+    finally:
+        os.chmod(p, stat.S_IREAD | stat.S_IWRITE)
+        yedek = tmp_path / "settings.json.aec-yedek"
+        if yedek.exists():
+            os.chmod(yedek, stat.S_IREAD | stat.S_IWRITE)
+    assert p.read_text(encoding="utf-8") == '{"model": "x"}'
+    assert "açılamadı" in out
+    assert sorted(f.name for f in tmp_path.iterdir()) == ["settings.json", "settings.json.aec-yedek"]

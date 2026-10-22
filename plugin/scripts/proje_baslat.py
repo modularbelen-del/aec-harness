@@ -24,6 +24,14 @@ KODLAMA_HATASI = (
     "✗ CLAUDE.md okunamadı (Türkçe karakter kodlaması farklı); "
     "dosyayı UTF-8 olarak kaydedip tekrar deneyin. Hiçbir şey yazılmadı."
 )
+EV_KLASORU = (
+    "✗ Proje klasörü olarak kullanıcı klasörünüz ({}) seçilmiş; buraya yazılan bilgi bütün projelere karışır. "
+    "Claude'u projenin klasöründe açıp tekrar deneyin. Hiçbir şey yazılmadı."
+)
+SURUCU_KOKU = (
+    "✗ Proje klasörü olarak bir sürücünün kökü ({}) seçilmiş. "
+    "Claude'u projenin klasöründe açıp tekrar deneyin. Hiçbir şey yazılmadı."
+)
 
 
 def _deger(cevap: "dict[str, str]", alan: str) -> str:
@@ -93,8 +101,26 @@ def _yeni_claude_md(mevcut: str, blok: str) -> str:
     return mevcut + ayrac + blok
 
 
+def _yasak_hedef(proje_dir: Path) -> "str | None":
+    """Home folder and drive roots are never a project: a CLAUDE.md there reaches every session below it."""
+    try:
+        hedef = proje_dir.resolve()
+    except OSError:
+        hedef = proje_dir.absolute()
+    if hedef.parent == hedef:
+        return SURUCU_KOKU.format(hedef)
+    try:
+        ev = Path.home().resolve()
+    except (OSError, RuntimeError):
+        return None
+    return EV_KLASORU.format(hedef) if hedef == ev else None
+
+
 def yaz(proje_dir: Path, cevap: "dict[str, str]") -> "list[str]":
     proje_dir = Path(proje_dir)
+    yasak = _yasak_hedef(proje_dir)
+    if yasak:
+        return [yasak]
     claude_md = proje_dir / "CLAUDE.md"
     try:  # read first: a file we cannot decode must leave no half-done state
         mevcut = claude_md.read_bytes().decode("utf-8") if claude_md.is_file() else ""

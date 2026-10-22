@@ -37,3 +37,16 @@ def test_running_programs_none_on_failure(monkeypatch):
 def test_running_programs_none_off_windows(monkeypatch):
     monkeypatch.setattr(sys, "platform", "linux")
     assert programlar.running_programs() is None
+
+
+def test_tasklist_runs_without_console_window(monkeypatch):
+    monkeypatch.setattr(sys, "platform", "win32")
+    seen = {}
+
+    def run(*args, **kwargs):
+        seen.update(kwargs)
+        return subprocess.CompletedProcess(args, 0, stdout=b"", stderr=b"")
+    monkeypatch.setattr(programlar.subprocess, "run", run)
+    programlar.running_programs()
+    assert "creationflags" in seen
+    assert seen["creationflags"] == getattr(subprocess, "CREATE_NO_WINDOW", 0)

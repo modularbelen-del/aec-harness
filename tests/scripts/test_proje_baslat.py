@@ -108,3 +108,41 @@ def test_no_temp_files_left(tmp_path):
     proje_baslat.yaz(tmp_path, CEVAP)
     assert sorted(p.name for p in tmp_path.iterdir()) == [".aec", "CLAUDE.md"]
     assert [p.name for p in (tmp_path / ".aec").iterdir()] == ["proje.md"]
+
+
+def test_refuses_home_folder(tmp_path, monkeypatch):
+    monkeypatch.setattr(pathlib.Path, "home", staticmethod(lambda: tmp_path))
+    msgs = proje_baslat.yaz(tmp_path, CEVAP)
+    assert list(tmp_path.iterdir()) == []
+    assert any("kullanıcı klasörünüz" in m and "Hiçbir şey yazılmadı" in m for m in msgs)
+
+
+def test_project_inside_home_is_allowed(tmp_path, monkeypatch):
+    monkeypatch.setattr(pathlib.Path, "home", staticmethod(lambda: tmp_path))
+    proje_baslat.yaz(tmp_path / "Proje", CEVAP)
+    assert (tmp_path / "Proje" / "CLAUDE.md").is_file()
+
+
+def test_refuses_drive_root(tmp_path, monkeypatch):
+    yazilan = []
+    monkeypatch.setattr(proje_baslat, "_yaz_metin", lambda yol, metin: yazilan.append(yol))
+    monkeypatch.setattr(pathlib.Path, "mkdir", lambda self, *a, **k: yazilan.append(self))
+    msgs = proje_baslat.yaz(pathlib.Path(tmp_path.anchor), CEVAP)
+    assert yazilan == []
+    assert any("sürücünün kökü" in m and "Hiçbir şey yazılmadı" in m for m in msgs)
+
+
+def test_main_prints_refusal_for_home(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(pathlib.Path, "home", staticmethod(lambda: tmp_path))
+    f = tmp_path.parent / (tmp_path.name + "-cevap.json")
+    f.write_text(json.dumps(CEVAP, ensure_ascii=False), encoding="utf-8")
+    assert proje_baslat.main(["--proje", str(tmp_path), "--json", str(f)]) == 0
+    assert "Hiçbir şey yazılmadı" in capsys.readouterr().out
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_skill_names_target_folder():
+    text = (SKILLS / "proje-baslat" / "SKILL.md").read_text(encoding="utf-8")
+    assert "${CLAUDE_PLUGIN_ROOT}/scripts/proje_baslat.py" in text and '--proje "${CLAUDE_PROJECT_DIR}"' in text
+    assert "../../scripts" not in text
+    assert "şu klasöre yazacağım" in text
