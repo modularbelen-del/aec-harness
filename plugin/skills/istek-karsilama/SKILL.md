@@ -140,6 +140,8 @@ kişinin yanıtını bekle.
   aynı komutla yeniden kaydet ve göster; ardından onay sorusunu yeniden sor.
 - "[aec] Ret kaydedildi" satırı gelirse gerekçeyi sor, belgeyi düzelt ve yeniden kaydet. Karmaşık işte önceki bir
   belge de değişiyorsa tariften başla; değişmiyorsa plandan devam edilebilir.
+- "[aec] Bu oturuma bağlı bir iş bulunmadığından" satırı gelirse iş önceki bir oturumda açılmıştır: `devam --is <kimlik>`
+  komutunu çalıştır, ardından bekleyen belgeyi ya da raporu yeniden göster ve soruyu yeniden sor.
 - Hiçbir `[aec]` satırı gelmezse aşağıdaki yumuşak mod kuralını uygula.
 
 ### 8. Uygula
@@ -210,8 +212,11 @@ kişinin yanıtını bekle.
 - **Bekleme kuralı:** iş `onay-bekliyor:<aşama>` ya da `kabul-bekliyor` durumundayken düz metinle başka hiçbir
   evet/hayır sorusu sorma; kişinin "evet"i o sırada bekleyen onay ya da kabul olarak kaydedilir. Başka bir şey
   sorman gerekirse `AskUserQuestion` kullan ya da soruyu karar kaydedildikten sonra sor.
-- **Yumuşak mod:** kişi yalnızca "evet" yazdığı hâlde hiçbir `[aec]` satırı gelmezse `durum` ile kaydı oku ve
-  durumuna göre ilerle (işin sınıfını çıktıdaki "Karmaşık" satırı gösterir):
+- **Yumuşak mod:** kişi yalnızca "evet" yazdığı hâlde hiçbir `[aec]` satırı gelmezse yumuşak moda geçmeden önce
+  `durum` ile kaydı oku ve işin bu oturuma bağlı olduğunu denetle. İş bu oturumda `yeni` ya da `devam` ile
+  bağlanmadıysa (ör. iş önceki bir oturumda açıldıysa) `devam --is <kimlik>` komutunu çalıştır, belgeyi ya da raporu yeniden
+  göster ve soruyu yeniden sor. İş bu oturuma bağlıysa durumuna göre ilerle (işin sınıfını çıktıdaki "Karmaşık"
+  satırı gösterir):
   - `onaylandi:tarif`, `onaylandi:plan`, `plan-onaylandi`, `uygulandi` ya da `kabul-edildi`: kayıt yapılmıştır,
     yalnızca bağlam satırı görünmemiştir. Akışa bu durumdan devam et.
   - `gorusme` ya da `reddedildi`: onay bekleyen kayıtlı bir belge yoktur. Belgeyi kaydet, göster ve onay sorusunu

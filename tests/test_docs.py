@@ -168,6 +168,7 @@ def test_sorun_giderme_quotes_real_lock_messages():
     text = _doc("SORUN-GIDERME")
     assert "Bu mesaj onay olarak kaydedilmedi" in onay.BELIRSIZ_METNI
     assert "Bu mesaj onay olarak kaydedilmedi" in text
+    assert onay.BAGLI_IS_YOK_METNI.removeprefix("[aec] ").split(". ")[0] in text
     assert pre_tool.NEDEN_IS_YOK.split(". ")[0] in text
     assert '"evet"' in text
     # an unreadable job record goes to the office's system contact, as the page says; kontrol-et cannot repair it

@@ -118,3 +118,16 @@ def test_routing_card_under_1kb_with_long_plugin_path(tmp_path, monkeypatch):
     out = user_prompt.build_output(json.dumps({"prompt": "uzun bir ofis isteği", "session_id": "uzun"}), tmp_path / "sd")
     assert out and kart_klasoru.as_posix() in json.loads(out)["hookSpecificOutput"]["additionalContext"]
     assert len(out.encode("utf-8")) <= 1024, (en_uzun, len(out.encode("utf-8")))
+
+
+def test_unbound_session_notice_reaches_context(tmp_path):
+    import is_durumu
+    kayit = is_durumu.yeni_is(tmp_path, "revit-modelleme", "Kapı", False)
+    kayit["durum"] = "onay-bekliyor:plan"
+    is_durumu.is_kaydet(tmp_path, kayit)
+    is_durumu.aktif_bagla(tmp_path, "eski-oturum", kayit["id"])
+    out = user_prompt.build_output(json.dumps({"prompt": "evet", "session_id": "yeni", "cwd": str(tmp_path)}),
+                                   tmp_path / "sd")
+    ctx = json.loads(out)["hookSpecificOutput"]["additionalContext"]
+    assert ctx.startswith("[aec] Bu oturuma bağlı bir iş bulunmadığından") and "`devam`" in ctx
+    assert is_durumu.is_yukle(tmp_path, kayit["id"])["durum"] == "onay-bekliyor:plan"

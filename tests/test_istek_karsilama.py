@@ -264,6 +264,15 @@ def test_readback_wording_and_ceiling_skill():
     assert "geri okuyup doğrula" not in kural and "Revit okuma araçlarıyla" in kural
 
 
+def test_skill_checks_binding_before_soft_mode():
+    skill = SKILL.read_text(encoding="utf-8")
+    yedi = _tek(_bolum(skill, "### 7.", "### 8."))
+    assert "[aec] Bu oturuma bağlı bir iş bulunmadığından" in yedi and "`devam --is <kimlik>`" in yedi
+    bas = skill.index("**Yumuşak mod:**")
+    giris = _tek(skill[bas:skill.index("\n  - ", bas)])  # the lead sentence, before the per-state bullets
+    assert "yumuşak moda geçmeden önce" in giris and "`durum`" in giris and "`devam --is <kimlik>`" in giris
+
+
 def test_skill_continues_open_jobs_with_devam():
     metin = SKILL.read_text(encoding="utf-8")
     skill = _tek(metin)

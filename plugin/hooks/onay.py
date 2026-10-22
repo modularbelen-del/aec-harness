@@ -37,6 +37,10 @@ KABUL_METNI = "[aec] Kabulünüz kaydedildi. İş tamamlanmıştır."
 BELIRSIZ_METNI = ('[aec] Bu mesaj onay olarak kaydedilmedi. Onay için yalnızca "evet", '
                   'ret için yalnızca "hayır" yazılması istenmelidir. Mesaj bir soru ya da değişiklik isteğiyse '
                   'önce yanıtlanmalı; plan değiştiyse yeniden onaya sunulmalıdır.')
+BAGLI_IS_YOK_METNI = ("[aec] Bu oturuma bağlı bir iş bulunmadığından mesajınız onay olarak kaydedilmedi. "
+                      "Açık işe devam etmek için `devam` komutu kullanılmalıdır.")
+IPTAL_KELIMELERI = frozenset("iptal vazgec vazgectim".split())
+IPTAL_NOTU = "Kişi işten vazgeçtiyse iş `iptal` komutuyla kapatılmalıdır."
 _GECERSIZ_OTURUM = re.compile(r"[^A-Za-z0-9_-]")
 
 
@@ -62,11 +66,23 @@ def _gunluge_yaz(proje: pathlib.Path, satir: str) -> None:
         pass
 
 
+def _bekleyen_is_var(proje: pathlib.Path) -> bool:
+    """True when some job in the project waits for an approval or acceptance (bound to any session, or to none)."""
+    for kayit in is_durumu.acik_isler(proje):
+        durum = kayit.get("durum")
+        if isinstance(durum, str) and (durum.startswith("onay-bekliyor:") or durum == "kabul-bekliyor"):
+            return True
+    return False
+
+
 def isle(proje: pathlib.Path, oturum: str, mesaj: str) -> "str | None":
     if not _GECERSIZ_OTURUM.sub("", oturum or ""):
         return None  # fail closed: no usable session id
     kayit = is_durumu.aktif_is(proje, oturum)
     if not kayit:
+        # a decision word for a job of an earlier session records nothing; the agent is told to continue the job first
+        if siniflandir(mesaj) != "belirsiz" and _bekleyen_is_var(proje):
+            return BAGLI_IS_YOK_METNI
         return None
     durum = kayit.get("durum", "")
     if not (durum.startswith("onay-bekliyor:") or durum == "kabul-bekliyor"):
@@ -78,6 +94,8 @@ def isle(proje: pathlib.Path, oturum: str, mesaj: str) -> "str | None":
     asama = "kabul" if kabul else durum.split(":", 1)[1]
     if sonuc == "ret":
         metin = f"[aec] Ret kaydedildi: {ASAMA_ADI[asama]}. {RET_SONRASI[asama]}"
+        if IPTAL_KELIMELERI & set(onkapi.normalize(mesaj).split()):
+            metin += f" {IPTAL_NOTU}"
         is_durumu.gecis(kayit, "reddedildi", KAYNAK, "kullanıcı reddetti")
         is_durumu.is_kaydet(proje, kayit)
         _gunluge_yaz(proje, _gunluk_satiri(kayit, f"reddedildi ({ASAMA_ADI[asama]})"))

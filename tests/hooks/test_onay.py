@@ -78,10 +78,49 @@ def test_ambiguous_while_waiting_gives_notice(tmp_path):
     assert is_durumu.aktif_is(tmp_path, OTURUM)["durum"] == "onay-bekliyor:plan"
 
 
+BAGSIZ = ("[aec] Bu oturuma bağlı bir iş bulunmadığından mesajınız onay olarak kaydedilmedi. "
+          "Açık işe devam etmek için `devam` komutu kullanılmalıdır.")
+
+
 def test_other_sessions_job_untouched(tmp_path):
     _is(tmp_path, "onay-bekliyor:plan", oturum="oturum-a")
-    assert onay.isle(tmp_path, "oturum-b", "evet") is None
+    assert onay.isle(tmp_path, "oturum-b", "evet") == BAGSIZ
     assert is_durumu.aktif_is(tmp_path, "oturum-a")["durum"] == "onay-bekliyor:plan"
+
+
+@pytest.mark.parametrize("durum", ["onay-bekliyor:plan", "onay-bekliyor:tarif", "kabul-bekliyor"])
+@pytest.mark.parametrize("m", ["evet", "hayır", "kabul ediyorum", "devam et", "vazgeçtim"])
+def test_unbound_session_with_waiting_job_gets_continue_notice(tmp_path, durum, m):
+    kayit = _is(tmp_path, durum, karmasik=True, oturum="eski-oturum")
+    assert onay.isle(tmp_path, "yeni-oturum", m) == BAGSIZ
+    assert is_durumu.is_yukle(tmp_path, kayit["id"]) == kayit  # nothing recorded
+    assert not (tmp_path / ".aec" / "gunluk.md").exists()
+
+
+def test_unbound_session_notice_only_for_decision_words_and_waiting_jobs(tmp_path):
+    _is(tmp_path, "onay-bekliyor:plan", oturum="eski-oturum")
+    for m in ("tamam anladım", "Revit'te kapı yerleştir", "evet mi?"):
+        assert onay.isle(tmp_path, "yeni-oturum", m) is None, m
+    for durum in ("gorusme", "plan-onaylandi", "uygulandi", "reddedildi", "kabul-edildi", "iptal"):
+        proje = tmp_path / durum.replace(":", "-")
+        _is(proje, durum, oturum="eski-oturum")
+        assert onay.isle(proje, "yeni-oturum", "evet") is None, durum
+    assert onay.isle(tmp_path / "bos", "yeni-oturum", "evet") is None
+
+
+@pytest.mark.parametrize("m", ["iptal", "vazgeç", "vazgeçtim", "iptal ediyorum", "vazgeçtim lütfen"])
+def test_cancel_words_add_cancel_hint(tmp_path, m):
+    _is(tmp_path, "onay-bekliyor:plan")
+    metin = onay.isle(tmp_path, OTURUM, m)
+    assert metin == ("[aec] Ret kaydedildi: plan. Plan gerekçeyle yeniden hazırlanmalıdır. "
+                     "Kişi işten vazgeçtiyse iş `iptal` komutuyla kapatılmalıdır.")
+    assert is_durumu.aktif_is(tmp_path, OTURUM)["durum"] == "reddedildi"
+
+
+@pytest.mark.parametrize("m", ["hayır", "reddediyorum", "durdur"])
+def test_other_rejection_words_have_no_cancel_hint(tmp_path, m):
+    _is(tmp_path, "kabul-bekliyor")
+    assert onay.isle(tmp_path, OTURUM, m) == "[aec] Ret kaydedildi: kabul. İş gerekçeyle yeniden planlanmalıdır."
 
 
 @pytest.mark.parametrize("m", ["evet?", "onaylıyorum?", "kabul?", "evet？", "evet؟", "¿evet", "ediyorum"])
