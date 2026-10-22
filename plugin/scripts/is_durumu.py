@@ -146,6 +146,17 @@ def aktif_bagla(proje: Path, oturum: str, is_id: str) -> None:
     _yaz_json(yol, {"is": is_id})
 
 
+def diger_baglari_kaldir(proje: Path, oturum: str, is_id: str) -> None:
+    """Removes other sessions' bindings to this job, so that it is continued in one session only; best effort."""
+    kendi = _aktif_yol(proje, oturum).name
+    for yol in (Path(proje) / ISLER).glob("aktif-*.json"):
+        try:
+            if yol.name != kendi and json.loads(yol.read_text(encoding="utf-8")).get("is") == is_id:
+                yol.unlink()
+        except (OSError, ValueError, AttributeError):
+            continue
+
+
 def aktif_is(proje: Path, oturum: str) -> "dict | None":
     try:
         bag = json.loads(_aktif_yol(proje, oturum).read_text(encoding="utf-8"))

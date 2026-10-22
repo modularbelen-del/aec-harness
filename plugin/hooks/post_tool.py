@@ -2,7 +2,8 @@
 Revit write.
 
 A continued job ('is_kaydi.py devam') that was approved in another session goes back to 'onay-bekliyor:plan': the person
-confirms it again here. Binding grants nothing else. Standard library only. Never raises and prints nothing; it decides
+confirms it again here. The job moves to this session; other sessions' bindings to it are removed. Binding grants
+nothing else. Standard library only. Never raises and prints nothing; it decides
 no permission, so a failed import only means no binding (the locks then stay closed).
 """
 import json
@@ -82,6 +83,7 @@ def _devam(girdi: dict, proje: pathlib.Path, oturum: str) -> None:
             is_durumu.gecis(kayit, "onay-bekliyor:plan", KAYNAK, DEVAM_NOTU)
             is_durumu.is_kaydet(proje, kayit)
         is_durumu.aktif_bagla(proje, oturum, is_id)
+        is_durumu.diger_baglari_kaldir(proje, oturum, is_id)  # a decision in the old session no longer counts here
         return
 
 

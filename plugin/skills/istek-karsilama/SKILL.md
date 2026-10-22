@@ -49,7 +49,7 @@ Komutları Bash ile ve tek tek çalıştır:
 | `olcut --is <kimlik> --olcut "<ölçüt>" --yontem <yöntem> [--beklenen <değer>] [--tolerans <değer>]` | Kabul ölçütü ekler; yalnızca görüşme aşamasında çalışır. Yöntem: `revit-okuma`, `dosya`, `olcu`, `kisi-gorsel`. |
 | `tarif`, `plan` ya da `gorevler` ile `--is <kimlik> --dosya -` | Belgeyi kaydeder; iş `onay-bekliyor:<aşama>` durumuna geçer. İlk belge (basit işte `plan`, karmaşık işte `tarif`) en az bir kabul ölçütü kaydedilmeden reddedilir. |
 | `durum --is <kimlik>` | Durumu, sınıfı, ölçüt sayısını ve kontrol sonucunu yazar; hiçbir şeyi değiştirmez. |
-| `devam --is <kimlik>` | Önceki bir oturumdan kalan açık işi `DEVAM: <kimlik>` satırıyla bu oturuma bağlar; başka bir oturumda verilmiş plan onayı düşer ve iş `onay-bekliyor:plan` durumuna alınır. Kabul edilmiş ya da iptal edilmiş işte reddedilir. |
+| `devam --is <kimlik>` | Önceki bir oturumdan kalan açık işi `DEVAM: <kimlik>` satırıyla bu oturuma bağlar; iş önceki oturumdan ayrılır. Başka bir oturumda verilmiş plan onayı düşer ve iş `onay-bekliyor:plan` durumuna alınır. Kabul edilmiş ya da iptal edilmiş işte reddedilir. |
 | `uygulandi --is <kimlik>` | Onaylı planı (`plan-onaylandi`) uygulandı olarak kaydeder ve kontrolcünün önünü açar; başka durumda reddedilir. |
 | `iptal --is <kimlik> --gerekce "<gerekçe>"` | İşi kapatır (aşağıdaki iptal kuralına bak). |
 | `proje-ekle --metin "<bilgi>"` | `.aec/proje.md` dosyasına kalıcı bir bilgi ekler; yalnızca kişi istediğinde. |

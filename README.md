@@ -193,10 +193,10 @@ kabulünü beklerken ajanın durması hiçbir zaman engellenmez.
   başlar (ör. `20261022-1430-kapi-yerlestirme`).
 - İş, onu açan oturuma bağlıdır (`.aec/isler/aktif-<oturum>.json`); kişinin "evet"i yalnızca kendi oturumundaki işi
   ilerletir. Yeni bir oturumun başında açık işler (en fazla üç) ajana bildirilir ve ajan devam etmeyi önerir. Kişi
-  devam etmek isterse ajan işi `devam` komutuyla yeni oturuma bağlar. Önceki oturumda verilmiş plan onayı yeniden
-  istenir: iş `onay-bekliyor:plan` durumuna alınır. Kişi işi sürdürmek istemezse iş `iptal` ile kapatılır.
-  Kabulde reddedilen iş de açık iş olarak listelenir; modeldeki değişiklikler yeniden planlanana ya da iş
-  kapatılana kadar durur.
+  devam etmek isterse ajan işi `devam` komutuyla yeni oturuma bağlar; iş önceki oturumdan ayrılır ve orada yazılan
+  bir "evet" artık bu işi ilerletmez. Önceki oturumda verilmiş plan onayı yeniden istenir: iş `onay-bekliyor:plan`
+  durumuna alınır. Kişi işi sürdürmek istemezse iş `iptal` ile kapatılır. Kabulde reddedilen iş de açık iş olarak
+  listelenir; modeldeki değişiklikler yeniden planlanana ya da iş kapatılana kadar durur.
 - Kabul ve ret kararları ile ajanın kontrolcüyü çalıştırmadan durduğu işler `.aec/gunluk.md` dosyasına birer satır
   olarak yazılır. "doğrulama yapılmadan durdu" satırı işin bittiğini göstermez; iş açık kalabilir.
 - `.aec/proje.md` dosyasının yapısı ve işlevi değişmemiştir. İş sırasında kalıcı yeni bir bilgi ortaya çıkarsa bu

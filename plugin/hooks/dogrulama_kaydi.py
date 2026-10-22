@@ -3,8 +3,8 @@ job from 'uygulandi' to 'kabul-bekliyor' with a 'sonuc'.
 
 The verifier is trusted only when its transcript holds exactly one genuine user message (the job folder path) and no
 line injected from elsewhere (a SendMessage continuation or a queued_command attachment); otherwise the result is
-recorded as 'DOĞRULANAMADI', as it is for a job without acceptance criteria. The transcript is JSONL whose line format is not formally documented, so it is parsed
-defensively. Standard library only; never raises, prints nothing.
+recorded as 'DOĞRULANAMADI', as it is for a job without acceptance criteria. The transcript is JSONL whose line
+format is not formally documented, so it is parsed defensively. Standard library only; never raises, prints nothing.
 """
 import json
 import os

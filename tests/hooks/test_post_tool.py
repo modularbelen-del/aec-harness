@@ -141,6 +141,16 @@ def test_continue_asks_again_for_plan_approved_elsewhere(tmp_path):
     assert olay["not"] == "oturum değişti; onay yeniden istenecek"
 
 
+def test_continue_takes_the_job_over_from_other_sessions(tmp_path):
+    is_id = _eski_is(tmp_path, "onay-bekliyor:plan", oturum="eski-oturum")
+    diger = is_durumu.yeni_is(tmp_path, "render", "Diger", False)
+    is_durumu.aktif_bagla(tmp_path, "ucuncu-oturum", diger["id"])
+    post_tool.isle(_devam(is_id), tmp_path)
+    assert is_durumu.aktif_is(tmp_path, SID)["id"] == is_id
+    assert is_durumu.aktif_is(tmp_path, "eski-oturum") is None  # an "evet" there no longer counts for this job
+    assert is_durumu.aktif_is(tmp_path, "ucuncu-oturum")["id"] == diger["id"]
+
+
 def test_continue_in_own_session_keeps_its_approval(tmp_path):
     is_id = _eski_is(tmp_path, "plan-onaylandi", oturum=SID)
     post_tool.isle(_devam(is_id), tmp_path)
