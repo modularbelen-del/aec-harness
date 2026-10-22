@@ -171,16 +171,14 @@ def test_cancel_exits(tmp_path):
 
 def test_rejected_resubmission_by_complexity(tmp_path):
     karma = _yeni(tmp_path, "Karma")
-    for y in ("onay-bekliyor:tarif", "reddedildi", "onay-bekliyor:tarif"):
+    for y in ("onay-bekliyor:tarif", "reddedildi", "onay-bekliyor:tarif", "reddedildi", "onay-bekliyor:plan"):
         is_durumu.gecis(karma, y, "ajan")
     basit = _yeni(tmp_path, "Basit", karmasik=False)
-    for y in ("onay-bekliyor:plan", "reddedildi", "onay-bekliyor:plan"):
+    for y in ("onay-bekliyor:plan", "reddedildi"):
         is_durumu.gecis(basit, y, "ajan")
-    karma2 = _yeni(tmp_path, "Karma iki")
-    for y in ("onay-bekliyor:tarif", "reddedildi"):
-        is_durumu.gecis(karma2, y, "ajan")
     with pytest.raises(ValueError):
-        is_durumu.gecis(karma2, "onay-bekliyor:plan", "ajan")
+        is_durumu.gecis(basit, "onay-bekliyor:tarif", "ajan")
+    is_durumu.gecis(basit, "onay-bekliyor:plan", "ajan")
 
 
 def test_session_id_capped(tmp_path):

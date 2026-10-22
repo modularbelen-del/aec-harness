@@ -111,10 +111,10 @@ def gecis(kayit: dict, yeni: str, kaynak: str, not_: str = "") -> dict:
         raise ValueError(f"✗ Geçersiz geçiş kaynağı: {kaynak}.")
     if yeni not in IZINLI.get(eski, set()):
         raise ValueError(f"✗ '{eski}' durumundan '{yeni}' durumuna geçişe izin verilmemektedir.")
-    if eski in ("gorusme", "reddedildi") and yeni.startswith("onay-bekliyor:"):
-        beklenen = "onay-bekliyor:tarif" if kayit.get("karmasik") else "onay-bekliyor:plan"
-        if yeni != beklenen:
-            raise ValueError(f"✗ Bu iş için ilk aşama '{beklenen}' olmalıdır.")
+    if yeni == "onay-bekliyor:tarif" and eski in ("gorusme", "reddedildi") and not kayit.get("karmasik"):
+        raise ValueError("✗ Basit işte tarif aşaması yoktur; ilk aşama 'onay-bekliyor:plan' olmalıdır.")
+    if eski == "gorusme" and yeni == "onay-bekliyor:plan" and kayit.get("karmasik"):
+        raise ValueError("✗ Karmaşık işte ilk aşama 'onay-bekliyor:tarif' olmalıdır.")
     kayit["durum"] = yeni
     kayit.setdefault("olaylar", []).append(
         {"zaman": _zaman(), "eski": eski, "yeni": yeni, "kaynak": kaynak, "not": not_})
