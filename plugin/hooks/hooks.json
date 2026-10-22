@@ -55,6 +55,29 @@
           }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run --no-project --python 3.12 python \"${CLAUDE_PLUGIN_ROOT}/hooks/stop_kontrol.py\"; exit 0",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "dogrulayici|aec:dogrulayici",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run --no-project --python 3.12 python \"${CLAUDE_PLUGIN_ROOT}/hooks/dogrulama_kaydi.py\"; exit 0",
+            "timeout": 15
+          }
+        ]
+      }
     ]
   }
 }
