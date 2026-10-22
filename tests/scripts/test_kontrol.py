@@ -53,3 +53,15 @@ def test_skill_runs_script():
     text = (SKILLS / "kontrol-et" / "SKILL.md").read_text(encoding="utf-8")
     assert frontmatter(SKILLS / "kontrol-et" / "SKILL.md")["name"] == "kontrol-et"
     assert "scripts/kontrol.py" in text and "get_revit_status" in text
+
+
+def test_auto_update_bom_settings(tmp_path):
+    s = tmp_path / ".claude" / "settings.json"
+    s.parent.mkdir()
+    s.write_text(json.dumps({"extraKnownMarketplaces": {"aec-office": {"autoUpdate": True}}}), encoding="utf-8-sig")
+    assert any(l.startswith("✓ Otomatik güncelleme") for l in kontrol.satirlar(tmp_path, tmp_path, set(), "0.13.0"))
+
+
+def test_skill_connection_definition():
+    text = (SKILLS / "kontrol-et" / "SKILL.md").read_text(encoding="utf-8")
+    assert "yanıt doğrulanamadı" in text and "ipucu" in text

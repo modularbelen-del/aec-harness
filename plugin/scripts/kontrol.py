@@ -21,7 +21,7 @@ PROJE_BASLAT = "/aec:proje-baslat"
 def _otomatik_guncelleme(*dizinler: Path) -> bool:
     for dizin in dizinler:
         try:
-            data = json.loads((dizin / ".claude" / "settings.json").read_text(encoding="utf-8"))
+            data = json.loads((dizin / ".claude" / "settings.json").read_text(encoding="utf-8-sig"))
             if data["extraKnownMarketplaces"][MARKETPLACE]["autoUpdate"] is True:
                 return True
         except (OSError, ValueError, KeyError, TypeError):
