@@ -24,17 +24,19 @@
 - Bu iş için özel araç henüz yok (yakında). Genel prosedürle çalış: ölç → planla → onay al → kopyada uygula → geri oku.
 - Araç listende adında `revit` geçen araçlar var mı bak (ör. `revit` ya da `revit2` sunucusu: `get_revit_status`,
   `get_revit_model_info`, `get_current_view_info`, `list_levels`, `list_families`, `place_family`, `execute_revit_code`).
-- Yazmadan önce `get_revit_status` ve `get_revit_model_info` ile açık belgenin kopya model olduğunu başlığından doğrula.
-- Onaylı plan başına tek bir TransactionGroup kullan (sonunda Assimilate), yalnızca kopya modelde.
+- Yazmadan önce açık belgenin dosya yolunu (`get_revit_model_info`, gerekirse `Document.PathName`) `.aec/proje.md`'deki
+  kopya yoluyla karşılaştır; başlık yetmez. MD yoksa ya da yollar tutmuyorsa dur ve sor (3 sorudan biri sayılır).
+- Onaylı planın hepsini tek `execute_revit_code` çağrısında, tek TransactionGroup içinde (sonunda Assimilate) yapmaya
+  çalış. Olmuyorsa (`place_family` çağrıları, sunucunun kendi işlemi) geri almanın birkaç adım sürebileceğini söyle.
 - Ofiste Revit 2027 var. API'yi ezberden yazma; emin olmadığın sınıfı açık modelden doğrula.
 - `save_document` ve `sync_with_central` araçlarını kendiliğinden çağırma; kaydetme ve eşitleme kişinin işi.
 
 ## Plan şablonu
-1. Dosya: <kopya model adı> (açık belgenin başlığıyla doğrulandı).
+1. Dosya: <kopya model yolu> (açık belgenin yolu proje MD'siyle karşılaştırıldı).
 2. Seviye: <seviye>. Aile ve tip: <aile : tip>.
 3. Yapılacak: <adet> <öğe>; konumlar <ölçü kaynağı>'ndan.
 4. VARSAYIM: <sorulmayan her şey, ör. duvar ortasından yerleşim>.
-5. Hepsi tek işlem olarak yazılır; beğenmezseniz tek geri al ile döner.
+5. <Tek seferde yazılamıyorsa:> Geri almak birkaç adım sürebilir.
 6. Sonunda modelden geri okuyup bu planla karşılaştırırım. Onaylıyor musunuz?
 
 ## Geri okuma

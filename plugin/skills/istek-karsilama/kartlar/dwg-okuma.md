@@ -23,7 +23,10 @@
 - DWG okuma araçları yakında (Faz 1B); bu iş için özel araç henüz yok (yakında).
 - Genel prosedürle çalış: ölç → planla → onay al → kopyada uygula → geri oku.
 - Ölçüler yalnızca araçla okunur; ekran görüntüsünden ya da PDF resminden ölçü alınmaz.
-- Kullanıcı DXF verirse metin dosyası olduğu için araçla okunabilir; okuyamadığın değeri VARSAYIM yaz.
+- DXF yolu: yalnızca bu oturumda kod çalıştırabiliyorsan (Bash ve Python) kullanıcının verdiği DXF'i bir betikle oku.
+  Grup kodlarına gözle bakıp ölçü çıkarma; iç içe blokların ölçeği ve dönmesi gözle yanlış okunur.
+  Betikle okunan değerleri planda "kontrol edin" notuyla VARSAYIM olarak yaz.
+- Kod çalıştıramıyorsan: DWG okumanın Faz 1B'de geleceğini söyle; yalnızca ölçüleri kişinin söylemesini öner.
 - Orijinal DWG'ye hiç yazma.
 - Revit'e aktarma kısmı için ayrıca `revit-modelleme` kartını oku.
 
@@ -42,5 +45,6 @@
 
 ## Yapamıyorsam
 - "DWG'yi okuyacak araç henüz kurulu değil, yakında geliyor. Ölçüleri resimden tahmin etmem, çünkü yanlış çıkabilir."
-- "Şimdilik şunu yapabiliriz: çizimi DXF olarak kaydedip verirseniz ya da ölçüleri yazarsanız onlarla planı hazırlarım. Sizden gelen değerleri planda VARSAYIM diye işaretlerim."
+- Kod çalıştırabiliyorsan: "Çizimi DXF olarak kaydedip verirseniz küçük bir programla okurum; okunan değerleri planda 'kontrol edin' diye işaretlerim."
+- Kod çalıştıramıyorsan: "DWG okuma Faz 1B'de geliyor. O zamana kadar ölçüleri siz söyleyin, VARSAYIM diye yazarım."
 - "Bağlantıların durumunu /aec:kontrol-et ile görebilirsiniz."

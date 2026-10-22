@@ -50,7 +50,37 @@ def test_critical_items_start_with_json_eksikler():
             assert item in bullet, (card["id"], item)
 
 
+def _card(card_id):
+    return (KARTLAR / f"{card_id}.md").read_text(encoding="utf-8")
+
+
+def test_rules_stay_in_skill_and_cards():
+    skill = SKILL.read_text(encoding="utf-8")
+    assert "save_document" in skill and "sync_with_central" in skill
+    assert "soru sormadan önce" in skill
+    assert "birim fiyat" in _card("metraj-liste")
+    assert "Faz 1B" in _card("dwg-okuma")
+    assert "Faz 1D" in _card("tavan")
+
+
+def test_dxf_route_needs_code():
+    for card_id in ("dwg-okuma", "metraj-liste"):
+        assert "kod çalıştırabiliyorsan" in _card(card_id), card_id
+
+
+def test_revit_card_promises_no_single_undo():
+    assert "tek geri al" not in _card("revit-modelleme")
+
+
 def test_frontmatter_reads_first_block_only(tmp_path):
     p = tmp_path / "x.md"
     p.write_text("---\nname:  a \ndescription: b: c\n---\nkey: not read\n---\n", encoding="utf-8")
     assert frontmatter(p) == {"name": "a", "description": "b: c"}
+
+
+def test_frontmatter_needs_leading_fence(tmp_path):
+    p = tmp_path / "y.md"
+    p.write_text("# Başlık\n---\nname: a\n---\n", encoding="utf-8")
+    assert frontmatter(p) == {}
+    p.write_bytes("﻿---\nname: a\n---\n".encode("utf-8"))
+    assert frontmatter(p) == {"name": "a"}

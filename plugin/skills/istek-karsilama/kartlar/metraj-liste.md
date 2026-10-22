@@ -24,8 +24,9 @@
 - Metraj modülü yakında; bu iş için özel araç henüz yok (yakında).
 - Genel prosedürle çalış: ölç → planla → onay al → yeni dosyada uygula → geri oku.
 - Revit kaynağı: araç listende adında `revit` geçen araç varsa oda, kapı, pencere bilgisini onunla oku.
-- DWG kaynağı: DWG okuma araçları yakında (Faz 1B); o zamana kadar bunu söyle, ölçüyü resimden çıkarma.
-- Excel'i yeni bir dosya olarak yaz; oturumda Excel skill'i varsa onu kullan.
+- DWG kaynağı: DWG okuma araçları yakında (Faz 1B); ölçüyü resimden çıkarma. Ancak kod çalıştırabiliyorsan
+  kişinin verdiği DXF'i `dwg-okuma` kartındaki gibi betikle oku ve değerleri "kontrol edin" diye işaretle.
+- Excel'i yeni dosya olarak yaz (Excel skill'i ya da kod gerekir); ikisi de yoksa bunu söyle, tabloyu sohbette ver.
 - Ofis renkleri: sarı `FFF2CC` = kontrol et, mavi `DDEBF7` = değişti.
 - Bakanlık birim fiyatları kullanılmaz; fiyat ya da tutar sütunu ekleme.
 
@@ -42,7 +43,7 @@
 - Tutmayan satırları sarıyla işaretle ve kullanıcıya listele.
 
 ## Yapamıyorsam
-- "Revit bağlantısı bu bilgisayarda kurulu değil, bu yüzden listeyi modelden çıkaramıyorum. Durumu /aec:kontrol-et ile görebilirsiniz."
-- "Revit'te listeyi (schedule) dışa aktarıp dosyayı verirseniz onunla Excel'i hazırlarım."
-- "DWG'den metraj için okuma aracı henüz yok, yakında geliyor. Alanları resimden tahmin etmem."
+- "Revit bağlantısı bu bilgisayarda kurulu değil ya da Revit kapalı, bu yüzden listeyi modelden çıkaramıyorum. Durumu /aec:kontrol-et ile görebilirsiniz."
+- "Revit'te listeyi (schedule) dışa aktarıp dosyayı verirseniz onunla tabloyu hazırlarım."
+- DWG kaynağında: "DWG okuma Faz 1B'de geliyor; alanları resimden tahmin etmem. Alanları siz söylerseniz VARSAYIM diye yazarım." DXF yolunu yalnızca kod çalıştırabiliyorsan öner.
 - Fiyat istenirse: "Ofis kuralı gereği tabloya birim fiyat ve tutar yazmıyorum; poz numaralarını yazarım."

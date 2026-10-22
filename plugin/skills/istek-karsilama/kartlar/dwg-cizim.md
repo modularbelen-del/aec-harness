@@ -23,9 +23,10 @@ Dört ayrı iş var; hangisi olduğunu baştan ayır:
 - `CLAUDE.md`: projenin yazı, ölçek ve pafta kuralları.
 
 ## Skill / araç
-- Bu iş için özel araç henüz yok (yakında). AutoCAD bağlantısı henüz bağlı değil; değerlendiriliyor.
+- Bu iş için özel araç henüz yok (yakında). AutoCAD bağlantısı değerlendiriliyor.
 - Genel prosedürle çalış: ölç → planla → onay al → yeni ya da kopya dosyada uygula → geri oku.
-- Araç listende adında `autocad` geçen bir araç varsa kullan; yoksa açık AutoCAD'e çizdiğini hiç söyleme.
+- Araç listende adında `autocad` geçen bir araç varsa kullan. Yoksa AutoCAD henüz bağlı değil; açık AutoCAD'e
+  çizdiğini hiç söyleme.
 - DXF üretme ve kopya DXF'i düzeltme: yalnızca bu oturumda kod çalıştırabiliyorsan (Bash ve Python) yeni dosyaya yaz.
 - Mevcut DWG'yi düzeltme: kopyasını iste ya da onaydan sonra kopyala; orijinalin üzerine hiç kaydetme.
 - Ölçüler araçla ya da kullanıcıdan alınır; resimden ölçü alınmaz.
@@ -42,6 +43,6 @@ Dört ayrı iş var; hangisi olduğunu baştan ayır:
 - Plandaki ölçülerle karşılaştır; tutmayanı tabloda göster.
 
 ## Yapamıyorsam
-- "AutoCAD bağlantısı henüz bağlı değil, bu yüzden açık AutoCAD'inize çizemiyorum. Durumu /aec:kontrol-et ile görebilirsiniz."
+- Araç listende `autocad` aracı yoksa: "AutoCAD bağlantısı henüz bağlı değil, bu yüzden açık AutoCAD'inize çizemiyorum. Durumu /aec:kontrol-et ile görebilirsiniz."
 - Kod çalıştırabiliyorsan: "İsterseniz aynı çizimi yeni bir DXF dosyası olarak hazırlarım; AutoCAD'de açıp DWG olarak kaydedersiniz."
 - "Orijinal çizime dokunmam; düzeltme için dosyanın bir kopyasıyla çalışırım."

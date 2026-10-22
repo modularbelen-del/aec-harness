@@ -29,7 +29,8 @@ Ofisin döngüsü: ölç (görselden tahmin etme) → planla → onay al → kop
 1. **Kartı seç.** Bağlamda `[aec ön kapı]` kartı varsa onun söylediği kartı kullan. Yoksa isteği yukarıdaki
    tabloyla eşleştir.
 2. **Kartı oku.** Kart dosyası bu skill'in klasöründeki `kartlar/` altında: `${CLAUDE_SKILL_DIR}/kartlar/<kart>.md`.
-   Kartı okumadan plan yazma.
+   Kartı okumadan plan yazma. Kartı okur okumaz, soru sormadan önce, gereken aracın bu oturumda olup olmadığına
+   bak; yoksa 6. adımdaki "Yapamıyorsam" metnini hemen söyle.
 3. **Proje MD'sini oku.** Proje klasöründeki `CLAUDE.md` ve `.aec/proje.md` dosyaları. Yoksa bir cümleyle
    `/aec:proje-baslat`'ı öner ("projeyi bir kez tanıtırsanız bunları her seferinde sormam") ve işe devam et.
 4. **Eksiği doldur.** Kartın "Kritik gerekenler" listesini önce proje MD'sinden, sonra açık model ya da çizimden

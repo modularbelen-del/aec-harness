@@ -21,15 +21,15 @@
 ## Skill / araç
 - Hedef yöntem: Rhino.Inside.Revit üzerine kod (Grasshopper içinde çalışan bileşen ya da betik).
 - Bu iş için özel araç henüz yok (yakında); Rhino.Inside.Revit kodu için ayrı bir modül planlanıyor.
-- Rhino.Inside.Revit bu bilgisayarda kurulu olmayabilir; Revit 2027 desteği de henüz doğrulanmadı. Kurulu
-  olup olmadığını kişiye sor: Revit'te üstte "Rhinoceros" sekmesi görünüyor mu?
+- Rhino.Inside.Revit bu bilgisayarda kurulu olmayabilir; Revit 2027 desteği de henüz doğrulanmadı. Bunu ayrı soru
+  olarak sorma; kişi söylemediyse planda "VARSAYIM: Rhino.Inside.Revit kurulu değil; kuruluysa söyleyin" yaz.
 - Ofiste Rhino 8 var. Araç listende adında `rhino` geçen araç yoksa Rhino'ya bağlı değilsin.
 - Kodu sen çalıştıramıyorsan kişinin Grasshopper'da çalıştıracağı kodu yaz; çalıştırmadığın şeyi "yaptım" deme.
 - Genel prosedür: ölç → planla → onay al → kopya modelde uygula → geri oku.
 
 ## Plan şablonu
 1. Kaynak: <Rhino dosyası, katman/obje>. Hedef: <kopya model>, kategori <kategori>.
-2. Yöntem: Rhino.Inside.Revit üzerinden kod; Revit elemanı mı sabit şekil mi.
+2. Yöntem: Rhino.Inside.Revit üzerinden kod (kurulu mu: <kişinin söylediği ya da VARSAYIM>); Revit elemanı mı sabit şekil mi.
 3. Birim ve hiza: <birim>, <ortak nokta>.
 4. Önce <n> parçalık deneme, sonra hepsi.
 5. VARSAYIM: <sorulmayanlar>. Onaylıyor musunuz?
@@ -39,5 +39,5 @@
 - Rhino'daki sayı ve ölçülerle karşılaştır; farkları tabloda göster.
 
 ## Yapamıyorsam
-- "Rhino'dan Revit'e geçişi Rhino.Inside.Revit üzerinden kodla yapmayı hedefliyoruz. Bu bilgisayarda kurulu görünmüyor ya da Revit 2027 ile çalıştığı henüz doğrulanmadı; bu yüzden doğrudan aktaramıyorum."
-- "Kuruluysa sizin Grasshopper'da çalıştıracağınız kodu adım adım yazabilirim. Durumu /aec:kontrol-et ile görebilirsiniz."
+- Kişi kurulu olduğunu söylemediyse: "Rhino'dan Revit'e geçişi Rhino.Inside.Revit üzerinden kodla yapmayı hedefliyoruz. Bu bilgisayarda kurulu olup olmadığını bilmiyorum, kurulu değil varsayıyorum; Revit 2027 ile çalıştığı da henüz doğrulanmadı. Bu yüzden şu an doğrudan aktaramıyorum."
+- "Kuruluysa (Revit'te üstte 'Rhinoceros' sekmesi görünür) söyleyin; sizin Grasshopper'da çalıştıracağınız kodu adım adım yazarım. Durumu /aec:kontrol-et ile görebilirsiniz."
