@@ -154,3 +154,38 @@ def test_legacy_format_without_prompt_id_is_recorded(tmp_path):
     yol = _jsonl(tmp_path, _gercek(_klasor(tmp_path, is_id), "SONUÇ: KALDI", pid_var=False))
     dogrulama_kaydi.isle(_girdi(yol), tmp_path)
     assert is_durumu.is_yukle(tmp_path, is_id)["sonuc"] == "KALDI"
+
+
+def _handback(rapor):
+    return {"type": "assistant", "message": {"role": "assistant", "content": [
+        {"type": "tool_use", "name": "SubagentHandback", "input": {"message": rapor}}]}}
+
+
+def _bos_asistan(satirlar):
+    return [s for s in satirlar if not (s["type"] == "assistant" and any(
+        b.get("type") == "text" for b in s["message"]["content"]))]
+
+
+def test_report_via_subagent_handback_is_recorded(tmp_path):
+    is_id = _is(tmp_path)
+    satirlar = _bos_asistan(_gercek(_klasor(tmp_path, is_id), "x")) + [_handback("Bulgular\nSONUÇ: GEÇTİ")]
+    dogrulama_kaydi.isle(_girdi(_jsonl(tmp_path, satirlar)), tmp_path)
+    assert is_durumu.is_yukle(tmp_path, is_id)["sonuc"] == "GEÇTİ"
+    assert "Bulgular" in (_klasor(tmp_path, is_id) / "dogrulama.md").read_text(encoding="utf-8")
+
+
+def test_later_text_block_wins_over_handback(tmp_path):
+    is_id = _is(tmp_path)
+    satirlar = _bos_asistan(_gercek(_klasor(tmp_path, is_id), "x")) + [
+        _handback("SONUÇ: GEÇTİ"), _satir("assistant", [{"type": "text", "text": "SONUÇ: KALDI"}])]
+    dogrulama_kaydi.isle(_girdi(_jsonl(tmp_path, satirlar)), tmp_path)
+    assert is_durumu.is_yukle(tmp_path, is_id)["sonuc"] == "KALDI"
+
+
+def test_last_assistant_message_used_as_fallback(tmp_path):
+    is_id = _is(tmp_path)
+    satirlar = _bos_asistan(_gercek(_klasor(tmp_path, is_id), "x"))
+    girdi = _girdi(_jsonl(tmp_path, satirlar))
+    girdi["last_assistant_message"] = "Rapor\nSONUÇ: GEÇTİ"
+    dogrulama_kaydi.isle(girdi, tmp_path)
+    assert is_durumu.is_yukle(tmp_path, is_id)["sonuc"] == "GEÇTİ"

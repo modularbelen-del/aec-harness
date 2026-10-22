@@ -39,6 +39,22 @@ def _metinler(icerik) -> str:
     return ""
 
 
+def _rapor(icerik) -> str:
+    """Last report text of an assistant message: a text block or the message of a SubagentHandback tool call."""
+    if isinstance(icerik, str):
+        return icerik.strip()
+    son = ""
+    for b in icerik if isinstance(icerik, list) else []:
+        if not isinstance(b, dict):
+            continue
+        if b.get("type") == "text" and isinstance(b.get("text"), str):
+            son = b["text"].strip() or son
+        elif b.get("type") == "tool_use" and b.get("name") == "SubagentHandback" and isinstance(b.get("input"), dict):
+            mesaj = b["input"].get("message")
+            son = mesaj.strip() if isinstance(mesaj, str) and mesaj.strip() else son
+    return son
+
+
 def _kaynak_var(origin) -> bool:
     """True when a line comes from somewhere other than the harness itself (e.g. origin kind 'coordinator')."""
     if isinstance(origin, dict):
@@ -63,13 +79,12 @@ def _transcript(yol) -> "tuple[str, bool, str]":
         if not isinstance(ileti, dict):
             continue
         tur = kayit.get("type") or ileti.get("role")
-        metin = _metinler(ileti.get("content")).strip()
-        if not metin:
+        if tur == "assistant":
+            asistan = _rapor(ileti.get("content")) or asistan
             continue
-        if tur == "user":
+        metin = _metinler(ileti.get("content")).strip()
+        if tur == "user" and metin:
             kullanici.append((metin, bool(kayit.get("isMeta")), kayit.get("promptId"), kayit.get("origin")))
-        elif tur == "assistant":
-            asistan = metin
     gercek = next((k for k in kullanici if not k[1]), None)
     if gercek is None:
         return "", False, asistan
@@ -109,6 +124,9 @@ def isle(girdi, proje: pathlib.Path) -> None:
             return
         proje = pathlib.Path(proje)
         istem, guvenilir, rapor = _transcript(girdi["agent_transcript_path"])
+        son_mesaj = girdi.get("last_assistant_message")
+        if not rapor and isinstance(son_mesaj, str):
+            rapor = son_mesaj.strip()
         if not istem or not rapor:
             return
         is_id = _is_kimligi(istem, proje)
