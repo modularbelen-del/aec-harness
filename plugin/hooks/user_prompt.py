@@ -1,4 +1,5 @@
-"""UserPromptSubmit hook: adds a short routing card for the matching job, once per session.
+"""UserPromptSubmit hook: marks that hooks ran, records the person's approval/rejection/acceptance from their own
+message (onay.py) and otherwise adds a short routing card for the matching job, once per session.
 
 Standard library only. On any error or no match it prints nothing.
 """

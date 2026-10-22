@@ -82,3 +82,60 @@ def test_other_sessions_job_untouched(tmp_path):
     _is(tmp_path, "onay-bekliyor:plan", oturum="oturum-a")
     assert onay.isle(tmp_path, "oturum-b", "evet") is None
     assert is_durumu.aktif_is(tmp_path, "oturum-a")["durum"] == "onay-bekliyor:plan"
+
+
+@pytest.mark.parametrize("m", ["evet?", "onaylıyorum?", "kabul?", "evet？", "evet؟", "¿evet", "ediyorum"])
+def test_question_marks_and_bare_filler_ambiguous(m):
+    assert onay.siniflandir(m) == "belirsiz"
+
+
+@pytest.mark.parametrize("m", ["devam et", "uygula", "uygulayın"])
+def test_acceptance_stage_is_narrower(tmp_path, m):
+    _is(tmp_path, "kabul-bekliyor")
+    assert "onay olarak kaydedilmedi" in onay.isle(tmp_path, OTURUM, m)
+    assert is_durumu.aktif_is(tmp_path, OTURUM)["durum"] == "kabul-bekliyor"
+
+
+def test_devam_et_still_approves_plan(tmp_path):
+    _is(tmp_path, "onay-bekliyor:plan")
+    onay.isle(tmp_path, OTURUM, "devam et")
+    assert is_durumu.aktif_is(tmp_path, OTURUM)["durum"] == "plan-onaylandi"
+
+
+def test_kabul_ediyorum_and_iptal_ediyorum(tmp_path):
+    assert onay.siniflandir("iptal ediyorum") == "ret" and onay.siniflandir("ret ediyorum") == "ret"
+    _is(tmp_path, "kabul-bekliyor")
+    onay.isle(tmp_path, OTURUM, "kabul ediyorum")
+    assert is_durumu.aktif_is(tmp_path, OTURUM)["durum"] == "kabul-edildi"
+    _is(tmp_path, "kabul-bekliyor")
+    onay.isle(tmp_path, OTURUM, "iptal ediyorum")
+    assert is_durumu.aktif_is(tmp_path, OTURUM)["durum"] == "reddedildi"
+
+
+def test_journal_failure_does_not_lose_notice(tmp_path, monkeypatch):
+    _is(tmp_path, "kabul-bekliyor")
+    monkeypatch.setattr(is_durumu, "gunluge_yaz", lambda *a, **k: (_ for _ in ()).throw(OSError("x")))
+    assert "Kabulünüz kaydedildi" in onay.isle(tmp_path, OTURUM, "evet")
+    assert is_durumu.aktif_is(tmp_path, OTURUM)["durum"] == "kabul-edildi"
+
+
+@pytest.mark.parametrize("oturum", ["", "!!!"])
+def test_empty_sanitized_session_fails_closed(tmp_path, oturum):
+    _is(tmp_path, "onay-bekliyor:plan", oturum="bilinmeyen")
+    assert onay.isle(tmp_path, oturum, "evet") is None
+    assert is_durumu.aktif_is(tmp_path, "bilinmeyen")["durum"] == "onay-bekliyor:plan"
+
+
+def test_rejection_texts_per_stage(tmp_path):
+    _is(tmp_path, "onay-bekliyor:gorevler", karmasik=True)
+    assert onay.isle(tmp_path, OTURUM, "hayır") == "[aec] Ret kaydedildi: görevler. Görevler gerekçeyle yeniden hazırlanmalıdır."
+    assert "reddedildi (görevler)" in (tmp_path / ".aec/gunluk.md").read_text(encoding="utf-8")
+    _is(tmp_path, "onay-bekliyor:tarif", karmasik=True)
+    assert onay.isle(tmp_path, OTURUM, "hayır") == "[aec] Ret kaydedildi: tarif. Tarif gerekçeyle yeniden hazırlanmalıdır."
+    _is(tmp_path, "kabul-bekliyor")
+    assert onay.isle(tmp_path, OTURUM, "hayır") == "[aec] Ret kaydedildi: kabul. İş gerekçeyle yeniden planlanmalıdır."
+
+
+def test_ambiguous_notice_second_sentence(tmp_path):
+    _is(tmp_path, "onay-bekliyor:plan")
+    assert "plan değiştiyse yeniden onaya sunulmalıdır." in onay.isle(tmp_path, OTURUM, "tamam anladım")

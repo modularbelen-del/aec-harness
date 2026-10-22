@@ -4,9 +4,17 @@ import pathlib
 import subprocess
 import sys
 
+import pytest
+
 import user_prompt
 
 SCRIPT = pathlib.Path(user_prompt.__file__).resolve()
+
+
+@pytest.fixture(autouse=True)
+def _isolated_project(monkeypatch, tmp_path):
+    monkeypatch.delenv("CLAUDE_PROJECT_DIR", raising=False)
+    monkeypatch.chdir(tmp_path)
 
 
 def test_confirmation_prints_nothing(tmp_path):
@@ -76,3 +84,19 @@ def test_approval_context_returned(tmp_path):
     assert "Onayınız kaydedildi" in json.loads(out)["hookSpecificOutput"]["additionalContext"]
     assert len(out.encode("utf-8")) <= 1024
     assert is_durumu.aktif_is(proje, "sid-2")["durum"] == "plan-onaylandi"
+
+
+def test_project_dir_env_takes_precedence_over_cwd(tmp_path, monkeypatch):
+    import is_durumu
+    env_proje, cwd_proje = tmp_path / "env", tmp_path / "cwd"
+    for proje in (env_proje, cwd_proje):
+        proje.mkdir()
+        kayit = is_durumu.yeni_is(proje, "revit-modelleme", "Kapı", False)
+        kayit["durum"] = "onay-bekliyor:plan"
+        is_durumu.is_kaydet(proje, kayit)
+        is_durumu.aktif_bagla(proje, "sid-3", kayit["id"])
+    monkeypatch.setenv("CLAUDE_PROJECT_DIR", str(env_proje))
+    stdin = json.dumps({"prompt": "evet", "session_id": "sid-3", "cwd": str(cwd_proje)})
+    user_prompt.build_output(stdin, tmp_path / "durum")
+    assert is_durumu.aktif_is(env_proje, "sid-3")["durum"] == "plan-onaylandi"
+    assert is_durumu.aktif_is(cwd_proje, "sid-3")["durum"] == "onay-bekliyor:plan"
