@@ -54,3 +54,54 @@ def test_each_example_routes_to_its_own_card():
         assert examples, c["baslik"]
         for ex in examples:
             assert c["id"] in onkapi.match(ex, cards), (c["id"], ex, onkapi.match(ex, cards))
+
+
+def _one_liners(text):
+    return [ln for ln in text.splitlines() if "irm https://" in ln]
+
+
+def test_dev_one_liner_fetches_dev_branch():
+    for path in (ROOT / "plugin/docs/BASLA.md", ROOT / "kur.ps1"):
+        lines = _one_liners(path.read_text(encoding="utf-8-sig"))
+        dev = [ln for ln in lines if "AEC_KANAL='dev'" in ln]
+        stable = [ln for ln in lines if "AEC_KANAL" not in ln]
+        assert dev and stable, path.name
+        assert all("/aec-harness/dev/kur.ps1" in ln for ln in dev), path.name
+        assert all("/aec-harness/main/kur.ps1" in ln for ln in stable), path.name
+
+
+def test_basla_pilot_dev_line_and_project_folder():
+    text = (ROOT / "plugin/docs/BASLA.md").read_text(encoding="utf-8")
+    secs = _sections(text)
+    assert "pilot" in secs["Kanallar"].lower()
+    assert "projenin klasöründe başlatın" in secs["Terminal kullanıyorsanız"]
+    assert "hiçbir dosyayı değiştirmez" not in text
+
+
+def _doc(name):
+    return (ROOT / "plugin/docs" / f"{name}.md").read_text(encoding="utf-8")
+
+
+def test_docs_do_not_state_model_rules_as_guarantees():
+    guv, neler = _doc("GUVENLIK"), _doc("NELER-YAPABILIR")
+    for phrase in ("dosyaları değişmez", "kendiliğinden yapmaz", "Siz onaylamadan hiçbir şey değişmez",
+                   "eklenti yine çalışır", "Eklenti bunlara uyar", "Orijinal dosyaya yazılmaz, eşitlemeyi"):
+        assert phrase not in guv and phrase not in neler, phrase
+    assert "ayarlandı" in guv and "ayarlandı" in neler
+    assert "izin ekranını okuyun" in guv
+    assert "Yine de kaynağı" not in guv
+    assert "Revit köprüsü (Faz 1C)" in neler and "temel" in neler
+
+
+def test_readme_states_goals_not_facts():
+    text = (ROOT / "README.md").read_text(encoding="utf-8")
+    opening = text.split("## Durum")[0]
+    assert "Hedef" in opening and "geri okur ve sonucu toleransla doğrular" not in opening
+    rol = text[text.index("- `plugin/standards/rol.md`"):text.index("- `plugin/standards/authority.md`")]
+    assert "aracı oturumda varsa" in rol and "yalnızca" in rol
+
+
+def test_hook_error_not_blamed_on_uv():
+    sec = _sections(_doc("SORUN-GIDERME"))['"hook error"']
+    assert "uv` yoktur" not in sec
+    assert "yeniden" in sec and "sorumlu" in sec

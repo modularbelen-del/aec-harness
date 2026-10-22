@@ -9,8 +9,12 @@ Kullanıcının kendi Claude hesabıyla yerelde çalışır; CI'da çalışmaz. 
 claude plugin eval plugin --trust-plugin --allow-tools Write Edit --ablation none --threshold 0.8 --no-publish --max-cost-usd 10 --json plugin/evals/results/son.json
 ```
 
-Uzun sürer (9 vaka x 3 koşu, 10 dakikadan fazla); arka planda çalıştırın. Sonuçlar `plugin/evals/results/` altına
+Uzun sürer (10 vaka x 3 koşu, 10 dakikadan fazla); arka planda çalıştırın. Sonuçlar `plugin/evals/results/` altına
 gider ve git'e girmez. Hata ayıklarken `--case <ad> --runs 1` kullanın.
+
+Bütçe: komuttaki `--max-cost-usd 10`, planın bu set için koyduğu üst sınırdır (tavan), harcama değildir. Aşağıdaki
+kayıtlı koşu daha sıkı bir sınırla, `--max-cost-usd 4` ile yapıldı (o gün 9 vaka vardı, tahmini 3,7 USD tuttu).
+10 vakalık set biraz daha pahalıdır ve 4 sınırı yetmeyebilir; bu yüzden komutta tavan yazılıdır.
 
 ## Neden `--allow-tools Write Edit` şart
 
@@ -39,7 +43,7 @@ Yargıç (`davranis.md`) oldukça değişkendir: aynı yanıtı bir koşuda geç
 vakalar kırılgandır. Gerçek kapı, pilotta toplanan gerçek başarısız istekler setidir (dev'den main'e geçiş ölçütü);
 bu sentetik set yalnızca erken uyarıdır.
 
-## Son sonuç (2026-10-22, eklentili, 3 koşu ortalaması, tahmini maliyet 3,7 USD)
+## Son sonuç (2026-10-22, eklentili, 3 koşu ortalaması, `--max-cost-usd 4`, tahmini maliyet 3,7 USD)
 
 | vaka | skor |
 |---|---|
@@ -59,3 +63,4 @@ Genel 0,92; 9/9 vaka >= 0,8. Bu sonuç `davranis` yargıcına ön bilgi cümlesi
 
 - `ofis-disi`: olumsuz vaka ("merhaba, nasılsın?"); ön kapı devreye GİRMEMELİ (`tool_used Skill`, `max: 0`).
 - Her `davranis.md` başına ön bilgi cümlesi eklendi; `belirsiz` ve `metraj-liste` için program-bağlı maddesi koşullu yazıldı.
+- Her `davranis.md`'deki FAIL cümlesinin program maddesi çift olumsuzluk olmadan yeniden yazıldı; anlamı aynı.

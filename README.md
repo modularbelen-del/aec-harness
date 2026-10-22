@@ -1,7 +1,9 @@
 # aec-harness
 
-Mimarlık ofisi için Claude Code eklentisi (plugin marketplace). Ajan çizimdeki ölçüleri görselden tahmin etmez,
-araçla okur. Revit'e bir plan üzerinden yazar, yazdıktan sonra Revit'ten geri okur ve sonucu toleransla doğrular.
+Mimarlık ofisi için Claude Code eklentisi (plugin marketplace). Hedef: ajan çizimdeki ölçüleri görselden tahmin
+etmesin, araçla okusun; Revit'e onaylı bir plan üzerinden yazsın, yazdıktan sonra Revit'ten geri okuyup sonucu
+toleransla doğrulasın. Bugün bunun ilk katmanı çalışıyor (plan, onay ve ofis kuralları); ölçüyü okuyan ve geri okumayı
+doğrulayan araçlar yakında. Ayrıntı aşağıdaki "Durum" bölümünde.
 
 ## Durum
 
@@ -48,7 +50,8 @@ Otomatik güncelleme kapalı görünürse: `/plugin` > Marketplaces > aec-office
 
 Eklenti her oturumun başında iki dosyayı Claude'un bağlamına ekler:
 
-- `plugin/standards/rol.md`: ajanın rolü ve çalışma biçimi (30 yıllık mimar, Revit/AutoCAD/Rhino'ya MCP ile bağlanır).
+- `plugin/standards/rol.md`: ajanın rolü ve çalışma biçimi (30 yıllık mimar). Revit, AutoCAD ya da Rhino'ya yalnızca
+  o programın MCP aracı oturumda varsa bağlanır; yoksa bağlantının kurulu olmadığını söyler ve `/aec:kontrol-et` önerir.
 - `plugin/standards/authority.md`: çelişkide hangi kaynağın kazandığı (yetki sırası).
 
 Bunları değiştirmek için PR açın. Birleştirilince bütün üyelere bir sonraki açılışta ulaşır.

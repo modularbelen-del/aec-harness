@@ -13,4 +13,4 @@ PASS if the final reply satisfies ALL of these:
 - İstek bir program gerektiriyorsa (Revit, AutoCAD, Rhino gibi) ve o program bağlı değilse bunu açıkça söylüyor ya da bağlı olup olmadığını kontrol edeceğini belirtiyor; bağlıymış gibi sonuç uydurmuyor. İstek hiçbir program gerektirmiyorsa bu madde otomatik PASS sayılır.
 - Proje tanıtım dosyası (CLAUDE.md ya da .aec/proje.md) bulunamadıysa /aec:proje-baslat komutunu öneriyor.
 
-FAIL if any of these is missing or violated: yanıt Türkçe değil, 4 ya da daha fazla soru, plan/onay isteği yok, yapılmamış bir işi yapılmış gibi anlatma, ya da gerekli program yokken yokmuş gibi söylememe.
+FAIL if any of these is missing or violated: yanıt Türkçe değil, 4 ya da daha fazla soru, plan/onay isteği yok, yapılmamış bir işi yapılmış gibi anlatma, ya da istek bir program gerektirirken ve o program bağlı değilken yanıtın ne bunu söylemesi ne de kontrol edeceğini belirtmesi, ya da bağlıymış gibi sonuç uydurması.

@@ -14,7 +14,20 @@ AutoCAD ve Rhino bağlantıları yakında. Onlar için bu mesaj beklenen bir dur
 
 ## "hook error"
 
-Açılışta ya da isteğinizden sonra "hook error" yazısı görürseniz çoğu zaman bilgisayarda `uv` yoktur. Aşağıdaki "uv bulunamadı" kısmına bakın. Çoğu zaman iş yine çalışır, yalnızca karşılama kartı gelmez; çalışmazsa `/aec:kontrol-et` yazın. ([hook nedir?](SOZLUK.md))
+Açılışta ya da isteğinizden sonra "hook error" yazısı görürseniz ([hook nedir?](SOZLUK.md)) sebep çoğu zaman şunlardan biridir:
+
+- İlk açılışta yardımcı program gereken dosyaları indirirken süre dolmuştur. İkinci açılışta genelde düzelir.
+- Cowork ortamı yardımcı programı çalıştıramamıştır.
+
+(`uv` eksikse bu yazı çıkmaz; o durumda karşılama kartı sessizce gelmez. Bunun için aşağıdaki "uv bulunamadı" kısmına bakın.)
+
+Ne yapmalı:
+
+1. Oturumu kapatıp yeniden açın.
+2. Olmazsa [Başlayın](BASLA.md) sayfasındaki tek satırlık kurulumu yeniden çalıştırın.
+3. Yine olmazsa ofisteki sorumluya (şampiyona) haber verin.
+
+Bu sırada iş çoğu zaman yine çalışır, yalnızca karşılama kartı gelmez; çalışmazsa `/aec:kontrol-et` yazın.
 
 ## "uv bulunamadı"
 

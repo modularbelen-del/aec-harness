@@ -1,14 +1,14 @@
 # Güvenlik kuralları
 
-Bu kurallar sizi ve müşterinizi korur. Eklenti bunlara uyar. Siz de uyun.
+Bu kurallar sizi ve müşterinizi korur. Eklenti bu kurallara göre çalışacak şekilde ayarlandı. Ama yapay zekâ bazen hata yapar; ayar tek başına garanti değildir. Bu yüzden izin ekranını okuyun ve kurallara siz de uyun.
 
 ## 1. Orijinal dosyaya yazılmaz
 
-Orijinal DWG ve RVT dosyaları değişmez. Eklenti her zaman kopya ya da yeni dosyada çalışır. Merkez model ya da müşterinin çizimi üzerinde doğrudan iş yapılmaz. Kopyayı siz gözle kontrol edip beğenirseniz kendiniz yerine koyarsınız.
+Kural: orijinal DWG ve RVT dosyalarına yazılmaz. Eklenti yalnızca kopya ya da yeni dosyada çalışacak şekilde ayarlandı; merkez model ya da müşterinin çizimi üzerinde doğrudan iş yapmaması istenir. Yine de izin ekranını okuyun: hangi dosyaya yazılacağı orada yazar. Orijinal dosyanın adını görürseniz reddedin. Kopyayı siz gözle kontrol edip beğenirseniz kendiniz yerine koyarsınız.
 
 ## 2. Merkez modelle eşitlemeyi yalnızca siz yaparsınız
 
-Kaydetme ve merkez modelle eşitleme (sync) işini eklenti kendiliğinden yapmaz. Bu iş ekibin hepsini etkilediği için kişi yapar.
+Kaydetme ve merkez modelle eşitleme (sync) işi bütün ekibi etkilediği için kişi yapar. Eklenti bunu kendiliğinden yapmayacak şekilde ayarlandı. İzin ekranında kaydetme ya da eşitleme (save, sync) görürseniz reddedin.
 
 ## 3. Müşteri çizimleri ücretsiz yapay zekâ sitelerine yüklenmez
 
@@ -31,4 +31,4 @@ Bakanlık birim fiyatları kullanılmaz. Fiyat gerekiyorsa ofisin verdiği liste
 
 ## 6. Yapıştırdığınız metne dikkat
 
-Müşteri e-postasından ya da çizimden kopyaladığınız metinde gizli talimatlar olabilir. Yine de kaynağı belirsiz metni yapıştırmamaya çalışın.
+Müşteri e-postasından ya da çizimden kopyaladığınız metinde gizli talimatlar olabilir. Yapay zekâ böyle bir talimatı sizin isteğiniz sanabilir. Kaynağı belirsiz metni yapıştırmamaya çalışın; yapıştırdıysanız izin ekranını daha dikkatli okuyun.
