@@ -20,7 +20,7 @@ sys.path.insert(0, str(PLUGIN_ROOT / "hooks"))
 import is_durumu  # noqa: E402
 import user_prompt  # noqa: E402  (shared heartbeat path and state directory)
 
-REVIT_YAZMA = re.compile(r"^mcp__.*revit.*__(execute_revit_code|place_family|close_document|save_document|sync_with_central)$")
+REVIT_YAZMA = re.compile(r"^mcp__.*revit.*__(execute_revit_code|place_family|close_document|save_document|sync_with_central)$", re.IGNORECASE)
 YAZMA_ARACLARI = frozenset({"Write", "Edit", "NotebookEdit"})
 AJAN_ARACLARI = frozenset({"Agent", "Task"})
 DOGRULAYICI = frozenset({"aec:dogrulayici", "dogrulayici"})
@@ -32,6 +32,8 @@ NEDEN_ESITLEME = "Merkez modelle eşitleme yalnızca kişi tarafından yapılır
 NEDEN_KAYDETME = "Kaydetme işlemi, iş kişi tarafından kabul edildikten sonra yapılabilir."
 NEDEN_ISLER = "İş kayıtları yalnızca iş kaydı aracı ve sistem tarafından güncellenir."
 NEDEN_DOGRULAYICI = "Kontrolcüye yalnızca iş klasörünün yolu verilmelidir."
+NEDEN_OKUNAMADI = ("İş kaydı okunamadı; Revit'e yazma işlemi güvenlik nedeniyle durdurulmuştur. "
+                   "Durum /aec:kontrol-et komutuyla incelenmelidir.")
 NEDEN_YUMUSAK = "Onay kaydı bu oturumda doğrulanamadı. Bu yazma işlemini onaylıyor musunuz?"
 
 
@@ -50,18 +52,31 @@ def _mutlak(yol: str, proje: pathlib.Path) -> str:
 
 
 def _isler_icinde(yol: str, proje: pathlib.Path) -> bool:
-    parcalar = _mutlak(yol, proje).split("/")
-    return any(a.lower() == ".aec" and b.lower() == "isler" for a, b in zip(parcalar, parcalar[1:]))
+    # Windows aliases: trailing dots/spaces and NTFS stream suffixes (".aec::$INDEX_ALLOCATION") name the same entry
+    parcalar = [p.split(":")[0].rstrip(". ").lower() for p in _mutlak(yol, proje).split("/")]
+    return any(a == ".aec" and b == "isler" for a, b in zip(parcalar, parcalar[1:]))
 
 
 def _revit_karari(arac: str, oturum: str, proje: pathlib.Path, state_dir: pathlib.Path):
-    eylem = arac.rsplit("__", 1)[-1]
+    """Fails closed: an unreadable or malformed job record denies the write."""
+    try:
+        return _revit_karari_ic(arac.rsplit("__", 1)[-1].lower(), oturum, proje, state_dir)
+    except Exception:
+        return _cikti("deny", NEDEN_OKUNAMADI)
+
+
+def _revit_karari_ic(eylem: str, oturum: str, proje: pathlib.Path, state_dir: pathlib.Path):
     if eylem == "sync_with_central":
         return _cikti("deny", NEDEN_ESITLEME)
     if not user_prompt.calisti_yolu(state_dir, oturum).exists():
         return _cikti("ask", NEDEN_YUMUSAK)
     kayit = is_durumu.aktif_is(proje, oturum)
-    durum = kayit.get("durum") if kayit else None
+    if kayit is None:
+        durum = None
+    elif isinstance(kayit, dict) and isinstance(kayit.get("durum"), str):
+        durum = kayit["durum"]
+    else:
+        return _cikti("deny", NEDEN_OKUNAMADI)
     if eylem == "save_document":
         return None if durum == "kabul-edildi" else _cikti("deny", NEDEN_KAYDETME)
     if durum in YAZMA_DURUMLARI:
@@ -70,13 +85,14 @@ def _revit_karari(arac: str, oturum: str, proje: pathlib.Path, state_dir: pathli
 
 
 def _dogrulayici_karari(arac_girdisi: dict, oturum: str, proje: pathlib.Path):
-    if arac_girdisi.get("subagent_type") not in DOGRULAYICI:
+    tur = arac_girdisi.get("subagent_type")
+    if not isinstance(tur, str) or tur.strip().casefold() not in DOGRULAYICI:
         return None
     prompt = arac_girdisi.get("prompt")
     kayit = is_durumu.aktif_is(proje, oturum)
-    if not isinstance(prompt, str) or not kayit or kayit.get("durum") != "uygulandi":
+    if not isinstance(prompt, str) or not isinstance(kayit, dict) or kayit.get("durum") != "uygulandi":
         return _cikti("deny", NEDEN_DOGRULAYICI)
-    yol = prompt.strip().strip("\"'")
+    yol = prompt.strip().strip("\"'`").strip()
     if not yol or "\n" in yol:
         return _cikti("deny", NEDEN_DOGRULAYICI)
     beklenen = _mutlak(str(pathlib.Path(proje) / is_durumu.ISLER / str(kayit.get("id"))), proje)

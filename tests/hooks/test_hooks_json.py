@@ -11,6 +11,8 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 PLUGIN = ROOT / "plugin"
 HOOKS_JSON = PLUGIN / "hooks" / "hooks.json"
 HOOK_CMD = 'uv run --no-project --python 3.12 python "${{CLAUDE_PLUGIN_ROOT}}/hooks/{}.py"; exit 0'
+REVIT_PRE = "mcp__.*[Rr][Ee][Vv][Ii][Tt].*__(execute_revit_code|place_family|close_document|save_document|sync_with_central)"
+REVIT_POST = "mcp__.*[Rr][Ee][Vv][Ii][Tt].*__(execute_revit_code|place_family)"
 TIMEOUTS = {"SessionStart": 30, "UserPromptSubmit": 10, "PreToolUse": 10, "PostToolUse": 10, "Stop": 10, "SubagentStop": 15}
 
 
@@ -79,7 +81,7 @@ def test_session_start_runs_with_uv_bash():
 
 def test_tool_hooks_commands_and_matchers():
     h = _hooks()
-    assert [e["matcher"] for e in h["PreToolUse"]] == ["mcp__.*revit.*__.*", "Write|Edit|Agent|Task"]
+    assert [e["matcher"] for e in h["PreToolUse"]] == [REVIT_PRE, "Write|Edit|NotebookEdit|Agent|Task"]
     assert all(e["hooks"][0]["command"] == HOOK_CMD.format("pre_tool") for e in h["PreToolUse"])
-    assert h["PostToolUse"][0]["matcher"] == "Bash|mcp__.*revit.*__.*"
+    assert h["PostToolUse"][0]["matcher"] == "Bash|PowerShell|" + REVIT_POST
     assert h["PostToolUse"][0]["hooks"][0]["command"] == HOOK_CMD.format("post_tool")

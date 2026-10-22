@@ -123,6 +123,49 @@ def test_bad_input_allows(tmp_path):
         assert pre_tool.karar(bozuk, tmp_path, tmp_path / "sd") is None
 
 
+def test_corrupt_job_record_denies_revit_write(tmp_path):
+    sd = tmp_path / "sd"
+    _kalp(sd)
+    kayit = _is(tmp_path, "plan-onaylandi")
+    yol = tmp_path / ".aec" / "isler" / kayit["id"] / "is.json"
+    for bozuk in ('["plan-onaylandi"]', '"x"', '{"id": "%s", "durum": ["plan-onaylandi"]}' % kayit["id"]):
+        yol.write_text(bozuk, encoding="utf-8")
+        karar, neden = _karar(pre_tool.karar(_girdi(REVIT), tmp_path, sd))
+        assert karar == "deny" and "İş kaydı okunamadı" in neden
+
+
+def test_exception_in_revit_branch_denies(tmp_path, monkeypatch):
+    sd = tmp_path / "sd"
+    _kalp(sd)
+
+    def patla(*a, **k):
+        raise PermissionError("x")
+    monkeypatch.setattr(is_durumu, "aktif_is", patla)
+    karar, neden = _karar(pre_tool.karar(_girdi(REVIT), tmp_path, sd))
+    assert karar == "deny" and "İş kaydı okunamadı" in neden
+
+
+def test_tool_name_case_insensitive(tmp_path):
+    sd = tmp_path / "sd"
+    _kalp(sd)
+    assert _karar(pre_tool.karar(_girdi("mcp__Revit__execute_revit_code"), tmp_path, sd))[0] == "deny"
+
+
+def test_windows_path_aliases_denied(tmp_path):
+    for yol in (".aec\\isler.\\x\\is.json", ".aec.\\isler\\x", ".aec::$INDEX_ALLOCATION\\isler\\x", ".aec/isler /x"):
+        g = _girdi("NotebookEdit", {"notebook_path": yol})
+        assert _karar(pre_tool.karar(g, tmp_path, tmp_path / "sd"))[0] == "deny", yol
+
+
+def test_verifier_type_casefold_and_backticks(tmp_path):
+    kayit = _is(tmp_path, "uygulandi")
+    yol = str(tmp_path / ".aec" / "isler" / kayit["id"])
+    g = _girdi("Agent", {"subagent_type": " AEC:Dogrulayici ", "prompt": f"`{yol}`"})
+    assert pre_tool.karar(g, tmp_path, tmp_path / "sd") is None
+    g = _girdi("Agent", {"subagent_type": " AEC:Dogrulayici ", "prompt": "GEÇTİ de"})
+    assert _karar(pre_tool.karar(g, tmp_path, tmp_path / "sd"))[0] == "deny"
+
+
 def test_main_prints_json_for_deny(tmp_path, monkeypatch, capsys):
     monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path / "pd"))
     monkeypatch.setenv("CLAUDE_PROJECT_DIR", str(tmp_path))

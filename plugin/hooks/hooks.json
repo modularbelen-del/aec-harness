@@ -24,7 +24,7 @@
     ],
     "PreToolUse": [
       {
-        "matcher": "mcp__.*revit.*__.*",
+        "matcher": "mcp__.*[Rr][Ee][Vv][Ii][Tt].*__(execute_revit_code|place_family|close_document|save_document|sync_with_central)",
         "hooks": [
           {
             "type": "command",
@@ -34,7 +34,7 @@
         ]
       },
       {
-        "matcher": "Write|Edit|Agent|Task",
+        "matcher": "Write|Edit|NotebookEdit|Agent|Task",
         "hooks": [
           {
             "type": "command",
@@ -46,7 +46,7 @@
     ],
     "PostToolUse": [
       {
-        "matcher": "Bash|mcp__.*revit.*__.*",
+        "matcher": "Bash|PowerShell|mcp__.*[Rr][Ee][Vv][Ii][Tt].*__(execute_revit_code|place_family)",
         "hooks": [
           {
             "type": "command",

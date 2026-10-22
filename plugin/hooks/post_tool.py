@@ -16,35 +16,42 @@ import is_durumu  # noqa: E402
 KAYNAK = "hook-post"
 ISARET = re.compile(r"^IS:\s*(\S+)\s*$", re.MULTILINE)
 YENI_KOMUT = re.compile(r"\bis_kaydi\.py\b.*\syeni(\s|$)", re.DOTALL)
-UYGULAMA_ARACLARI = re.compile(r"^mcp__.*revit.*__(execute_revit_code|place_family)$")
+NL = chr(10)
+UYGULAMA_ARACLARI = re.compile(r"^mcp__.*revit.*__(execute_revit_code|place_family)$", re.IGNORECASE)
 
 
 def _metin(yanit) -> str:
+    """All text found in a tool response (string, dict with text fields or content blocks, list of blocks)."""
     if isinstance(yanit, str):
         return yanit
     if isinstance(yanit, dict):
-        return "\n".join(str(yanit[k]) for k in ("stdout", "output", "content", "text") if yanit.get(k))
+        return NL.join(_metin(yanit[k]) for k in ("stdout", "output", "content", "text") if yanit.get(k))
     if isinstance(yanit, list):
-        return "\n".join(str(b.get("text", "")) if isinstance(b, dict) else str(b) for b in yanit)
+        return NL.join(_metin(b) for b in yanit)
     return ""
 
 
 def _hatali(yanit) -> bool:
-    if isinstance(yanit, dict):
-        return bool(yanit.get("isError") or yanit.get("is_error") or yanit.get("error"))
-    return False
+    """Explicit error flags, or the plain-text error forms the Revit MCP server returns."""
+    if isinstance(yanit, dict) and (yanit.get("isError") or yanit.get("is_error") or yanit.get("error")):
+        return True
+    metin = _metin(yanit)
+    return metin.strip().startswith(("Error", "=== ERROR DETAILS ===")) or "Error during code execution" in metin
 
 
 def _bagla(girdi: dict, proje: pathlib.Path, oturum: str) -> None:
     komut = (girdi.get("tool_input") or {}).get("command")
     if not isinstance(komut, str) or not YENI_KOMUT.search(komut):
         return
-    eslesme = ISARET.search(_metin(girdi.get("tool_response")))
-    if not eslesme:
-        return
-    is_id = eslesme.group(1)
-    is_durumu.is_yukle(proje, is_id)  # raises when the job does not exist
-    is_durumu.aktif_bagla(proje, oturum, is_id)
+    for is_id in ISARET.findall(_metin(girdi.get("tool_response"))):
+        try:
+            kayit = is_durumu.is_yukle(proje, is_id)
+        except (ValueError, OSError):
+            continue
+        # only what a fresh 'yeni' produces: still in 'gorusme' and not bound to any session yet
+        if isinstance(kayit, dict) and kayit.get("durum") == "gorusme" and not kayit.get("oturum"):
+            is_durumu.aktif_bagla(proje, oturum, is_id)
+            return
 
 
 def _uygulandi(girdi: dict, proje: pathlib.Path, oturum: str) -> None:
@@ -64,7 +71,7 @@ def isle(girdi, proje: pathlib.Path) -> None:
         arac = girdi["tool_name"]
         oturum = str(girdi.get("session_id") or "")
         proje = pathlib.Path(proje)
-        if arac == "Bash":
+        if arac in ("Bash", "PowerShell"):
             _bagla(girdi, proje, oturum)
         elif UYGULAMA_ARACLARI.match(arac):
             _uygulandi(girdi, proje, oturum)
