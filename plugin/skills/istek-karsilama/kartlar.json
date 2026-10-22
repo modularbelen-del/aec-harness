@@ -1,0 +1,44 @@
+[
+  {
+    "id": "revit-modelleme",
+    "baslik": "Revit modelleme",
+    "anahtar": ["revit", "rvt", "duvar", "doseme", "kolon", "kiris", "aile", "family", "seviye", "level", "kapi yerlestir", "pencere yerlestir", "modelle"],
+    "eksikler": ["kopya model mi", "kat/seviye", "aile ve tip", "ölçü kaynağı"]
+  },
+  {
+    "id": "dwg-okuma",
+    "baslik": "DWG okuma/aktarma",
+    "anahtar": ["dwg", "dxf", "cizimden", "plandan", "aktar", "katman", "layer", "blok"],
+    "eksikler": ["hangi dosya ve pafta", "hangi katmanlar", "birim ve ölçek", "DWG–Revit hizası"]
+  },
+  {
+    "id": "dwg-cizim",
+    "baslik": "DWG'de çizim",
+    "anahtar": ["autocad", "acad", "ciz", "detay", "dxf uret", "dwg uret"],
+    "eksikler": ["yeni dosya mı kopya mı", "katman standardı", "ölçek", "yazı stili"]
+  },
+  {
+    "id": "metraj-liste",
+    "baslik": "Metraj/liste",
+    "anahtar": ["metraj", "alan hesab", "mahal", "kapi listesi", "pencere listesi", "dograma", "excel", "m2", "hacim", "liste"],
+    "eksikler": ["kaynak Revit mi DWG mi", "net mi brüt mü", "Excel biçimi", "poz no (fiyatsız)"]
+  },
+  {
+    "id": "rhino-revit",
+    "baslik": "Rhino'dan Revit'e",
+    "anahtar": ["rhino", "grasshopper", "3dm", "rhinoinside", "rhino inside"],
+    "eksikler": ["hangi geometri", "Revit'te hangi kategori", "birim ve orijin"]
+  },
+  {
+    "id": "tavan",
+    "baslik": "Asma tavan",
+    "anahtar": ["tavan", "baffle", "bandraster", "open cell", "opencell", "menfez", "lineer armatur", "led panel"],
+    "eksikler": ["hangi DWG ve oda", "tavan sistemi", "kot", "kopya model mi"]
+  },
+  {
+    "id": "render",
+    "baslik": "Render/görsel",
+    "anahtar": ["render", "gorsel", "perspektif", "atmosfer", "midjourney", "enscape", "lumion"],
+    "eksikler": ["hangi görünüş", "stil", "gizlilik (müşteri çizimi)"]
+  }
+]

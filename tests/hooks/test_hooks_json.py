@@ -49,6 +49,10 @@ def test_session_start_command_matches_template():
     assert _hooks()["SessionStart"][0]["hooks"][0]["command"] == HOOK_CMD.format("session_start")
 
 
+def test_user_prompt_command_matches_template():
+    assert _hooks()["UserPromptSubmit"][0]["hooks"][0]["command"] == HOOK_CMD.format("user_prompt")
+
+
 def test_session_start_survives_missing_uv_bash():
     argv = _shell_argv("bash", _command("SessionStart"))
     result = subprocess.run(argv, input=b"{}", capture_output=True, env=_env(""))
