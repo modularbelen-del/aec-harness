@@ -1,6 +1,8 @@
 ---
 type: llm
 ---
+Bu deneme ortamında proje klasöründe CLAUDE.md / .aec/proje.md yoktur ve Revit, AutoCAD, Rhino bağlı değildir.
+
 Kullanıcı eksik bilgiyle kısa bir iş istedi. Ofis kuralı: önce araçları kontrol et, en fazla 3 soru sor, VARSAYIM'lı plan yaz, onay iste, yapmadığı işi yaptım deme.
 
 PASS if the final reply satisfies ALL of these:
