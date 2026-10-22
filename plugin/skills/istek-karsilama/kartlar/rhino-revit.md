@@ -25,14 +25,20 @@
   olarak sorma; kişi söylemediyse planda "VARSAYIM: Rhino.Inside.Revit kurulu değil; kuruluysa söyleyin" yaz.
 - Ofiste Rhino 8 var. Araç listende adında `rhino` geçen araç yoksa Rhino'ya bağlı değilsin.
 - Kodu sen çalıştıramıyorsan kişinin Grasshopper'da çalıştıracağı kodu yaz; çalıştırmadığın şeyi "yaptım" deme.
-- Genel prosedür: ölç → planla → onay al → kopya modelde uygula → geri oku.
+- Bu iş karmaşıktır; akış: görüşme → tarif, plan ve görevler onayı → kopya modelde uygula → kontrolcü → kabul.
 
 ## Plan şablonu
 1. Kaynak: <Rhino dosyası, katman/obje>. Hedef: <kopya model>, kategori <kategori>.
 2. Yöntem: Rhino.Inside.Revit üzerinden kod (kurulu mu: <kişinin söylediği ya da VARSAYIM>); Revit elemanı mı sabit şekil mi.
 3. Birim ve hiza: <birim>, <ortak nokta>.
 4. Önce <n> parçalık deneme, sonra hepsi.
-5. VARSAYIM: <sorulmayanlar>. Onaylıyor musunuz?
+5. VARSAYIM: <sorulmayanlar>. Kabul ölçütleri: <ölçütler ve yöntemleri>.
+
+## Kabul ölçütleri
+Varsayılan ölçütlerdir; görüşmede işe göre kesinleştirilir ve `olcut` komutuyla kaydedilir.
+- Öğe sayısı ve Revit kategorisi plana uygundur (revit-okuma)
+- Yazılan model kopya modeldir; açık belgenin yolu `.aec/proje.md`'deki kopya yoluyla aynıdır (revit-okuma)
+- Kutu ölçüleri ve konum Rhino'dakilerle tolerans içinde tutar (olcu; Faz 1C öncesinde DOĞRULANAMADI olabilir)
 
 ## Geri okuma
 - Revit'ten geri oku: öğe sayısı, kategori, kutu ölçüleri ve konum.

@@ -21,11 +21,15 @@
 - MD'de yoksa açık modelden oku: seviye listesi (`list_levels`), yüklü aileler (`list_families`).
 
 ## Skill / araç
-- Bu iş için özel araç henüz yok (yakında). Genel prosedürle çalış: ölç → planla → onay al → kopyada uygula → geri oku.
+- Bu iş için özel araç henüz yok (yakında). Bu iş karmaşıktır; akış: görüşme → tarif, plan ve görevler onayı →
+  kopyada uygula → kontrolcü → kabul.
 - Araç listende adında `revit` geçen araçlar var mı bak (ör. `revit` ya da `revit2` sunucusu: `get_revit_status`,
   `get_revit_model_info`, `get_current_view_info`, `list_levels`, `list_families`, `place_family`, `execute_revit_code`).
-- Yazmadan önce açık belgenin dosya yolunu (`get_revit_model_info`, gerekirse `Document.PathName`) `.aec/proje.md`'deki
-  kopya yoluyla karşılaştır; başlık yetmez. MD yoksa ya da yollar tutmuyorsa dur ve sor (3 sorudan biri sayılır).
+- Yazmadan önce açık belgenin dosya yolunu `get_revit_model_info` ile `.aec/proje.md`'deki kopya yoluyla karşılaştır;
+  başlık yetmez. MD yoksa ya da yollar tutmuyorsa dur ve sor.
+- `execute_revit_code` okuma için de olsa yazma sayılır: onaydan önce reddedilir, onaydan sonraki ilk başarılı çağrı
+  işi `uygulandi` yapar. Okuma aracı yolu vermiyorsa uygulama kodu ilk iş olarak `Document.PathName`'i karşılaştırsın;
+  tutmazsa hata fırlatıp hiçbir şey yazmadan dursun.
 - Onaylı planın hepsini tek `execute_revit_code` çağrısında, tek TransactionGroup içinde (sonunda Assimilate) yapmaya
   çalış. Olmuyorsa (`place_family` çağrıları, sunucunun kendi işlemi) geri almanın birkaç adım sürebileceğini söyle.
 - Ofiste Revit 2027 var. API'yi ezberden yazma; emin olmadığın sınıfı açık modelden doğrula.
@@ -37,7 +41,13 @@
 3. Yapılacak: <adet> <öğe>; konumlar <ölçü kaynağı>'ndan.
 4. VARSAYIM: <sorulmayan her şey, ör. duvar ortasından yerleşim>.
 5. <Tek seferde yazılamıyorsa:> Geri almak birkaç adım sürebilir.
-6. Sonunda modelden geri okuyup bu planla karşılaştırırım. Onaylıyor musunuz?
+6. Kabul ölçütleri: <ölçütler ve yöntemleri>; uygulamadan sonra bağımsız kontrolcü bunları modelden okur.
+
+## Kabul ölçütleri
+Varsayılan ölçütlerdir; görüşmede işe göre kesinleştirilir ve `olcut` komutuyla kaydedilir.
+- Eleman sayısı, aile ve tipi plana uygundur (revit-okuma)
+- Yazılan model kopya modeldir; açık belgenin yolu `.aec/proje.md`'deki kopya yoluyla aynıdır (revit-okuma)
+- Konum ve ölçüler plana tolerans içinde uyar (olcu; Faz 1C öncesinde DOĞRULANAMADI olabilir)
 
 ## Geri okuma
 - Yazdıktan sonra aynı Revit aracıyla oku: öğe sayısı, seviye, aile ve tip, konum ve ölçüler.

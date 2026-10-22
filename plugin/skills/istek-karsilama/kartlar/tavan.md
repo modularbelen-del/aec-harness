@@ -20,10 +20,12 @@
 - `CLAUDE.md`: projenin tavan tipleri ve kuralları, varsa.
 
 ## Skill / araç
-- Oturumda `ceiling-from-dwg` skill'i varsa onu yükle ve onun prosedürüyle çalış; bu kart yalnızca eksik bilgiyi toplar.
+- Bu iş karmaşıktır; iş kaydı, tarif, plan ve görevler onayı, kontrolcü ve kabul bu akışla yürür.
+- Oturumda `ceiling-from-dwg` skill'i varsa uygulama adımında onu yükle ve onun prosedürüyle çalış; Revit'e yazma
+  yine yalnızca onaylı planla yapılabilir.
 - Tanınmayan tavan öğesi ya da ürün için oturumda `tavan-arastirma` skill'i varsa onu kullan.
-- Bu skill'ler yoksa: tavan modülü yakında (Faz 1D). Özel araç henüz yok (yakında); genel prosedürle çalış:
-  ölç → planla → onay al → kopya modelde uygula → geri oku.
+- Bu skill'ler yoksa: tavan modülü yakında (Faz 1D). Özel araç henüz yok (yakında); genel akışla çalış:
+  görüşme → onaylar → kopya modelde uygula → kontrolcü → kabul.
 - Ölçüler DWG'den araçla okunur; resimden ölçü alınmaz. Revit'e yazmak için `revit-modelleme` kartındaki kurallar geçerli.
 
 ## Plan şablonu
@@ -31,7 +33,14 @@
 2. Sistem: <sistem, ürün>. Kot: <yükseklik>, seviye <seviye>.
 3. Model: <kopya model>; aydınlatma ve menfezler <var/yok>.
 4. VARSAYIM: <sorulmayanlar>.
-5. Onaylıyor musunuz?
+5. Kabul ölçütleri: <ölçütler ve yöntemleri>.
+
+## Kabul ölçütleri
+Varsayılan ölçütlerdir; görüşmede işe göre kesinleştirilir ve `olcut` komutuyla kaydedilir.
+- Tavan, armatür ve menfez sayıları ve tipleri plana uygundur (revit-okuma)
+- Yazılan model kopya modeldir; açık belgenin yolu `.aec/proje.md`'deki kopya yoluyla aynıdır (revit-okuma)
+- Kot ve tavan sınırları plana tolerans içinde uyar (olcu; Faz 1C öncesinde DOĞRULANAMADI olabilir)
+- Boşluk kalmadığı, armatürlerin kenara ulaştığı ve alın köşelerinin kapalı olduğu gözle kontrol edilir (kisi-gorsel)
 
 ## Geri okuma
 - Revit'ten geri oku: tavan sayısı, kot, sınırlar; armatür ve menfez sayısı.

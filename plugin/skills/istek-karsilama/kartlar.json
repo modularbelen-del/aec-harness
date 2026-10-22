@@ -2,6 +2,7 @@
   {
     "id": "revit-modelleme",
     "baslik": "Revit modelleme",
+    "karmasik": true,
     "anahtar": [
       "revit",
       "rvt",
@@ -28,6 +29,7 @@
   {
     "id": "dwg-okuma",
     "baslik": "DWG okuma/aktarma",
+    "karmasik": false,
     "anahtar": [
       "dwg",
       "dxf",
@@ -46,6 +48,7 @@
   {
     "id": "dwg-cizim",
     "baslik": "DWG'de çizim",
+    "karmasik": true,
     "anahtar": [
       "autocad",
       "acad",
@@ -66,6 +69,7 @@
   {
     "id": "metraj-liste",
     "baslik": "Metraj/liste",
+    "karmasik": false,
     "anahtar": [
       "metraj",
       "alan hesab",
@@ -90,6 +94,7 @@
   {
     "id": "rhino-revit",
     "baslik": "Rhino'dan Revit'e",
+    "karmasik": true,
     "anahtar": [
       "rhino",
       "grasshopper",
@@ -106,6 +111,7 @@
   {
     "id": "tavan",
     "baslik": "Asma tavan",
+    "karmasik": true,
     "anahtar": [
       "re:tavan(?!(in)?a kadar)",
       "baffle",
@@ -126,6 +132,7 @@
   {
     "id": "render",
     "baslik": "Render/görsel",
+    "karmasik": false,
     "anahtar": [
       "render",
       "gorsellestir",

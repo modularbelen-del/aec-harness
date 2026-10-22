@@ -25,14 +25,21 @@
   programında kurmanın adımlarıdır (kamera, saat, malzeme, ışık). Ofisin kullandığı bir görsel aracı varsa
   tarif, ona yazılacak istek metni de olabilir.
 - Müşteri çizimini ya da model görüntüsünü ücretsiz yapay zekâ sitelerine yüklemeyi hiç önerme.
-- Genel prosedür burada kısa: ihtiyacı topla → metni planla → onay al → metni ver → kontrol et.
+- Genel akış burada kısa: ihtiyacı topla → metni planla → plan onayı → metni dosyaya yaz ve ver → kontrolcü → kabul.
 
 ## Plan şablonu
 1. Görünüş: <kamera ya da cephe>, saat <saat>.
 2. Stil: <gerçekçi/eskiz>, malzeme ve ışık: <tarif>.
-3. Çıktı: <render programında sahne tarifi / görsel aracına yazılacak metin>; görseli kişi üretir.
+3. Çıktı: <render programında sahne tarifi / görsel aracına yazılacak metin>, <dosya adı> dosyasına yazılır;
+   görseli kişi üretir.
 4. Gizlilik: metinde proje ve müşteri adı yok.
-5. VARSAYIM: <sorulmayanlar>. Onaylıyor musunuz?
+5. VARSAYIM: <sorulmayanlar>. Kabul ölçütleri: <ölçütler ve yöntemleri>.
+
+## Kabul ölçütleri
+Varsayılan ölçütlerdir; görüşmede işe göre kesinleştirilir ve `olcut` komutuyla kaydedilir.
+- Metin istenen görünüş, stil, malzeme ve ışık maddelerinin hepsini içerir (dosya)
+- İstem metninde proje adı, müşteri adı ve adres geçmez (dosya)
+- Kişi ürettiği görseli istekle karşılaştırarak gözle kontrol eder (kisi-gorsel)
 
 ## Geri okuma
 - Yazdığın metni istekle karşılaştır: görünüş, stil, malzeme, ışık maddeleri tek tek var mı.

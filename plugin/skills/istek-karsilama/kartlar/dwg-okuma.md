@@ -21,14 +21,15 @@
 
 ## Skill / araç
 - DWG okuma araçları yakında (Faz 1B); bu iş için özel araç henüz yok (yakında).
-- Genel prosedürle çalış: ölç → planla → onay al → kopyada uygula → geri oku.
+- Genel akış: görüşme → plan onayı → uygula → kontrolcü → kabul.
 - Ölçüler yalnızca araçla okunur; ekran görüntüsünden ya da PDF resminden ölçü alınmaz.
 - DXF yolu: yalnızca bu oturumda kod çalıştırabiliyorsan (Bash ve Python) kullanıcının verdiği DXF'i bir betikle oku.
   Grup kodlarına gözle bakıp ölçü çıkarma; iç içe blokların ölçeği ve dönmesi gözle yanlış okunur.
   Betikle okunan değerleri planda "kontrol edin" notuyla VARSAYIM olarak yaz.
 - Kod çalıştıramıyorsan: DWG okumanın Faz 1B'de geleceğini söyle; yalnızca ölçüleri kişinin söylemesini öner.
 - Orijinal DWG'ye hiç yazma.
-- Revit'e aktarma kısmı için ayrıca `revit-modelleme` kartını oku.
+- Revit'e aktarma kısmı için ayrıca `revit-modelleme` kartını oku. Revit'e yazan iş karmaşıktır; onaydan önce
+  karmaşık sınıfına yükselt ve gerekçesini söyle.
 
 ## Plan şablonu
 1. Dosya ve pafta: <dosya>, <plan adı>.
@@ -36,7 +37,13 @@
 3. Birim: <cm/mm>. Hiza: <ortak nokta, dönme>.
 4. Çıktı: <ölçü tablosu ya da Revit'e aktarılacak öğeler>.
 5. VARSAYIM: <sorulmayanlar; kullanıcının yazdığı ölçüler>.
-6. Onaylıyor musunuz?
+6. Kabul ölçütleri: <ölçütler ve yöntemleri>.
+
+## Kabul ölçütleri
+Varsayılan ölçütlerdir; görüşmede işe göre kesinleştirilir ve `olcut` komutuyla kaydedilir.
+- Okunan ölçüler kaynağıyla (katman, blok adı) birlikte plandaki çıktı dosyasındadır (dosya)
+- Tablodaki ölçüler çizimden ikinci kez okunduğunda tutar (dosya)
+- İşaretlenen kontrol ölçüleri kişi tarafından çizimde gözle doğrulanır (kisi-gorsel)
 
 ## Geri okuma
 - Okunan ölçüleri kaynağıyla (katman, blok adı) birlikte tablo hâlinde ver.

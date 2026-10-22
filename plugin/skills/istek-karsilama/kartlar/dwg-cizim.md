@@ -24,7 +24,8 @@ Dört ayrı iş var; hangisi olduğunu baştan ayır:
 
 ## Skill / araç
 - Bu iş için özel araç henüz yok (yakında). AutoCAD bağlantısı değerlendiriliyor.
-- Genel prosedürle çalış: ölç → planla → onay al → yeni ya da kopya dosyada uygula → geri oku.
+- Bu iş karmaşıktır (çizim). Akış: görüşme → tarif, plan ve görevler onayı → yeni ya da kopya dosyada uygula →
+  kontrolcü → kabul.
 - Araç listende adında `autocad` geçen bir araç varsa kullan. Yoksa AutoCAD henüz bağlı değil; açık AutoCAD'e
   çizdiğini hiç söyleme.
 - DXF üretme ve kopya DXF'i düzeltme: yalnızca bu oturumda kod çalıştırabiliyorsan (Bash ve Python) yeni dosyaya yaz.
@@ -36,7 +37,13 @@ Dört ayrı iş var; hangisi olduğunu baştan ayır:
 2. Katmanlar: <standart>. Ölçek: <1/..>. Yazı: <stil, yükseklik>.
 3. Çizilecekler: <öğe listesi ve ölçüler, kaynağıyla>.
 4. VARSAYIM: <sorulmayanlar>.
-5. Onaylıyor musunuz?
+5. Kabul ölçütleri: <ölçütler ve yöntemleri>.
+
+## Kabul ölçütleri
+Varsayılan ölçütlerdir; görüşmede işe göre kesinleştirilir ve `olcut` komutuyla kaydedilir.
+- Çıktı, plandaki yeni ya da kopya dosya yolundadır; orijinal çizimin yolu kullanılmamıştır (dosya)
+- Katman adları ve öğe sayıları plana uygundur (dosya)
+- Ana ölçüler plandaki değerlerle tolerans içinde tutar (olcu; Faz 1C öncesinde DOĞRULANAMADI olabilir)
 
 ## Geri okuma
 - Yazılan dosyayı yeniden aç ve oku: katman adları, öğe sayısı, ana ölçüler, yazılar.

@@ -22,7 +22,7 @@
 
 ## Skill / araç
 - Metraj modülü yakında; bu iş için özel araç henüz yok (yakında).
-- Genel prosedürle çalış: ölç → planla → onay al → yeni dosyada uygula → geri oku.
+- Genel akış: görüşme → plan onayı → yeni dosyada uygula → kontrolcü → kabul.
 - Revit kaynağı: araç listende adında `revit` geçen araç varsa oda, kapı, pencere bilgisini onunla oku.
 - DWG kaynağı: DWG okuma araçları yakında (Faz 1B); ölçüyü resimden çıkarma. Ancak kod çalıştırabiliyorsan
   kişinin verdiği DXF'i `dwg-okuma` kartındaki gibi betikle oku ve değerleri "kontrol edin" diye işaretle.
@@ -35,7 +35,13 @@
 2. Liste: <mahal / kapı / pencere / alan>; sütunlar: <liste>.
 3. Çıktı: <yeni Excel dosyası adı>; poz no sütunu, fiyat yok.
 4. VARSAYIM: <sorulmayanlar>; emin olunmayan hücreler sarı.
-5. Onaylıyor musunuz?
+5. Kabul ölçütleri: <ölçütler ve yöntemleri>.
+
+## Kabul ölçütleri
+Varsayılan ölçütlerdir; görüşmede işe göre kesinleştirilir ve `olcut` komutuyla kaydedilir.
+- Excel plandaki yeni dosya adıyla oluşturulmuştur; satır sayısı kaynaktaki öğe sayısıyla aynıdır (dosya)
+- Ara toplamlar ve genel toplam kaynaktaki değerlerle tutar (dosya)
+- Tabloda birim fiyat, fiyat ya da tutar sütunu yoktur; poz no sütunu vardır (dosya)
 
 ## Geri okuma
 - Excel'i yazdıktan sonra dosyayı yeniden aç: satır sayısı, toplamlar, boş hücreler.
