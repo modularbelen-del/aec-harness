@@ -16,7 +16,7 @@ sys.path.insert(0, str(PLUGIN_ROOT / "scripts"))
 sys.path.insert(0, str(PLUGIN_ROOT / "hooks"))
 
 import is_durumu  # noqa: E402
-from pre_tool import _mutlak  # noqa: E402  (same path normalization as the verifier-prompt lock)
+from yol import mutlak as _mutlak  # noqa: E402  (same path normalization as the verifier-prompt lock)
 from proje_baslat import _yaz_metin  # noqa: E402
 
 KAYNAK = "hook-subagent"
@@ -39,17 +39,27 @@ def _metinler(icerik) -> str:
     return ""
 
 
-def _transcript(yol) -> "tuple[list[str], str]":
-    """(genuine user messages in order, text of the last assistant message that has text)."""
+def _kaynak_var(origin) -> bool:
+    """True when a line comes from somewhere other than the harness itself (e.g. origin kind 'coordinator')."""
+    if isinstance(origin, dict):
+        return bool(origin.get("kind"))
+    return bool(origin)
+
+
+def _transcript(yol) -> "tuple[str, bool, str]":
+    """(genuine prompt, trusted, text of the last assistant message that has text).
+
+    The genuine prompt is the first non-meta user text line. The transcript is not trusted when another user text line
+    has a different promptId or a non-empty origin, or when a second non-meta user text line exists. Harness
+    reminders (isMeta, same promptId, no origin), tool_result-only lines and other line types are ignored.
+    """
     kullanici, asistan = [], ""
     for satir in pathlib.Path(yol).read_text(encoding="utf-8", errors="replace").splitlines():
         try:
             kayit = json.loads(satir)
         except ValueError:
             continue
-        if not isinstance(kayit, dict):
-            continue
-        ileti = kayit.get("message")
+        ileti = kayit.get("message") if isinstance(kayit, dict) else None
         if not isinstance(ileti, dict):
             continue
         tur = kayit.get("type") or ileti.get("role")
@@ -57,10 +67,20 @@ def _transcript(yol) -> "tuple[list[str], str]":
         if not metin:
             continue
         if tur == "user":
-            kullanici.append(metin)
+            kullanici.append((metin, bool(kayit.get("isMeta")), kayit.get("promptId"), kayit.get("origin")))
         elif tur == "assistant":
             asistan = metin
-    return kullanici, asistan
+    gercek = next((k for k in kullanici if not k[1]), None)
+    if gercek is None:
+        return "", False, asistan
+    pid = gercek[2]
+    guvenilir = True
+    for k in kullanici:
+        if _kaynak_var(k[3]) or (pid is not None and k[2] != pid):
+            guvenilir = False
+    if sum(1 for k in kullanici if not k[1]) != 1:
+        guvenilir = False
+    return gercek[0], guvenilir, asistan
 
 
 def _is_kimligi(metin: str, proje: pathlib.Path) -> "str | None":
@@ -88,16 +108,15 @@ def isle(girdi, proje: pathlib.Path) -> None:
         if not isinstance(tur, str) or tur.strip().casefold() not in AJANLAR:
             return
         proje = pathlib.Path(proje)
-        kullanici, rapor = _transcript(girdi["agent_transcript_path"])
-        if not kullanici or not rapor:
+        istem, guvenilir, rapor = _transcript(girdi["agent_transcript_path"])
+        if not istem or not rapor:
             return
-        is_id = _is_kimligi(kullanici[0], proje)
+        is_id = _is_kimligi(istem, proje)
         if not is_id:
             return
         kayit = is_durumu.is_yukle(proje, is_id)
         if not isinstance(kayit, dict) or kayit.get("durum") != "uygulandi":
             return
-        guvenilir = len(kullanici) == 1
         sonuc = _sonuc(rapor) if guvenilir else DOGRULANAMADI
         not_ = f"kontrol sonucu: {sonuc}" if guvenilir else f"{NOT_YONERGE}; kontrol sonucu: {sonuc}"
         baslik = f"# Kontrol raporu — {is_id}{NL}{NL}Zaman: {is_durumu._zaman()}{NL}Sonuç: {sonuc}{NL}{NL}"

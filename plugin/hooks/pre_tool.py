@@ -19,6 +19,7 @@ sys.path.insert(0, str(PLUGIN_ROOT / "hooks"))
 
 import is_durumu  # noqa: E402
 import user_prompt  # noqa: E402  (shared heartbeat path and state directory)
+from yol import mutlak as _mutlak  # noqa: E402
 
 REVIT_YAZMA = re.compile(r"^mcp__.*revit.*__(execute_revit_code|place_family|close_document|save_document|sync_with_central)$", re.IGNORECASE)
 YAZMA_ARACLARI = frozenset({"Write", "Edit", "NotebookEdit"})
@@ -40,15 +41,6 @@ NEDEN_YUMUSAK = "Onay kaydı bu oturumda doğrulanamadı. Bu yazma işlemini ona
 def _cikti(karar: str, neden: str) -> dict:
     return {"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": karar,
                                    "permissionDecisionReason": neden}}
-
-
-def _mutlak(yol: str, proje: pathlib.Path) -> str:
-    """Normalized absolute path with forward slashes, lower-cased on Windows."""
-    p = pathlib.Path(yol.replace("\\", "/"))
-    if not p.is_absolute():
-        p = pathlib.Path(proje) / p
-    s = os.path.normpath(str(p)).replace("\\", "/")
-    return s.lower() if os.name == "nt" else s
 
 
 def _isler_icinde(yol: str, proje: pathlib.Path) -> bool:
