@@ -1,0 +1,71 @@
+"""proje_baslat: writes the project CLAUDE.md block and .aec/proje.md for /aec:proje-baslat."""
+import json
+import pathlib
+
+import proje_baslat
+from _md import frontmatter
+
+ROOT = pathlib.Path(__file__).resolve().parents[2]
+SKILLS = ROOT / "plugin" / "skills"
+
+CEVAP = {"proje_adi": "Örnek Konut", "proje_tipi": "konut", "revit_merkez": "D:/Proje/merkez.rvt",
+         "revit_kopya": "D:/Proje/kopya.rvt", "birim": "cm", "katlar": "B1, Z, 1-4", "orijin": "proje temel noktası",
+         "katman_standardi": "ofis"}
+
+
+def test_writes_both_files(tmp_path):
+    proje_baslat.yaz(tmp_path, CEVAP)
+    p = (tmp_path / ".aec" / "proje.md").read_text(encoding="utf-8")
+    assert all(v in p for v in CEVAP.values())
+    c = (tmp_path / "CLAUDE.md").read_text(encoding="utf-8")
+    assert "<!-- aec:proje başlangıç -->" in c and ".aec/proje.md" in c and "D:/Proje/kopya.rvt" in c
+
+
+def test_rerun_keeps_user_text_and_single_block(tmp_path):
+    (tmp_path / "CLAUDE.md").write_text("# Benim notlarım\nDokunma.\n", encoding="utf-8")
+    proje_baslat.yaz(tmp_path, CEVAP); proje_baslat.yaz(tmp_path, {**CEVAP, "birim": "mm"})
+    c = (tmp_path / "CLAUDE.md").read_text(encoding="utf-8")
+    assert c.startswith("# Benim notlarım\nDokunma.\n")
+    assert c.count("<!-- aec:proje başlangıç -->") == 1
+    assert "Birim: mm." in c and "Birim: cm." not in c
+
+
+def test_existing_proje_md_untouched(tmp_path):
+    (tmp_path / ".aec").mkdir(); (tmp_path / ".aec" / "proje.md").write_text("eski", encoding="utf-8")
+    msgs = proje_baslat.yaz(tmp_path, CEVAP)
+    assert (tmp_path / ".aec" / "proje.md").read_text(encoding="utf-8") == "eski"
+    assert any("zaten var" in m for m in msgs)
+
+
+def test_missing_field_marked(tmp_path):
+    proje_baslat.yaz(tmp_path, {"proje_adi": "X"})
+    assert "belirtilmedi" in (tmp_path / ".aec" / "proje.md").read_text(encoding="utf-8")
+
+
+def test_files_are_lf_without_bom(tmp_path):
+    proje_baslat.yaz(tmp_path, CEVAP)
+    for f in (tmp_path / "CLAUDE.md", tmp_path / ".aec" / "proje.md"):
+        raw = f.read_bytes()
+        assert not raw.startswith(b"\xef\xbb\xbf") and b"\r" not in raw
+
+
+def test_appends_with_single_blank_line(tmp_path):
+    (tmp_path / "CLAUDE.md").write_text("not\n\n", encoding="utf-8")
+    proje_baslat.yaz(tmp_path, CEVAP)
+    assert (tmp_path / "CLAUDE.md").read_text(encoding="utf-8").startswith("not\n\n<!-- aec:proje")
+
+
+def test_main_reads_json_and_survives_bad_json(tmp_path, capsys):
+    f = tmp_path / "c.json"
+    f.write_text(json.dumps(CEVAP, ensure_ascii=False), encoding="utf-8")
+    assert proje_baslat.main(["--proje", str(tmp_path), "--json", str(f)]) == 0
+    assert (tmp_path / "CLAUDE.md").is_file()
+    f.write_text("{bozuk", encoding="utf-8")
+    assert proje_baslat.main(["--proje", str(tmp_path), "--json", str(f)]) == 0
+    assert capsys.readouterr().out.strip()
+
+
+def test_skill_flags():
+    assert frontmatter(SKILLS / "proje-baslat" / "SKILL.md")["disable-model-invocation"] == "true"
+    assert "NELER-YAPABILIR.md" in (SKILLS / "yardim" / "SKILL.md").read_text(encoding="utf-8")
+    assert (ROOT / "plugin" / "docs" / "NELER-YAPABILIR.md").is_file()
