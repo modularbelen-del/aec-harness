@@ -1,0 +1,120 @@
+"""is_durumu: job record library and state machine."""
+import json
+from datetime import datetime, timezone
+from pathlib import Path
+
+import pytest
+
+import is_durumu
+
+ZAMAN = datetime(2026, 10, 22, 14, 30, tzinfo=timezone.utc)
+
+
+def _yeni(tmp_path, baslik="Kapı yerleştirme", karmasik=True):
+    return is_durumu.yeni_is(tmp_path, "revit-modelleme", baslik, karmasik, simdi=ZAMAN)
+
+
+def test_new_job_id_and_fields(tmp_path):
+    k = _yeni(tmp_path)
+    assert k["id"] == "20261022-1430-kapi-yerlestirme"
+    assert k["durum"] == "gorusme" and k["karmasik"] is True
+    assert k["sema"] == "aec.is/1" and k["olcutler"] == [] and k["sonuc"] is None and k["oturum"] is None
+    yol = tmp_path / ".aec" / "isler" / k["id"] / "is.json"
+    assert json.loads(yol.read_text(encoding="utf-8"))["id"] == k["id"]
+    assert is_durumu.is_yukle(tmp_path, k["id"]) == k
+    assert k["olaylar"][0]["yeni"] == "gorusme"
+
+
+def test_id_collision_gets_suffix(tmp_path):
+    a = _yeni(tmp_path)
+    b = _yeni(tmp_path)
+    assert b["id"] == a["id"] + "-2"
+    assert _yeni(tmp_path)["id"] == a["id"] + "-3"
+
+
+def test_refuses_home_and_drive_root(tmp_path, monkeypatch):
+    monkeypatch.setattr(Path, "home", staticmethod(lambda: tmp_path))
+    with pytest.raises(ValueError) as e:
+        _yeni(tmp_path)
+    assert "✗" in str(e.value) and "Hiçbir şey yazılmadı" in str(e.value)
+    with pytest.raises(ValueError):
+        _yeni(Path(tmp_path.anchor))
+    assert not (tmp_path / ".aec").exists()
+
+
+def test_illegal_transition_raises(tmp_path):
+    k = _yeni(tmp_path)
+    with pytest.raises(ValueError):
+        is_durumu.gecis(k, "uygulandi", "ajan")
+    assert k["durum"] == "gorusme"
+
+
+def test_unknown_source_raises(tmp_path):
+    k = _yeni(tmp_path)
+    with pytest.raises(ValueError):
+        is_durumu.gecis(k, "iptal", "baskasi")
+
+
+def test_simple_vs_complex_approval_targets():
+    basit = {"karmasik": False}
+    karma = {"karmasik": True}
+    assert is_durumu.onay_sonrasi(basit, "plan") == "plan-onaylandi"
+    assert is_durumu.onay_sonrasi(karma, "tarif") == "onaylandi:tarif"
+    assert is_durumu.onay_sonrasi(karma, "plan") == "onaylandi:plan"
+    assert is_durumu.onay_sonrasi(karma, "gorevler") == "plan-onaylandi"
+
+
+def test_plan_change_after_approval_resets(tmp_path):
+    k = _yeni(tmp_path, karmasik=False)
+    is_durumu.gecis(k, "onay-bekliyor:plan", "ajan")
+    is_durumu.gecis(k, "onay-bekliyor:plan", "ajan")  # resubmission
+    is_durumu.gecis(k, "plan-onaylandi", "kullanici-mesaji")
+    is_durumu.gecis(k, "onay-bekliyor:plan", "ajan", "plan değişti")
+    assert k["durum"] == "onay-bekliyor:plan"
+
+
+def test_full_complex_path(tmp_path):
+    k = _yeni(tmp_path)
+    for yeni in ("onay-bekliyor:tarif", "onaylandi:tarif", "onay-bekliyor:plan", "onaylandi:plan",
+                 "onay-bekliyor:gorevler", "plan-onaylandi", "uygulandi", "kabul-bekliyor", "kabul-edildi"):
+        is_durumu.gecis(k, yeni, "ajan")
+    assert k["durum"] == "kabul-edildi"
+
+
+def test_events_recorded_with_source(tmp_path):
+    k = _yeni(tmp_path)
+    is_durumu.gecis(k, "onay-bekliyor:tarif", "ajan", "tarif yazıldı")
+    o = k["olaylar"][-1]
+    assert o["kaynak"] == "ajan" and o["eski"] == "gorusme" and o["yeni"] == "onay-bekliyor:tarif"
+    assert o["not"] == "tarif yazıldı" and o["zaman"]
+
+
+def test_active_binding_per_session(tmp_path):
+    a = _yeni(tmp_path, "Birinci iş")
+    b = _yeni(tmp_path, "İkinci iş")
+    is_durumu.aktif_bagla(tmp_path, "oturum-1", a["id"])
+    is_durumu.aktif_bagla(tmp_path, "oturum/../2", b["id"])
+    assert is_durumu.aktif_is(tmp_path, "oturum-1")["id"] == a["id"]
+    assert is_durumu.aktif_is(tmp_path, "oturum/../2")["id"] == b["id"]
+    assert is_durumu.aktif_is(tmp_path, "yok") is None
+    assert not any(".." in p.name for p in (tmp_path / ".aec" / "isler").glob("aktif-*"))
+
+
+def test_open_jobs_excludes_terminal(tmp_path):
+    a = _yeni(tmp_path, "Eski iş")
+    b = is_durumu.yeni_is(tmp_path, "dwg-okuma", "Yeni iş", False, simdi=datetime(2026, 10, 23, 9, 0, tzinfo=timezone.utc))
+    c = is_durumu.yeni_is(tmp_path, "render", "İptal iş", False, simdi=datetime(2026, 10, 24, 9, 0, tzinfo=timezone.utc))
+    is_durumu.gecis(c, "iptal", "ajan")
+    is_durumu.is_kaydet(tmp_path, c)
+    assert [k["id"] for k in is_durumu.acik_isler(tmp_path)] == [b["id"], a["id"]]
+
+
+def test_open_jobs_empty_project(tmp_path):
+    assert is_durumu.acik_isler(tmp_path) == []
+
+
+def test_journal_line_appended(tmp_path):
+    is_durumu.gunluge_yaz(tmp_path, "birinci")
+    is_durumu.gunluge_yaz(tmp_path, "ikinci\n")
+    s = (tmp_path / ".aec" / "gunluk.md").read_text(encoding="utf-8")
+    assert s == "# İş günlüğü\n\nbirinci\nikinci\n"
