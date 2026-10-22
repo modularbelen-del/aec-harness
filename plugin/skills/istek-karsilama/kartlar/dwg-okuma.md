@@ -44,7 +44,7 @@
 - Kişinin çizimde kendisinin bakabileceği birkaç kontrol ölçüsünü işaretle.
 
 ## Yapamıyorsam
-- "DWG'yi okuyacak araç henüz kurulu değil, yakında geliyor. Ölçüleri resimden tahmin etmem, çünkü yanlış çıkabilir."
-- Kod çalıştırabiliyorsan: "Çizimi DXF olarak kaydedip verirseniz küçük bir programla okurum; okunan değerleri planda 'kontrol edin' diye işaretlerim."
-- Kod çalıştıramıyorsan: "DWG okuma Faz 1B'de geliyor. O zamana kadar ölçüleri siz söyleyin, VARSAYIM diye yazarım."
-- "Bağlantıların durumunu /aec:kontrol-et ile görebilirsiniz."
+- "DWG okuma aracı henüz kurulu değildir; yakında eklenecektir. Ölçüler görüntüden tahmin edilmez, çünkü bu yöntem hatalı sonuç verebilir."
+- Kod çalıştırabiliyorsan: "Çizim DXF olarak kaydedilip iletilirse bir betikle okunabilir; okunan değerler planda 'kontrol edin' notuyla işaretlenir."
+- Kod çalıştıramıyorsan: "DWG okuma Faz 1B ile eklenecektir. Bu tarihe kadar ölçülerin kullanıcı tarafından iletilmesi gerekir; iletilen ölçüler planda VARSAYIM olarak işaretlenir."
+- "Bağlantı durumu /aec:kontrol-et komutuyla görüntülenebilir."

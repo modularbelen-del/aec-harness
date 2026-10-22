@@ -1,80 +1,80 @@
-# Başlayın
+# Kurulum ve İlk Kullanım
 
-Bu eklenti, Revit, AutoCAD ve Rhino işlerinde size yardım eder. İsteğinizi anlar, önce plan gösterir, siz onaylayınca uygular. Her şeyi bilmez. Bazen yanlış anlar. Bu yüzden her adımda sizden onay ister.
+Bu eklenti, Revit, AutoCAD ve Rhino ile yürütülen işlerde destek sağlar. İsteği yorumlar, önce bir plan sunar ve onay alındıktan sonra uygular. Eklentinin bilgisi sınırlıdır ve istekleri zaman zaman yanlış yorumlayabilir; bu nedenle her adımda onay istenir.
 
-Önce [neler yapabildiğine](NELER-YAPABILIR.md) bakın. Takıldığınızda [sorun giderme](SORUN-GIDERME.md) sayfası var. Bilmediğiniz bir kelime çıkarsa [sözlüğe](SOZLUK.md) bakın.
+Eklentinin kapsamı [Mevcut Kapsam](NELER-YAPABILIR.md) sayfasında açıklanmıştır. Karşılaşılan sorunlar için [Sorun Giderme](SORUN-GIDERME.md), terimler için [Sözlük](SOZLUK.md) sayfasına başvurulabilir.
 
-Hangi programı kullanıyorsanız onun yolunu izleyin.
+Kurulum, kullanılan uygulamaya göre aşağıdaki iki yoldan biriyle yapılır.
 
-## Terminal kullanıyorsanız
+## Terminal ile kurulum
 
-Claude Code'u terminalde kullanıyorsanız kurulum tek satırdır.
+Claude Code terminalde kullanılıyorsa kurulum tek satırlık bir komutla yapılır.
 
-1. Başlat menüsüne `cmd` yazıp komut penceresini açın.
-2. Şu satırı yapıştırıp Enter'a basın:
+1. Başlat menüsüne `cmd` yazılarak komut penceresi açılır.
+2. Aşağıdaki satır yapıştırılır ve Enter tuşuna basılır:
 
 ```
 powershell -ExecutionPolicy Bypass -c "iex ((irm https://raw.githubusercontent.com/modularbelen-del/aec-harness/main/kur.ps1).TrimStart([char]0xFEFF))"
 ```
 
-Pilot süresince bu satır henüz çalışmaz; onun yerine aşağıdaki [Kanallar](#kanallar) bölümündeki `dev` satırını kullanın.
+Pilot dönemi boyunca bu satır çalışmaz; bunun yerine [Kanallar](#kanallar) bölümündeki `dev` satırı kullanılmalıdır.
 
-Satır yapıştırmak istemezseniz, repo klasörünün tamamını indirdiyseniz `kur.cmd` dosyasına çift tıklayın. Aynı işi yapar. (`kur.cmd` yanında `kur.ps1` dosyası olmadan çalışmaz.)
+Repo klasörünün tamamı indirilmişse, satır yapıştırmak yerine `kur.cmd` dosyasına çift tıklanabilir; dosya aynı işlemi yapar. (`kur.cmd`, aynı klasörde `kur.ps1` dosyası bulunmadan çalışmaz.)
 
-`kur.ps1` sırayla şunları yapar:
+`kur.ps1` sırasıyla şu işlemleri yapar:
 
-- Gerekli küçük programları kurar ([uv](SOZLUK.md) ve Python 3.12).
-- Claude Code bilgisayarda kuruluysa eklentiyi ([plugin](SOZLUK.md)) ekler, kurar ve otomatik güncellemeyi açar. Eski ayarlarınızın yedeğini `settings.json.aec-yedek` adıyla saklar.
-- Revit tarafında bir şey kurmaz. Yalnızca neyin eksik olduğunu yazar.
+- Gerekli yardımcı programları kurar ([uv](SOZLUK.md) ve Python 3.12).
+- Claude Code bilgisayarda kuruluysa eklentiyi ([plugin](SOZLUK.md)) ekler, kurar ve otomatik güncellemeyi açar. Mevcut ayarların yedeğini `settings.json.aec-yedek` adıyla saklar.
+- Revit tarafında kurulum yapmaz; yalnızca eksik bileşenleri raporlar.
 
-Bittiğinde Claude Code'u kapatıp yeniden açın.
+Kurulum tamamlandığında Claude Code kapatılıp yeniden açılmalıdır.
 
-Claude Code'u her zaman projenin klasöründe başlatın. Komut penceresinde önce proje klasörüne geçin, sonra `claude` yazın:
+Claude Code'u her zaman projenin klasöründe başlatınız. Bunun için komut penceresinde önce proje klasörüne geçilir, ardından `claude` yazılır:
 
 ```
 cd /d "D:\Projeler\Örnek Konut"
 claude
 ```
 
-`/aec:proje-baslat` proje bilgilerini bu klasöre yazar. Claude'u kendi kullanıcı klasörünüzde açarsanız bu komut hiçbir şey yazmaz ve sizi uyarır.
+`/aec:proje-baslat` proje bilgilerini bu klasöre yazar. Claude kullanıcı klasöründe açılmışsa komut hiçbir dosya yazmaz ve uyarı verir.
 
-## Cowork kullanıyorsanız
+## Cowork ile kurulum
 
-Claude masaüstü uygulamasındaki Cowork'ü kullanıyorsanız iki adım vardır.
+Claude masaüstü uygulamasındaki Cowork kullanılıyorsa kurulum iki adımdan oluşur.
 
-**1. Önce yukarıdaki tek satırı çalıştırın** ("Terminal kullanıyorsanız" bölümündeki satırın aynısı; pilot süresince [Kanallar](#kanallar) bölümündeki `dev` satırı). Cowork bilgisayarında Claude Code komutu yoksa satır yalnızca uv ve Python 3.12'yi kurar, eklenti adımını atlar ve size Cowork yolunu hatırlatır. Terminali de kullanan bilgisayarlarda eklentiyi ekler ve otomatik güncellemeyi açar; ayar dosyasının yedeğini alır. Bunu yalnızca bir kez yaparsınız. Repo klasörünün tamamını indirdiyseniz `kur.cmd` de aynı işi yapar.
+**1. Kurulum satırının çalıştırılması.** "Terminal ile kurulum" bölümündeki satır çalıştırılır (pilot dönemi boyunca [Kanallar](#kanallar) bölümündeki `dev` satırı). Bilgisayarda Claude Code komutu bulunmuyorsa betik yalnızca uv ve Python 3.12'yi kurar, eklenti adımını atlar ve Cowork kurulum adımlarına yönlendirir. Claude Code'un da kurulu olduğu bilgisayarlarda eklentiyi ekler, otomatik güncellemeyi açar ve ayar dosyasını yedekler. Bu adım yalnızca bir kez uygulanır. Repo klasörünün tamamı indirilmişse `kur.cmd` dosyası da aynı işlemi yapar.
 
-**2. Eklentiyi ekleyin.**
+**2. Eklentinin eklenmesi.**
 
-1. Claude uygulamasında **Customize** bölümünü açın.
-2. **Plugins** sekmesine girin.
-3. **Add marketplace** (mağaza ekle) düğmesine basın.
-4. Şunu yazın: `modularbelen-del/aec-harness`
-5. **Sync automatically** (otomatik eşitle) seçeneğini açın. Böylece yeni sürümler kendiliğinden gelir.
-6. Listeden `aec` eklentisini açın.
+1. Claude uygulamasında **Customize** bölümü açılır.
+2. **Plugins** sekmesine geçilir.
+3. **Add marketplace** (mağaza ekle) düğmesine tıklanır.
+4. Adres alanına `modularbelen-del/aec-harness` yazılır.
+5. **Sync automatically** (otomatik eşitle) seçeneği açılır. Bu seçenekle yeni sürümler otomatik olarak yüklenir.
+6. Listeden `aec` eklentisi etkinleştirilir.
 
-**Uyarı:** Revit gibi bilgisayarınızdaki programlara bağlanmak için oturumun "bilgisayarınızda" çalışması gerekir. Oturumu başlatırken bu seçeneği seçin. Bulutta çalışan oturum Revit'i göremez.
+**Uyarı:** Revit gibi yerel programlara bağlanabilmek için oturumun "bilgisayarınızda" seçeneğiyle başlatılması gerekir. Bulutta çalışan oturum yerel programlara erişemez.
 
-Cowork'te karşılama kartı bazen gelmeyebilir. Bu normaldir. İsteğinizi yazın; çoğu zaman eklenti yine çalışır. Çalışmazsa `/aec:kontrol-et` yazın.
+Cowork'te istek karşılama katmanının (ön kapı) kartı her istekte görüntülenmeyebilir; bu beklenen bir durumdur. Bu durumda istek normal biçimde yazılır; eklenti çoğu durumda yine devreye girer. Devreye girmezse `/aec:kontrol-et` komutu çalıştırılmalıdır.
 
-## İlk 3 deneme
+## İlk kullanım
 
-Kurulumdan sonra sırayla şunları deneyin. Üçü de zararsızdır. Yalnızca `/aec:proje-baslat` dosya yazar: projenin klasörüne `.aec/proje.md` dosyasını ekler ve `CLAUDE.md` dosyasına kısa bir bölüm ekler; sizin yazdıklarınıza dokunmaz. Öbür ikisi yalnızca okur.
+Kurulumun ardından aşağıdaki üç komutun sırasıyla çalıştırılması önerilir. Bu komutlar modellerde ve çizimlerde değişiklik yapmaz. Yalnızca `/aec:proje-baslat` dosya yazar: proje klasörüne `.aec/proje.md` dosyasını ekler ve `CLAUDE.md` dosyasına kısa bir bölüm ekler; dosyadaki mevcut metne dokunmaz. Diğer iki komut yalnızca okuma yapar.
 
-1. **`/aec:kontrol-et`** yazın. Kurulumun sağlam olup olmadığını ve Revit bağlantısını söyler. Eksik varsa ne yapacağınızı yazar.
-2. **`/aec:proje-baslat`** yazın. Birkaç soru sorar (proje adı, birim, kat adları gibi). Önce hangi klasöre yazacağını söyler; klasör yanlışsa söyleyin. Cevaplarınızı o klasördeki bir dosyaya yazar. Sonra aynı şeyleri tekrar sormaz.
-3. **`/aec:yardim`** yazın. Bugün neler yapabildiğini gösterir; Revit gerekmez. Revit bağlantınız kuruluysa bir iş de deneyebilirsiniz; nasıl yazacağınızı [örnek isteklerden](ORNEK-ISTEKLER.md) görün. Revit bağlantısı yoksa o iş için yalnızca plan çıkar.
+1. **`/aec:kontrol-et`**: Kurulumun ve Revit bağlantısının durumunu raporlar. Eksik bir bileşen varsa yapılması gerekeni belirtir.
+2. **`/aec:proje-baslat`**: Proje adı, birim ve kat adları gibi birkaç soru sorar. Önce hangi klasöre yazılacağını bildirir; klasör hatalıysa bu aşamada belirtilmelidir. Yanıtlar o klasördeki bir dosyaya kaydedilir ve sonraki isteklerde yeniden sorulmaz.
+3. **`/aec:yardim`**: Kullanımdaki özellikleri gösterir; Revit gerektirmez. Revit bağlantısı kuruluysa örnek bir iş de denenebilir; istek yazımı için [Örnek İstekler](ORNEK-ISTEKLER.md) sayfasına başvurulabilir. Revit bağlantısı yoksa bu iş için yalnızca plan hazırlanır.
 
-Kendi dosyanızla çalışmadan önce [güvenlik kurallarına](GUVENLIK.md) bir göz atın. Beş dakikanızı alır.
+Proje dosyalarıyla çalışmaya başlamadan önce [Güvenlik İlkeleri](GUVENLIK.md) sayfasının okunması gerekir.
 
 ## Kanallar
 
-Çoğu kişi için `main` kanalı doğrudur. Bu kanal denenmiş, kararlı sürümdür. Denemeleri ilk görmek isteyen şampiyonlar `dev` kanalını kurar. Bu satırı Win+R penceresine ya da `cmd` penceresine yazın:
+Kullanıcıların büyük çoğunluğu için doğru kanal `main` kanalıdır; bu kanal sınanmış, kararlı sürümü içerir. Yeni özellikleri önceden deneyen pilot kullanıcılar `dev` kanalını kurar. Aşağıdaki satır Win+R ya da `cmd` penceresine yazılır:
 
 ```
 powershell -ExecutionPolicy Bypass -c "$env:AEC_KANAL='dev'; iex ((irm https://raw.githubusercontent.com/modularbelen-del/aec-harness/dev/kur.ps1).TrimStart([char]0xFEFF))"
 ```
 
-Pilot süresince yalnızca bu `dev` satırı çalışır. Yukarıdaki `main` satırı, değişiklikler pilottan sonra `main` kanalına geçince çalışacak.
+Pilot dönemi boyunca yalnızca bu `dev` satırı çalışır. Yukarıdaki `main` satırı, değişiklikler pilot dönemin ardından `main` kanalına aktarıldığında çalışacaktır.
 
-İki kanalı aynı anda kuramazsınız. Biri ötekinin yerine geçer.
+İki kanal aynı bilgisayarda birlikte kurulamaz; sonradan kurulan kanal öncekinin yerini alır.

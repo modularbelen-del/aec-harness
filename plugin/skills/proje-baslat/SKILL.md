@@ -10,17 +10,17 @@ Amaç: ofis çalışanının her seferinde aynı şeyleri anlatmasına gerek kal
 
 Hedef klasör: `${CLAUDE_PROJECT_DIR}` (Claude'un açıldığı proje klasörü). Dosyalar yalnızca buraya yazılır.
 Hedef klasör kişinin kendi kullanıcı (ev) klasörü ya da bir sürücünün kökü ise soru sorma, hiçbir şey yazma;
-"Claude bir proje klasöründe açılmamış. Claude'u projenin klasöründe açıp /aec:proje-baslat'ı yeniden yazın." de ve dur.
+"Claude bir proje klasöründe açılmamıştır. Claude'u projenin klasöründe açarak /aec:proje-baslat komutunu yeniden çalıştırınız." de ve dur.
 
-1. Tek bir mesaj yaz. Önce hedef klasörü söyle: "Proje bilgilerini şu klasöre yazacağım: ${CLAUDE_PROJECT_DIR}. Klasör
-   yanlışsa söyleyin." Sonra tek bir numaralı listede en fazla 6 soru sor, hepsini aynı mesajda. Bilmediği soruyu boş
+1. Tek bir mesaj yaz. Önce hedef klasörü söyle: "Proje bilgileri şu klasöre yazılacaktır: ${CLAUDE_PROJECT_DIR}. Klasör
+   hatalıysa lütfen belirtiniz." Sonra tek bir numaralı listede en fazla 6 soru sor, hepsini aynı mesajda. Bilmediği soruyu boş
    bırakabileceğini söyle:
    1. Projenin adı ve tipi nedir (konut, ofis, otel gibi)?
-   2. Revit merkez modelin ve kopya modelin yolu nedir? (Tek soru; yazmaya yalnızca kopyada izin verilir.)
+   2. Revit merkez modelin ve kopya modelin dosya yolu nedir? (Tek soru; yazma işlemine yalnızca kopya modelde izin verilir.)
    3. Çizim birimi nedir (mm, cm, m)?
-   4. Katlar hangileri (örneğin B1, Z, 1-4)?
-   5. Orijin nedir (proje temel noktası, ölçüm noktası ya da başka bir şey)?
-   6. Katman standardı nedir (ofis standardı ya da başka)?
+   4. Katlar hangileridir (örneğin B1, Z, 1-4)?
+   5. Orijin nedir (proje temel noktası, ölçüm noktası ya da başka bir nokta)?
+   6. Katman standardı nedir (ofis standardı ya da başka bir standart)?
 2. Cevapları şu anahtarlarla bir JSON nesnesine çevir: `proje_adi`, `proje_tipi`, `revit_merkez`, `revit_kopya`, `birim`, `katlar`, `orijin`, `katman_standardi`. Cevapsız alanı boş bırak ya da hiç yazma. Yalnızca bu alanları yaz; müşteriye ait kişisel bilgi (ad, telefon, adres, e-posta) sorma ve yazma.
 3. Bash ile JSON'u stdin'den ver: `uv run --no-project python "${CLAUDE_PLUGIN_ROOT}/scripts/proje_baslat.py" --proje "${CLAUDE_PROJECT_DIR}" --json -`.
    Betik Türkçe sonuç satırları basar; bunları kullanıcıya aynen göster. Betik kullanıcı klasörüne ve sürücü köküne

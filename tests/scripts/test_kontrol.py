@@ -72,4 +72,4 @@ def test_skill_paths_and_remedies():
     assert "${CLAUDE_PLUGIN_ROOT}/scripts/kontrol.py" in text and '--proje "${CLAUDE_PROJECT_DIR}"' in text
     assert "../../scripts" not in text and "kur.cmd" not in text
     assert kontrol.UV_YOK in text
-    assert "bu bilgisayarda kurulu değil → ofisteki sorumluya (şampiyona) haber verin" in text
+    assert "bu bilgisayarda kurulu değil → ofisteki sistem sorumlusuna bildiriniz" in text

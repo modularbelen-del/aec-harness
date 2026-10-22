@@ -43,7 +43,7 @@
 - Tutmayan satırları sarıyla işaretle ve kullanıcıya listele.
 
 ## Yapamıyorsam
-- "Revit bağlantısı bu bilgisayarda kurulu değil ya da Revit kapalı, bu yüzden listeyi modelden çıkaramıyorum. Durumu /aec:kontrol-et ile görebilirsiniz."
-- "Revit'te listeyi (schedule) dışa aktarıp dosyayı verirseniz onunla tabloyu hazırlarım."
-- DWG kaynağında: "DWG okuma Faz 1B'de geliyor; alanları resimden tahmin etmem. Alanları siz söylerseniz VARSAYIM diye yazarım." DXF yolunu yalnızca kod çalıştırabiliyorsan öner.
-- Fiyat istenirse: "Ofis kuralı gereği tabloya birim fiyat ve tutar yazmıyorum; poz numaralarını yazarım."
+- "Revit bağlantısı bu bilgisayarda kurulu olmadığından ya da Revit kapalı olduğundan liste modelden çıkarılamıyor. Bağlantı durumu /aec:kontrol-et komutuyla görüntülenebilir."
+- "Liste (schedule) Revit'ten dışa aktarılıp dosya iletilirse tablo bu dosyadan hazırlanabilir."
+- DWG kaynağında: "DWG okuma Faz 1B ile eklenecektir; alanlar görüntüden tahmin edilmez. Alan değerleri kullanıcı tarafından iletilirse planda VARSAYIM olarak işaretlenir." DXF yolunu yalnızca kod çalıştırabiliyorsan öner.
+- Fiyat istenirse: "Ofis kuralı gereği tabloya birim fiyat ve tutar yazılmaz; yalnızca poz numaraları yazılır."

@@ -1,12 +1,12 @@
 {
   "name": "aec-office",
   "owner": { "name": "BelenPartners" },
-  "description": "Mimarlık ofisi için Claude eklentisi: isteği tanıyan ön kapı, ofis kuralları, kontrol ve proje başlatma komutları. Revit, AutoCAD ve Rhino bağlantıları adım adım geliyor.",
+  "description": "Mimarlık ofisleri için Claude eklentisi: istekleri tanıyan istek karşılama katmanı (ön kapı), ofis kuralları, kurulum kontrolü ve proje başlatma komutları. Revit, AutoCAD ve Rhino bağlantıları aşamalı olarak eklenecektir.",
   "plugins": [
     {
       "name": "aec",
       "source": "./plugin",
-      "description": "Mimarlık ofisi için Claude eklentisi: isteği tanıyan ön kapı, ofis kuralları, kontrol ve proje başlatma komutları. Revit, AutoCAD ve Rhino bağlantıları adım adım geliyor."
+      "description": "Mimarlık ofisleri için Claude eklentisi: istekleri tanıyan istek karşılama katmanı (ön kapı), ofis kuralları, kurulum kontrolü ve proje başlatma komutları. Revit, AutoCAD ve Rhino bağlantıları aşamalı olarak eklenecektir."
     }
   ]
 }

@@ -1,57 +1,57 @@
-# Sorun giderme
+# Sorun Giderme
 
-Bir şey beklediğiniz gibi çalışmadıysa sebep çoğu zaman küçük bir bağlantı eksiğidir. Önce `/aec:kontrol-et` yazın. Ne eksikse söyler.
+Eklenti beklendiği gibi çalışmadığında neden çoğunlukla bir bağlantı ya da kurulum eksikliğidir. İlk adım olarak `/aec:kontrol-et` komutu çalıştırılmalıdır; komut eksik bileşenleri raporlar.
 
 ## "Revit bağlı değil"
 
-Revit bağlantısı yalnızca ofisin kurduğu bilgisayarlarda çalışır. Şunlara bakın:
+Revit bağlantısı yalnızca ofis tarafından kurulum yapılmış bilgisayarlarda çalışır. Aşağıdaki noktalar kontrol edilmelidir:
 
-1. Revit açık mı ve bir proje açık mı?
-2. Cowork kullanıyorsanız oturum "bilgisayarınızda" mı çalışıyor? ([Başlayın](BASLA.md))
-3. Hâlâ olmuyorsa `/aec:kontrol-et` çıktısını ofisteki sorumluya gösterin.
+1. Revit ve ilgili proje açık mı?
+2. Cowork kullanılıyorsa oturum "bilgisayarınızda" seçeneğiyle mi başlatıldı? ([Kurulum ve İlk Kullanım](BASLA.md))
+3. Sorun devam ediyorsa `/aec:kontrol-et` çıktısı ofisteki sistem sorumlusuna iletilmelidir.
 
-AutoCAD ve Rhino bağlantıları yakında. Onlar için bu mesaj beklenen bir durumdur. ([Neler yapabilir](NELER-YAPABILIR.md))
+AutoCAD ve Rhino bağlantıları henüz kullanıma sunulmamıştır; bu programlar için "bağlı değil" mesajı beklenen bir durumdur. ([Mevcut Kapsam](NELER-YAPABILIR.md))
 
 ## "hook error"
 
-Açılışta ya da isteğinizden sonra "hook error" yazısı görürseniz ([hook nedir?](SOZLUK.md)) sebep çoğu zaman şunlardan biridir:
+Oturum açılışında ya da bir istekten sonra "hook error" uyarısı görüntülenirse ([hook](SOZLUK.md)) neden genellikle aşağıdakilerden biridir:
 
-- İlk açılışta yardımcı program gereken dosyaları indirirken süre dolmuştur. İkinci açılışta genelde düzelir.
+- İlk açılışta yardımcı program gerekli dosyaları indirirken süre aşımı yaşanmıştır. Sorun genellikle ikinci açılışta giderilir.
 - Cowork ortamı yardımcı programı çalıştıramamıştır.
 
-(`uv` eksikse bu yazı çıkmaz; o durumda karşılama kartı sessizce gelmez. Bunun için aşağıdaki "uv bulunamadı" kısmına bakın.)
+(`uv` kurulu değilse bu uyarı görüntülenmez; bu durumda ön kapı kartı herhangi bir uyarı olmadan gelmez. Bu durum için aşağıdaki "uv bulunamadı" bölümüne başvurulabilir.)
 
-Ne yapmalı:
+Yapılması gerekenler:
 
-1. Oturumu kapatıp yeniden açın.
-2. Olmazsa [Başlayın](BASLA.md) sayfasındaki tek satırlık kurulumu yeniden çalıştırın.
-3. Yine olmazsa ofisteki sorumluya (şampiyona) haber verin.
+1. Oturum kapatılıp yeniden açılır.
+2. Sorun sürerse [Kurulum ve İlk Kullanım](BASLA.md) sayfasındaki tek satırlık kurulum yeniden çalıştırılır.
+3. Sorun yine giderilemezse ofisteki sistem sorumlusuna bilgi verilir.
 
-Bu sırada iş çoğu zaman yine çalışır, yalnızca karşılama kartı gelmez; çalışmazsa `/aec:kontrol-et` yazın.
+Bu süre içinde istekler çoğu durumda işlenmeye devam eder; yalnızca istek karşılama katmanının (ön kapı) kartı gelmez. İstekler işlenmiyorsa `/aec:kontrol-et` komutu çalıştırılmalıdır.
 
 ## "uv bulunamadı"
 
-[uv](SOZLUK.md), eklentinin küçük yardımcı programlarını çalıştıran bir programdır. Kurmak için:
+[uv](SOZLUK.md), eklentinin yardımcı betiklerini çalıştıran programdır. Kurulum için:
 
-- Terminal kullanıyorsanız [Başlayın](BASLA.md) sayfasındaki satırı yeniden çalıştırın.
-- Cowork kullanıyorsanız aynı tek satırı çalıştırın. Repo klasörünün tamamını indirdiyseniz `kur.cmd` dosyasına çift tıklamak da olur.
+- Terminal kullanılıyorsa [Kurulum ve İlk Kullanım](BASLA.md) sayfasındaki kurulum satırı yeniden çalıştırılır.
+- Cowork kullanılıyorsa aynı kurulum satırı çalıştırılır. Repo klasörünün tamamı indirilmişse `kur.cmd` dosyasına çift tıklanarak da kurulum yapılabilir.
 
-Sonra Claude'u kapatıp yeniden açın.
+Ardından Claude kapatılıp yeniden açılır.
 
-## Kart gelmiyor (Cowork)
+## Ön kapı kartı görüntülenmiyor (Cowork)
 
-Cowork'te karşılama kartı bazen görünmeyebilir. Bu bir hata değildir. İsteğinizi yazın; çoğu zaman eklenti yine çalışır. Çalışmazsa `/aec:kontrol-et` yazın.
+Cowork'te ön kapı kartı her istekte görüntülenmeyebilir; bu bir hata değildir. İstek normal biçimde yazılır; eklenti çoğu durumda yine devreye girer. Devreye girmezse `/aec:kontrol-et` komutu çalıştırılmalıdır.
 
-Eklenti hiç yanıt vermiyorsa:
+Eklenti hiç yanıt vermiyorsa şu noktalar kontrol edilir:
 
-1. Customize > Plugins bölümünde `aec` açık mı?
-2. Marketplace için "Sync automatically" açık mı?
-3. Yeni bir oturum başlatın.
+1. Customize > Plugins bölümünde `aec` eklentisi etkin mi?
+2. Marketplace için "Sync automatically" seçeneği açık mı?
+3. Ardından yeni bir oturum başlatılır.
 
 ## Otomatik güncelleme kapalı görünüyor
 
-`/plugin` yazın, sırayla Marketplaces > aec-office > Enable auto-update yolunu izleyin.
+`/plugin` komutu çalıştırılarak Marketplaces > aec-office > Enable auto-update yolu izlenir.
 
-## Hâlâ olmuyor
+## Sorun devam ediyorsa
 
-Ekranda ne yazdığını kopyalayın. Hangi isteği yazdığınızı ekleyin. Müşteri bilgisi varsa silin. Ofisteki sorumluya gönderin.
+Ekrandaki hata metni kopyalanır ve yazılan istek eklenir. Metinde müşteri bilgisi varsa çıkarılır. Hazırlanan metin ofisteki sistem sorumlusuna iletilir.

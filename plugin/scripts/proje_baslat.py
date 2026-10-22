@@ -21,16 +21,16 @@ BELIRTILMEDI = "belirtilmedi"
 BASLANGIC = "<!-- aec:proje başlangıç -->"
 BITIS = "<!-- aec:proje bitiş -->"
 KODLAMA_HATASI = (
-    "✗ CLAUDE.md okunamadı (Türkçe karakter kodlaması farklı); "
-    "dosyayı UTF-8 olarak kaydedip tekrar deneyin. Hiçbir şey yazılmadı."
+    "✗ CLAUDE.md okunamadı (dosyanın karakter kodlaması UTF-8 değil). "
+    "Dosyayı UTF-8 olarak kaydettikten sonra işlemi yineleyiniz. Hiçbir şey yazılmadı."
 )
 EV_KLASORU = (
-    "✗ Proje klasörü olarak kullanıcı klasörünüz ({}) seçilmiş; buraya yazılan bilgi bütün projelere karışır. "
-    "Claude'u projenin klasöründe açıp tekrar deneyin. Hiçbir şey yazılmadı."
+    "✗ Proje klasörü olarak kullanıcı klasörünüz ({}) seçilmiştir; bu klasöre yazılan bilgiler tüm projeleri etkiler. "
+    "Claude'u projenin klasöründe açarak işlemi yineleyiniz. Hiçbir şey yazılmadı."
 )
 SURUCU_KOKU = (
-    "✗ Proje klasörü olarak bir sürücünün kökü ({}) seçilmiş. "
-    "Claude'u projenin klasöründe açıp tekrar deneyin. Hiçbir şey yazılmadı."
+    "✗ Proje klasörü olarak bir sürücünün kökü ({}) seçilmiştir. "
+    "Claude'u projenin klasöründe açarak işlemi yineleyiniz. Hiçbir şey yazılmadı."
 )
 
 
@@ -160,12 +160,12 @@ def main(argv: "list[str] | None" = None) -> int:
     try:
         cevap = _oku_json(args.json_kaynak)
     except (OSError, ValueError):  # UnicodeDecodeError is a ValueError
-        print("✗ Cevaplar okunamadı; hiçbir dosya yazılmadı. Soruları yeniden yanıtlayın.")
+        print("✗ Yanıtlar okunamadı; hiçbir dosya yazılmadı. Soruların yeniden yanıtlanması gerekir.")
         return 0
     try:
         mesajlar = yaz(Path(args.proje), cevap)
     except OSError as hata:
-        print(f"✗ Dosyalar yazılamadı ({hata.__class__.__name__}); proje klasörüne yazma izni var mı kontrol edin.")
+        print(f"✗ Dosyalar yazılamadı ({hata.__class__.__name__}). Proje klasörüne yazma izni olup olmadığını kontrol ediniz.")
         return 0
     for mesaj in mesajlar:
         print(mesaj)

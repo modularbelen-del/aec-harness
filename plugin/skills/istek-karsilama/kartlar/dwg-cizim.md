@@ -43,6 +43,6 @@ Dört ayrı iş var; hangisi olduğunu baştan ayır:
 - Plandaki ölçülerle karşılaştır; tutmayanı tabloda göster.
 
 ## Yapamıyorsam
-- Araç listende `autocad` aracı yoksa: "AutoCAD bağlantısı henüz bağlı değil, bu yüzden açık AutoCAD'inize çizemiyorum. Durumu /aec:kontrol-et ile görebilirsiniz."
-- Kod çalıştırabiliyorsan: "İsterseniz aynı çizimi yeni bir DXF dosyası olarak hazırlarım; AutoCAD'de açıp DWG olarak kaydedersiniz."
-- "Orijinal çizime dokunmam; düzeltme için dosyanın bir kopyasıyla çalışırım."
+- Araç listende `autocad` aracı yoksa: "AutoCAD bağlantısı henüz kurulu olmadığından açık AutoCAD oturumunda çizim yapılamıyor. Bağlantı durumu /aec:kontrol-et komutuyla görüntülenebilir."
+- Kod çalıştırabiliyorsan: "Talep edilirse aynı çizim yeni bir DXF dosyası olarak hazırlanabilir; dosya AutoCAD'de açılarak DWG olarak kaydedilebilir."
+- "Orijinal çizimde değişiklik yapılmaz; düzeltmeler dosyanın bir kopyası üzerinde yapılır."
