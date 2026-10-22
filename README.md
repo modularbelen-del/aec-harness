@@ -3,29 +3,23 @@
 Mimarlık ofisi için Claude Code eklentisi (plugin marketplace). Ajan çizimdeki ölçüleri görselden tahmin etmez,
 araçla okur. Revit'e bir plan üzerinden yazar, yazdıktan sonra Revit'ten geri okur ve sonucu toleransla doğrular.
 
-Durum: Faz 1A (temel). DWG okuma, Revit köprüsü ve tavan modülü sonraki aşamalarda gelecek.
+## Durum
 
-## Üye kurulumu
+Bugün çalışanlar: karşılama kapısı (isteğinizi tanıyıp önce plan gösterir), ofis kuralları ve üç komut
+(`/aec:kontrol-et`, `/aec:proje-baslat`, `/aec:yardim`). Program bağlantıları (DWG okuma, Revit köprüsü,
+AutoCAD, Rhino) ve modüller (asma tavan, metraj, render) yakında. Ayrıntı:
+[Neler yapabilir?](plugin/docs/NELER-YAPABILIR.md)
 
-Claude Code'a şunu yazmanız yeterli:
+## Kurulum
 
-> https://github.com/modularbelen-del/aec-harness bunu ekle
-
-Claude Code bu bölümü okuyup aşağıdaki adımları uygular; izin isterse onaylayın. Kurulum kullanıcı düzeyindedir:
-bu oturuma özel değildir, bütün projelerde ve bütün oturumlarda çalışır.
-
-1. Eklentiyi kurar: `claude plugin install aec --marketplace modularbelen-del/aec-harness`
-2. Otomatik güncellemeyi açar: `~/.claude/settings.json` içinde `extraKnownMarketplaces` → `aec-office` altına
-   `"autoUpdate": true` ekler. Dosyadaki diğer ayarlara dokunmaz.
-3. `uv --version` ile [uv](https://docs.astral.sh/uv/)'yi kontrol eder. Kurulu değilse
-   `winget install --id=astral-sh.uv -e` ile kurar.
-4. Claude Code'u kapatıp yeniden açmanızı ister.
+Adım adım kurulum (terminal ve Cowork için): [plugin/docs/BASLA.md](plugin/docs/BASLA.md). Güvenlik kuralları:
+[GUVENLIK.md](plugin/docs/GUVENLIK.md). Takılırsanız: [SORUN-GIDERME.md](plugin/docs/SORUN-GIDERME.md).
 
 ### Elle kurulum
 
 `C:\Users\<kullanıcı>\.claude\settings.json` dosyasına şunu ekleyin. Dosyada başka ayarlar varsa bu anahtarları
 onların yanına koyun. Claude Code bir sonraki açılışta eklentiyi kendisi indirip kurar ve güncel tutar. uv'yi
-yukarıdaki 3. adımdaki gibi ayrıca kurun.
+ayrıca kurun (`winget install --id=astral-sh.uv -e`).
 
 ```json
 {
@@ -41,15 +35,12 @@ yukarıdaki 3. adımdaki gibi ayrıca kurun.
 }
 ```
 
-### Kontrol
+## Kanallar
 
-Claude Code'u yeniden açın ve `/plugin` yazın. `aec` kurulu görünmeli, `aec-office` marketplace'inde de
-otomatik güncelleme açık olmalı. Sonra yeni bir oturumda "Ofisin yetki sırası ne?" diye sorun. Cevap şu sırayı
-vermeli: çizim, proje kuralları, ofis standartları, araştırma kataloğu. Kurulu görünmüyorsa terminalde
-`claude plugin install aec@aec-office` çalıştırın. Otomatik güncelleme kapalıysa `/plugin` → Marketplaces →
-`aec-office` → Enable auto-update yolundan açın.
+- `main`: herkes için kararlı kanal. Korumalıdır, yalnızca PR ile değişir.
+- `dev`: şampiyonlar için deneme kanalı (`kur.ps1 -Kanal dev`).
 
-Revit, AutoCAD ve Rhino tarafındaki kurulum ilerideki aşamalarda `kur.ps1` ile gelecek.
+Şampiyon iki kanalı aynı anda kuramaz, çünkü marketplace adı aynıdır.
 
 ## Rol ve ofis kuralları
 
@@ -71,8 +62,9 @@ claude plugin validate plugin            # plugin manifesti
 
 ## Değişiklik akışı
 
-`main` dalına yapılan her push, bir sonraki açılışta bütün üyelere ulaşır. Bu yüzden `main` korumalıdır: değişiklik
-ayrı bir dalda hazırlanır, PR açılır ve CI'daki `test` kontrolü yeşil olmadan birleştirilmez.
+İşler `dev` dalında yapılır. Pilotta denenip oturan değişiklik PR ile `main`'e geçer. `main` dalına yapılan her push,
+bir sonraki açılışta bütün üyelere ulaşır. Bu yüzden `main` korumalıdır: PR açılır ve CI'daki `test` kontrolü yeşil
+olmadan birleştirilmez. Değişiklikler [CHANGELOG.md](CHANGELOG.md) dosyasına yazılır.
 
 Koruma repo ayarlarından bir kez kurulur (Settings → Branches → *Add classic branch protection rule*):
 
