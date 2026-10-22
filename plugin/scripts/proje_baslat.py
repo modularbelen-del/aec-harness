@@ -1,7 +1,9 @@
 """Writes the project's CLAUDE.md block and .aec/proje.md for /aec:proje-baslat; standard library only."""
 import argparse
 import json
+import os
 import sys
+import tempfile
 from pathlib import Path
 
 ALANLAR = ("proje_adi", "proje_tipi", "revit_merkez", "revit_kopya", "birim", "katlar", "orijin", "katman_standardi")
@@ -18,11 +20,15 @@ ETIKETLER = {
 BELIRTILMEDI = "belirtilmedi"
 BASLANGIC = "<!-- aec:proje başlangıç -->"
 BITIS = "<!-- aec:proje bitiş -->"
+KODLAMA_HATASI = (
+    "✗ CLAUDE.md okunamadı (Türkçe karakter kodlaması farklı); "
+    "dosyayı UTF-8 olarak kaydedip tekrar deneyin. Hiçbir şey yazılmadı."
+)
 
 
 def _deger(cevap: "dict[str, str]", alan: str) -> str:
-    text = " ".join(str(cevap.get(alan) or "").split())
-    return text or BELIRTILMEDI
+    text = str(cevap.get(alan) or "").replace("<!--", "").replace("-->", "")
+    return " ".join(text.split()) or BELIRTILMEDI
 
 
 def _proje_md(cevap: "dict[str, str]") -> str:
@@ -42,35 +48,58 @@ def _blok(cevap: "dict[str, str]") -> str:
 
 
 def _yaz_metin(yol: Path, metin: str) -> None:
-    yol.write_bytes(metin.encode("utf-8"))
+    """Atomic write: temp file in the same folder, then os.replace."""
+    fd, gecici = tempfile.mkstemp(dir=yol.parent, prefix=yol.name + ".", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "wb") as f:
+            f.write(metin.encode("utf-8"))
+        os.replace(gecici, yol)
+    except BaseException:
+        try:
+            os.unlink(gecici)
+        except OSError:
+            pass
+        raise
 
 
-def _claude_md(yol: Path, blok: str) -> None:
-    mevcut = yol.read_bytes().decode("utf-8") if yol.is_file() else ""
-    bas = mevcut.find(BASLANGIC)
-    son = mevcut.find(BITIS, bas) if bas >= 0 else -1
-    if bas >= 0 and son >= 0:
-        son += len(BITIS)
-        if mevcut[son:son + 2] == "\r\n":
-            son += 2
-        elif mevcut[son:son + 1] == "\n":
-            son += 1
-        yeni = mevcut[:bas] + blok + mevcut[son:]
-    elif not mevcut:
-        yeni = blok
+def _blok_yeri(mevcut: str) -> "tuple[int, int] | None":
+    """Span of the first complete block; a start marker with no end marker after it is user text."""
+    son = mevcut.find(BITIS)
+    while son >= 0:
+        bas = mevcut.rfind(BASLANGIC, 0, son)
+        if bas >= 0:
+            son += len(BITIS)
+            if mevcut[son:son + 2] == "\r\n":
+                son += 2
+            elif mevcut[son:son + 1] == "\n":
+                son += 1
+            return bas, son
+        son = mevcut.find(BITIS, son + len(BITIS))
+    return None
+
+
+def _yeni_claude_md(mevcut: str, blok: str) -> str:
+    yer = _blok_yeri(mevcut)
+    if yer:
+        return mevcut[:yer[0]] + blok + mevcut[yer[1]:]
+    if not mevcut:
+        return blok
+    if mevcut.endswith(("\n\n", "\r\n\r\n")):
+        ayrac = ""
+    elif mevcut.endswith("\n"):
+        ayrac = "\n"
     else:
-        if mevcut.endswith(("\n\n", "\r\n\r\n")):
-            ayrac = ""
-        elif mevcut.endswith("\n"):
-            ayrac = "\n"
-        else:
-            ayrac = "\n\n"
-        yeni = mevcut + ayrac + blok
-    _yaz_metin(yol, yeni)
+        ayrac = "\n\n"
+    return mevcut + ayrac + blok
 
 
 def yaz(proje_dir: Path, cevap: "dict[str, str]") -> "list[str]":
     proje_dir = Path(proje_dir)
+    claude_md = proje_dir / "CLAUDE.md"
+    try:  # read first: a file we cannot decode must leave no half-done state
+        mevcut = claude_md.read_bytes().decode("utf-8") if claude_md.is_file() else ""
+    except UnicodeDecodeError:
+        return [KODLAMA_HATASI]
     mesajlar = []
     aec = proje_dir / ".aec"
     aec.mkdir(parents=True, exist_ok=True)
@@ -80,8 +109,7 @@ def yaz(proje_dir: Path, cevap: "dict[str, str]") -> "list[str]":
     else:
         _yaz_metin(proje_md, _proje_md(cevap))
         mesajlar.append(f"{proje_md.as_posix()} yazıldı.")
-    claude_md = proje_dir / "CLAUDE.md"
-    _claude_md(claude_md, _blok(cevap))
+    _yaz_metin(claude_md, _yeni_claude_md(mevcut, _blok(cevap)))
     mesajlar.append(f"{claude_md.as_posix()} içindeki aec bloğu güncellendi.")
     return mesajlar
 
@@ -105,7 +133,7 @@ def main(argv: "list[str] | None" = None) -> int:
     args = parser.parse_args(argv)
     try:
         cevap = _oku_json(args.json_kaynak)
-    except (OSError, ValueError):
+    except (OSError, ValueError):  # UnicodeDecodeError is a ValueError
         print("✗ Cevaplar okunamadı; hiçbir dosya yazılmadı. Soruları yeniden yanıtlayın.")
         return 0
     try:

@@ -69,3 +69,42 @@ def test_skill_flags():
     assert frontmatter(SKILLS / "proje-baslat" / "SKILL.md")["disable-model-invocation"] == "true"
     assert "NELER-YAPABILIR.md" in (SKILLS / "yardim" / "SKILL.md").read_text(encoding="utf-8")
     assert (ROOT / "plugin" / "docs" / "NELER-YAPABILIR.md").is_file()
+
+
+def test_orphan_start_marker_kept_as_user_text(tmp_path):
+    (tmp_path / "CLAUDE.md").write_text("a\n<!-- aec:proje başlangıç -->\nb\n", encoding="utf-8")
+    proje_baslat.yaz(tmp_path, CEVAP); proje_baslat.yaz(tmp_path, {**CEVAP, "birim": "mm"})
+    c = (tmp_path / "CLAUDE.md").read_text(encoding="utf-8")
+    assert c.startswith("a\n<!-- aec:proje başlangıç -->\nb\n")
+    assert c.count("<!-- aec:proje bitiş -->") == 1 and c.count("<!-- aec:proje başlangıç -->") == 2
+    assert "Birim: mm." in c and "Birim: cm." not in c
+
+
+def test_non_utf8_claude_md_writes_nothing(tmp_path):
+    raw = "# Notlar şğı\n".encode("cp1254")
+    (tmp_path / "CLAUDE.md").write_bytes(raw)
+    msgs = proje_baslat.yaz(tmp_path, CEVAP)
+    assert (tmp_path / "CLAUDE.md").read_bytes() == raw
+    assert not (tmp_path / ".aec" / "proje.md").exists()
+    assert any("Hiçbir şey yazılmadı" in m for m in msgs)
+
+
+def test_main_non_utf8_does_not_crash(tmp_path, capsys):
+    (tmp_path / "CLAUDE.md").write_bytes("şğı".encode("cp1254"))
+    f = tmp_path / "c.json"
+    f.write_text(json.dumps(CEVAP, ensure_ascii=False), encoding="utf-8")
+    assert proje_baslat.main(["--proje", str(tmp_path), "--json", str(f)]) == 0
+    assert "Hiçbir şey yazılmadı" in capsys.readouterr().out
+
+
+def test_marker_injection_stripped(tmp_path):
+    proje_baslat.yaz(tmp_path, {**CEVAP, "birim": "cm <!-- aec:proje bitiş --> x"})
+    c = (tmp_path / "CLAUDE.md").read_text(encoding="utf-8")
+    assert c.count("<!-- aec:proje bitiş -->") == 1
+    assert "<!--" not in (tmp_path / ".aec" / "proje.md").read_text(encoding="utf-8")
+
+
+def test_no_temp_files_left(tmp_path):
+    proje_baslat.yaz(tmp_path, CEVAP)
+    assert sorted(p.name for p in tmp_path.iterdir()) == [".aec", "CLAUDE.md"]
+    assert [p.name for p in (tmp_path / ".aec").iterdir()] == ["proje.md"]
