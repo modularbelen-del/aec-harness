@@ -11,7 +11,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 PLUGIN = ROOT / "plugin"
 HOOKS_JSON = PLUGIN / "hooks" / "hooks.json"
 HOOK_CMD = 'uv run --no-project --python 3.12 python "${{CLAUDE_PLUGIN_ROOT}}/hooks/{}.py"; exit 0'
-TIMEOUTS = {"SessionStart": 30, "UserPromptSubmit": 10}
+TIMEOUTS = {"SessionStart": 30, "UserPromptSubmit": 10, "PreToolUse": 10, "PostToolUse": 10, "Stop": 10, "SubagentStop": 15}
 
 
 def _hooks():
@@ -75,3 +75,11 @@ def test_session_start_runs_with_uv_bash():
     result = subprocess.run(argv, input=b"{}", capture_output=True, env=dict(os.environ))
     assert result.returncode == 0, result.stderr
     json.loads(result.stdout.decode("utf-8"))
+
+
+def test_tool_hooks_commands_and_matchers():
+    h = _hooks()
+    assert [e["matcher"] for e in h["PreToolUse"]] == ["mcp__.*revit.*__.*", "Write|Edit|Agent|Task"]
+    assert all(e["hooks"][0]["command"] == HOOK_CMD.format("pre_tool") for e in h["PreToolUse"])
+    assert h["PostToolUse"][0]["matcher"] == "Bash|mcp__.*revit.*__.*"
+    assert h["PostToolUse"][0]["hooks"][0]["command"] == HOOK_CMD.format("post_tool")

@@ -21,12 +21,21 @@ SHORT_REPLY_WORDS = 3
 CARD_DIR = pathlib.Path(__file__).resolve().parent.parent / "skills/istek-karsilama/kartlar"
 
 
+def varsayilan_durum_klasoru() -> pathlib.Path:
+    return pathlib.Path(os.environ.get("CLAUDE_PLUGIN_DATA") or tempfile.gettempdir()) / "aec-onkapi"
+
+
+def calisti_yolu(state_dir: pathlib.Path, oturum: str) -> pathlib.Path:
+    """Path of the per-session heartbeat file (shared with the PreToolUse lock)."""
+    temiz = re.sub(r"[^A-Za-z0-9_-]", "", oturum)[:64] or "bilinmeyen"
+    return pathlib.Path(state_dir) / f"calisti-{temiz}"
+
+
 def calisti_isareti(state_dir: pathlib.Path, oturum: str) -> None:
     """Marks that this hook ran in the session (the Revit lock relies on it); never raises."""
     try:
-        temiz = re.sub(r"[^A-Za-z0-9_-]", "", oturum)[:64] or "bilinmeyen"
         pathlib.Path(state_dir).mkdir(parents=True, exist_ok=True)
-        (pathlib.Path(state_dir) / f"calisti-{temiz}").touch()
+        calisti_yolu(state_dir, oturum).touch()
     except Exception:
         pass
 
@@ -73,7 +82,7 @@ def main() -> int:
     try:
         sys.stdout.reconfigure(encoding="utf-8")
         stdin_text = "" if sys.stdin is None or sys.stdin.isatty() else sys.stdin.buffer.read().decode("utf-8", "replace")
-        state_dir = pathlib.Path(os.environ.get("CLAUDE_PLUGIN_DATA") or tempfile.gettempdir()) / "aec-onkapi"
+        state_dir = varsayilan_durum_klasoru()
         sys.stdout.write(build_output(stdin_text, state_dir))
     except Exception:
         pass
