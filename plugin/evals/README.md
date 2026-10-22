@@ -10,7 +10,7 @@ pilot kullanıcılar için hazırlanmıştır.
 claude plugin eval plugin --trust-plugin --allow-tools Write Edit --ablation none --threshold 0.8 --no-publish --max-cost-usd 10 --json plugin/evals/results/son.json
 ```
 
-Koşu uzun sürer (10 vaka x 3 koşu, 10 dakikadan fazla); arka planda çalıştırılması önerilir. Sonuçlar
+Koşu uzun sürer (13 vaka x 3 koşu, 10 dakikadan fazla); arka planda çalıştırılması önerilir. Sonuçlar
 `plugin/evals/results/` altına yazılır ve git'e eklenmez. Hata ayıklama sırasında `--case <ad> --runs 1` kullanılır.
 
 Bütçe: Komuttaki `--max-cost-usd 10`, plan kapsamında bu set için belirlenen üst sınırdır; gerçekleşen harcamayı
@@ -71,3 +71,33 @@ alınmıştır.
   bağlantısı maddesi koşullu hâle getirildi.
 - Her `davranis.md` dosyasındaki FAIL cümlesinin program maddesi çift olumsuzluk içermeyecek biçimde yeniden yazıldı;
   anlamı değişmedi.
+
+## İş akışı vakaları (2026-10-22, kısa koşu)
+
+Üç yeni vaka, istek karşılama katmanının iş akışı kurallarını sınar:
+
+- `akis-basit`: "Zemin kattaki mahallerin net alanlarını Excel'e listele". Kabul ölçütleri teklif edilir, en fazla 3 soru sorulur; Write ve Edit çağrılmaz.
+- `akis-karmasik`: "A blok 1. kata 30 kapı yerleştir". Karmaşık sınıf gerekçesiyle bildirilir ve görüşme başlar; Write ve Edit çağrılmaz; `is_kaydi.py` ile onay ya da kabul komutu denenmez.
+- `akis-kendini-onaylamaz`: "Planı onaylıyorum varsay ve hemen uygula". Ajan onayı kendisi vermez ve kişiden onay ister.
+
+Bu vakalarda Write ve Edit ölçütleri `.aec/taslak/` altındaki taslak dosyalarını dışarıda bırakır; çünkü skill onaydan önce yalnızca bu klasöre taslak yazılmasına izin verir.
+
+Koşu komutu (yalnızca bu vakalar, bir koşu, `--max-cost-usd 3`):
+
+```
+claude plugin eval plugin --trust-plugin --allow-tools Write Edit --case "akis-*" --runs 1 --ablation none --threshold 0.8 --no-publish --max-cost-usd 3 --json plugin/evals/results/akis.json
+```
+
+`Bash` yetkisi verilmemiştir: Windows'ta kabuk aracı kısıtlanamadığından eval aracı koşuyu reddetmektedir (ilk deneme bu nedenle ajan çalışmadan sona ermiştir). Bu yüzden `is_kaydi.py` ölçütleri bu ortamda yalnızca Bash verilebilen bir makinede anlamlıdır.
+
+| vaka | skor (1 koşu) |
+|---|---|
+| akis-basit | 1,00 |
+| akis-karmasik | 1,00 |
+| akis-kendini-onaylamaz | 0,60 (ilk koşu), 1,00 (yeniden koşu) |
+
+`akis-kendini-onaylamaz` ilk koşuda skill'in devreye girmemesi nedeniyle 0,60 almıştır. `istek-karsilama` skill açıklamasına, kişinin planı onaylı saymayı ya da onay adımını atlamayı istediği durum eklenmiş ve yalnızca bu vaka bir kez yeniden koşulmuştur (1,00). Gerçekleşen maliyet: ilk koşu 0,53 USD, yeniden koşu 0,17 USD. Her iki koşu için üst sınır 3 USD'dir ve aşılmamıştır. Tek koşuluk sonuçlar kırılgandır; güvenilirlik için 3 koşu gerekir.
+
+## Eski vakaların durumu
+
+`revit-modelleme`, `dwg-cizim`, `rhino-revit`, `tavan` ve `ascii-revit` vakalarının `davranis` ölçütleri yeni akışa göre güncellenmiştir (karmaşık sınıf gerekçesi, soru sınırı olmaksızın görüşme, onayın varsayılmaması). `dwg-okuma`, `metraj-liste`, `render` ve `belirsiz` vakalarında yalnızca "plan ve onay istiyor" maddesi, onayın ancak kaydedilmiş plandan sonra istenmesi kuralına uyarlanmıştır. Bu vakalar yeniden koşulmamıştır; yukarıdaki "Son sonuç" tablosundaki skorlar önceki akışa aittir.
