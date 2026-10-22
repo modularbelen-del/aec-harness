@@ -17,8 +17,15 @@ def test_cli_new_prints_id(tmp_path, capsys):
     assert k["karmasik"] is True and k["durum"] == "gorusme"
 
 
+def _olcut(proje, is_id, capsys):
+    assert is_kaydi.main(["olcut", "--proje", str(proje), "--is", is_id, "--olcut", "Kapı sayısı 12",
+                          "--yontem", "revit-okuma", "--beklenen", "12"]) == 0
+    capsys.readouterr()
+
+
 def test_cli_plan_sets_waiting(tmp_path, capsys):
     is_id = _yeni(tmp_path, capsys)
+    _olcut(tmp_path, is_id, capsys)
     kaynak = tmp_path / "taslak.md"
     kaynak.write_text("# Plan\nKapıları yerleştir.\n", encoding="utf-8")
     assert is_kaydi.main(["plan", "--proje", str(tmp_path), "--is", is_id, "--dosya", str(kaynak)]) == 0
@@ -134,3 +141,21 @@ def test_cli_applied_refused_in_every_other_state(tmp_path, capsys):
         assert out.startswith("✗") and durum in out, durum
         k = is_durumu.is_yukle(proje, is_id)
         assert k["durum"] == durum and len(k["olaylar"]) == olay_sayisi, durum
+
+
+def test_cli_first_document_needs_criteria(tmp_path, capsys):
+    for ek, ilk in (((), "plan"), (("--karmasik",), "tarif")):
+        proje = tmp_path / ilk
+        is_id = _yeni(proje, capsys, *ek)
+        kaynak = proje / "belge.md"
+        kaynak.write_text("# Belge\n", encoding="utf-8")
+        ortak = ["--proje", str(proje), "--is", is_id, "--dosya", str(kaynak)]
+        assert is_kaydi.main([ilk, *ortak]) == 0
+        out = capsys.readouterr().out
+        assert out.startswith("✗") and "`olcut`" in out and "en az bir kabul ölçütü" in out, out
+        assert is_durumu.is_yukle(proje, is_id)["durum"] == "gorusme"
+        assert not (proje / ".aec" / "isler" / is_id / f"{ilk}.md").exists()
+        _olcut(proje, is_id, capsys)
+        assert is_kaydi.main([ilk, *ortak]) == 0
+        assert "✗" not in capsys.readouterr().out
+        assert is_durumu.is_yukle(proje, is_id)["durum"] == f"onay-bekliyor:{ilk}"

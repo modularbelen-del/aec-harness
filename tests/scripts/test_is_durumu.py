@@ -186,3 +186,15 @@ def test_session_id_capped(tmp_path):
     is_durumu.aktif_bagla(tmp_path, "x" * 200, k["id"])
     assert is_durumu.aktif_is(tmp_path, "x" * 200)["id"] == k["id"]
     assert all(len(p.name) <= len("aktif-.json") + 64 for p in (tmp_path / ".aec" / "isler").glob("aktif-*"))
+
+
+def test_entering_applied_clears_stale_result(tmp_path):
+    k = _yeni(tmp_path, "Basit", karmasik=False)
+    for y in ("onay-bekliyor:plan", "plan-onaylandi", "uygulandi"):
+        is_durumu.gecis(k, y, "ajan")
+    k["sonuc"] = "GEÇTİ"
+    for y in ("kabul-bekliyor", "reddedildi", "onay-bekliyor:plan", "plan-onaylandi"):
+        is_durumu.gecis(k, y, "ajan")
+    assert k["sonuc"] == "GEÇTİ"  # kept until the job is applied again
+    is_durumu.gecis(k, "uygulandi", "ajan")
+    assert k["sonuc"] is None

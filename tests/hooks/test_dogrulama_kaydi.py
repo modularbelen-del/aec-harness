@@ -7,9 +7,11 @@ import is_durumu
 SID = "s1"
 
 
-def _is(proje, durum="uygulandi"):
+def _is(proje, durum="uygulandi", olcutler=True):
     kayit = is_durumu.yeni_is(proje, "revit-modelleme", "Deneme", False)
     kayit["durum"] = durum
+    if olcutler:
+        kayit["olcutler"] = [{"olcut": "Kapı sayısı 12", "yontem": "revit-okuma", "beklenen": "12", "tolerans": None}]
     is_durumu.is_kaydet(proje, kayit)
     is_durumu.aktif_bagla(proje, SID, kayit["id"])
     return kayit["id"]
@@ -250,3 +252,20 @@ def test_marker_removed_when_recorded(tmp_path):
     dogrulama_kaydi.isle(_girdi(yol), tmp_path, sd)
     assert not yol_modulu.isaret_taze(sd, SID, is_id)
     assert is_durumu.is_yukle(tmp_path, is_id)["durum"] == "kabul-bekliyor"
+
+
+def test_job_without_criteria_is_unverified(tmp_path):
+    for ad in ("bos", "alan-yok"):
+        proje = tmp_path / ad
+        is_id = _is(proje, olcutler=False)
+        if ad == "alan-yok":
+            kayit = is_durumu.is_yukle(proje, is_id)
+            del kayit["olcutler"]
+            is_durumu.is_kaydet(proje, kayit)
+        yol = _transcript(proje.parent, str(_klasor(proje, is_id)), "Ölçüt bulunmadı.\nSONUÇ: GEÇTİ")
+        dogrulama_kaydi.isle(_girdi(yol), proje)
+        kayit = is_durumu.is_yukle(proje, is_id)
+        assert kayit["sonuc"] == "DOĞRULANAMADI" and kayit["durum"] == "kabul-bekliyor"
+        metin = (_klasor(proje, is_id) / "dogrulama.md").read_text(encoding="utf-8")
+        assert "Sonuç: DOĞRULANAMADI" in metin
+        assert "Not: İşte kayıtlı kabul ölçütü bulunmadığından sonuç DOĞRULANAMADI olarak kaydedilmiştir." in metin

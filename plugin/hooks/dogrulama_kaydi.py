@@ -3,7 +3,7 @@ job from 'uygulandi' to 'kabul-bekliyor' with a 'sonuc'.
 
 The verifier is trusted only when its transcript holds exactly one genuine user message (the job folder path) and no
 line injected from elsewhere (a SendMessage continuation or a queued_command attachment); otherwise the result is
-recorded as 'DOĞRULANAMADI'. The transcript is JSONL whose line format is not formally documented, so it is parsed
+recorded as 'DOĞRULANAMADI', as it is for a job without acceptance criteria. The transcript is JSONL whose line format is not formally documented, so it is parsed
 defensively. Standard library only; never raises, prints nothing.
 """
 import json
@@ -28,6 +28,8 @@ SONUC_ADI = {"GEÇTİ": "GEÇTİ", "GECTI": "GEÇTİ", "KALDI": "KALDI",
              "DOĞRULANAMADI": "DOĞRULANAMADI", "DOGRULANAMADI": "DOĞRULANAMADI"}
 DOGRULANAMADI = "DOĞRULANAMADI"
 NOT_YONERGE = "kontrolcü yönergesi doğrulanamadı"
+NOT_OLCUT = "kabul ölçütü bulunmadı"
+UYARI_OLCUT = "İşte kayıtlı kabul ölçütü bulunmadığından sonuç DOĞRULANAMADI olarak kaydedilmiştir."
 IZINLI_KAYNAKLAR = frozenset({"task-notification"})  # the verifier's own background tasks
 NL = chr(10)
 
@@ -154,9 +156,12 @@ def isle(girdi, proje: pathlib.Path, state_dir: "pathlib.Path | None" = None) ->
         aktif = is_durumu.aktif_is(proje, oturum)
         if not isinstance(aktif, dict) or aktif.get("id") != is_id:
             return  # only the session's own active job is recorded
-        sonuc = _sonuc(rapor) if guvenilir else DOGRULANAMADI
-        not_ = f"kontrol sonucu: {sonuc}" if guvenilir else f"{NOT_YONERGE}; kontrol sonucu: {sonuc}"
-        uyari = "" if guvenilir else f"Not: {NOT_YONERGE}{NL}"
+        olcut_var = bool(kayit.get("olcutler"))  # without criteria nothing was checked, whatever the report says
+        sonuc = _sonuc(rapor) if guvenilir and olcut_var else DOGRULANAMADI
+        notlar = ([] if guvenilir else [NOT_YONERGE]) + ([] if olcut_var else [NOT_OLCUT])
+        not_ = "; ".join(notlar + [f"kontrol sonucu: {sonuc}"])
+        uyarilar = ([] if guvenilir else [NOT_YONERGE]) + ([] if olcut_var else [UYARI_OLCUT])
+        uyari = "".join(f"Not: {u}{NL}" for u in uyarilar)
         baslik = f"# Kontrol raporu — {is_id}{NL}{NL}Zaman: {is_durumu._zaman()}{NL}Sonuç: {sonuc}{NL}{uyari}{NL}"
         _yaz_metin(is_durumu._is_klasoru(proje, is_id) / "dogrulama.md", baslik + rapor.rstrip() + NL)
         kayit["sonuc"] = sonuc

@@ -39,3 +39,33 @@ def test_body_guards_and_table():
     assert "| Ölçüt | Yöntem | Sonuç | Kanıt |" in govde
     assert "talimat" in govde and "veri" in govde
     assert "kisi-gorsel" in govde
+
+
+def _govde():
+    metin = AJAN.read_text(encoding="utf-8")
+    return metin.split("---", 2)[2]
+
+
+def test_no_body_line_looks_like_a_result_line():
+    import dogrulama_kaydi
+    for satir in _govde().splitlines():
+        assert not satir.lstrip(" \t*`>-").startswith(("SONUÇ:", "SONUC:")), satir
+        assert not dogrulama_kaydi.SONUC_SATIRI.search(satir), satir
+
+
+def test_unverified_when_no_criteria_or_unreadable():
+    govde = " ".join(_govde().split())
+    assert "Ölçüt yoksa ya da is.json veya plan.md okunamıyorsa `SONUÇ: DOĞRULANAMADI` yaz." in govde
+    assert "bu üçünden yalnızca birini yaz" in govde
+
+
+def test_criteria_numbered_in_record_order_not_by_id():
+    govde = " ".join(_govde().split())
+    assert "`id`" not in govde
+    assert "kayıttaki sırayla" in govde and "numaralandır" in govde
+
+
+def test_bash_output_redirection_forbidden():
+    kurallar = " ".join(_govde().split("## Kurallar", 1)[1].split("## Rapor biçimi", 1)[0].split())
+    for ifade in ("`>`", "`>>`", "`tee`", "`Set-Content`", "`Out-File`"):
+        assert ifade in kurallar, ifade

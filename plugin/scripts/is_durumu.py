@@ -116,6 +116,8 @@ def gecis(kayit: dict, yeni: str, kaynak: str, not_: str = "") -> dict:
     if eski == "gorusme" and yeni == "onay-bekliyor:plan" and kayit.get("karmasik"):
         raise ValueError("✗ Karmaşık işte ilk aşama 'onay-bekliyor:tarif' olmalıdır.")
     kayit["durum"] = yeni
+    if yeni == "uygulandi":
+        kayit["sonuc"] = None  # a result from an earlier application must not survive a re-plan
     kayit.setdefault("olaylar", []).append(
         {"zaman": _zaman(), "eski": eski, "yeni": yeni, "kaynak": kaynak, "not": not_})
     return kayit

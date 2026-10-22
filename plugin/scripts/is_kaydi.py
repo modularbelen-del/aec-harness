@@ -15,6 +15,8 @@ from proje_baslat import _yasak_hedef, _yaz_metin  # noqa: E402
 
 YONTEMLER = ("revit-okuma", "dosya", "olcu", "kisi-gorsel")
 PROJE_EK_BASLIK = "## Sonradan eklenenler"
+OLCUT_GEREKLI = ("✗ Belge kaydedilmedi: işte kayıtlı kabul ölçütü bulunmamaktadır. Belge onaya sunulmadan önce "
+                 "`olcut` komutuyla en az bir kabul ölçütü kaydedilmelidir.")
 
 
 class _Ayristirici(argparse.ArgumentParser):
@@ -76,6 +78,10 @@ def _oku_dosya(kaynak: str) -> str:
 def _asama(a) -> None:
     proje = Path(a.proje)
     kayit = is_durumu.is_yukle(proje, a.is_id)
+    ilk_belge = "tarif" if kayit.get("karmasik") else "plan"
+    if a.komut == ilk_belge and not kayit.get("olcutler"):
+        print(OLCUT_GEREKLI)
+        return
     metin = _oku_dosya(a.dosya)
     is_durumu.gecis(kayit, f"onay-bekliyor:{a.komut}", "ajan", f"{a.komut} sunuldu")
     klasor = proje / is_durumu.ISLER / kayit["id"]
