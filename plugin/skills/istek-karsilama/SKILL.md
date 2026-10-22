@@ -5,8 +5,8 @@ description: Her Revit, AutoCAD/DWG/DXF, Rhino, metraj, tavan ya da render iste�
 
 # İstek karşılama (ön kapı)
 
-Ofisteki arkadaşlar isteği kendi sözleriyle ve çoğu zaman eksik yazar. Tahminle yanlış bir şey üretmek
-"yapay zekâ çalışmıyor" dedirtir. Bu skill işi tanır, eksiği yakalar, planı gösterir, onaydan sonra başlar.
+İstekler gündelik dille ve çoğu zaman bazı bilgiler eksik olarak gelir; bu doğaldır. Tahminle yanlış bir şey
+üretmek güveni zedeler. Bu skill işi tanır, eksiği yakalar, planı gösterir, onaydan sonra başlar.
 
 Ofisin döngüsü: ölç (görselden tahmin etme) → planla → onay al → kopya dosyada uygula → geri oku → doğrula.
 

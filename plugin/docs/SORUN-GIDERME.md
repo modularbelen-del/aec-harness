@@ -1,6 +1,6 @@
 # Sorun giderme
 
-Bir şey çalışmadıysa yapay zekâ bozuk demek değildir. Çoğu zaman küçük bir bağlantı eksiğidir. Önce `/aec:kontrol-et` yazın. Ne eksikse söyler.
+Bir şey beklediğiniz gibi çalışmadıysa sebep çoğu zaman küçük bir bağlantı eksiğidir. Önce `/aec:kontrol-et` yazın. Ne eksikse söyler.
 
 ## "Revit bağlı değil"
 
