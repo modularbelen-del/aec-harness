@@ -1,6 +1,8 @@
-"""Job record CLI for the agent: open a job, record criteria, submit documents for approval.
+"""Job record CLI for the agent: open a job, record criteria, submit documents for approval, mark an approved job applied.
 
 There is deliberately no approval or acceptance subcommand; only hooks record those, from the person's own message.
+`uygulandi` only moves an approved plan (plan-onaylandi) to applied, so that non-Revit work can reach the independent
+verifier; it grants nothing the person has not approved.
 """
 import argparse
 import sys
@@ -43,6 +45,7 @@ def _parser() -> argparse.ArgumentParser:
     for ad in is_durumu.ASAMALAR:
         ekle(ad).add_argument("--dosya", required=True)
     ekle("durum")
+    ekle("uygulandi")
     ekle("iptal").add_argument("--gerekce", required=True)
     ekle("proje-ekle", is_gerekli=False).add_argument("--metin", required=True)
     return p
@@ -91,6 +94,22 @@ def _durum(a) -> None:
     print(f"Sonuç: {kayit.get('sonuc') or '-'}")
 
 
+def _uygulandi(a) -> None:
+    proje = Path(a.proje)
+    kayit = is_durumu.is_yukle(proje, a.is_id)
+    durum = kayit["durum"]
+    if durum == "uygulandi":
+        print("İş zaten uygulandı olarak kayıtlıdır; değişiklik yapılmadı. Durum: uygulandi.")
+        return
+    if durum != "plan-onaylandi":
+        print(f"✗ Uygulama kaydı yalnızca plan onaylandıktan sonra yapılabilir. Mevcut durum: {durum}. "
+              "Hiçbir değişiklik yapılmadı.")
+        return
+    is_durumu.gecis(kayit, "uygulandi", "ajan", "uygulama tamamlandı")
+    is_durumu.is_kaydet(proje, kayit)
+    print("Durum: uygulandi. Sıradaki adım, bağımsız kontrolcünün (aec:dogrulayici) çalıştırılmasıdır.")
+
+
 def _iptal(a) -> None:
     proje = Path(a.proje)
     kayit = is_durumu.is_yukle(proje, a.is_id)
@@ -118,7 +137,7 @@ def _proje_ekle(a) -> None:
 
 
 _KOMUTLAR = {"yeni": _yeni, "olcut": _olcut, "tarif": _asama, "plan": _asama, "gorevler": _asama,
-             "durum": _durum, "iptal": _iptal, "proje-ekle": _proje_ekle}
+             "durum": _durum, "uygulandi": _uygulandi, "iptal": _iptal, "proje-ekle": _proje_ekle}
 
 
 def main(argv: "list[str] | None" = None) -> int:
@@ -130,7 +149,7 @@ def main(argv: "list[str] | None" = None) -> int:
         a = _parser().parse_args(argv)
     except SystemExit as cikis:
         if cikis.code not in (0, None):
-            print("✗ Komut tanınmadı ya da eksik. Geçerli komutlar: yeni, olcut, tarif, plan, gorevler, durum, iptal, proje-ekle. "
+            print("✗ Komut tanınmadı ya da eksik. Geçerli komutlar: yeni, olcut, tarif, plan, gorevler, durum, uygulandi, iptal, proje-ekle. "
                   "Onay ve kabul yalnızca kişinin kendi mesajıyla verilir; bu araçla verilemez.")
         return 0
     try:

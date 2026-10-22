@@ -48,6 +48,7 @@ Komutları Bash ile ve tek tek çalıştır:
 | `olcut --is <kimlik> --olcut "<ölçüt>" --yontem <yöntem> [--beklenen <değer>] [--tolerans <değer>]` | Kabul ölçütü ekler; yalnızca görüşme aşamasında çalışır. Yöntem: `revit-okuma`, `dosya`, `olcu`, `kisi-gorsel`. |
 | `tarif`, `plan` ya da `gorevler` ile `--is <kimlik> --dosya -` | Belgeyi kaydeder; iş `onay-bekliyor:<aşama>` durumuna geçer. |
 | `durum --is <kimlik>` | Durumu, sınıfı, ölçüt sayısını ve kontrol sonucunu yazar; hiçbir şeyi değiştirmez. |
+| `uygulandi --is <kimlik>` | Onaylı planı (`plan-onaylandi`) uygulandı olarak kaydeder ve kontrolcünün önünü açar; başka durumda reddedilir. |
 | `iptal --is <kimlik> --gerekce "<gerekçe>"` | İşi kapatır (aşağıdaki iptal kuralına bak). |
 | `proje-ekle --metin "<bilgi>"` | `.aec/proje.md` dosyasına kalıcı bir bilgi ekler; yalnızca kişi istediğinde. |
 
@@ -149,20 +150,19 @@ kişinin yanıtını bekle.
   geç; rapor eksikleri gösterir, kararı kişi verir.
 
 ### 9. Bağımsız kontrol
-1. `durum` komutuyla işin `uygulandi` durumunda olduğunu doğrula.
-2. Agent (Task) aracını `subagent_type: "aec:dogrulayici"` ile çağır. İstem (prompt) yalnızca iş klasörünün tam
+1. Uygulamada Revit araç çağrısı dışında yazma yapıldıysa (DWG/DXF, Excel, render ya da Rhino dosyası, başka
+   dosyalar) önce `uygulandi --is <kimlik>` komutunu çalıştır. Revit yazmasında durumu hook zaten ilerletir; komutu
+   yine de çalıştırmak zararsızdır, durum değişmez. Komut "✗" yazarsa plan onaylanmamıştır: kontrolcüyü çağırma ve
+   durumu kişiye bildir.
+2. `durum` komutuyla işin `uygulandi` durumunda olduğunu doğrula.
+3. Agent (Task) aracını `subagent_type: "aec:dogrulayici"` ile çağır. İstem (prompt) yalnızca iş klasörünün tam
    yoludur: `<proje klasörünün tam yolu>/.aec/isler/<IS kimliği>`. Başka hiçbir kelime, açıklama ya da satır
    ekleme; başka bir istemle yapılan çağrı reddedilir. Proje klasörünün yolunu bilmiyorsan Bash ile
    `echo "${CLAUDE_PROJECT_DIR}"` çalıştır.
-3. Kontrolcü arka planda çalışabilir; tamamlandı bildirimi gelmeden raporu gösterme. Kontrolcüye SendMessage ile ek
+4. Kontrolcü arka planda çalışabilir; tamamlandı bildirimi gelmeden raporu gösterme. Kontrolcüye SendMessage ile ek
    mesaj gönderme; gönderilirse rapor güvenilmez sayılır ve sonuç DOĞRULANAMADI olarak kaydedilir.
-4. Raporu kod `.aec/isler/<kimlik>/dogrulama.md` dosyasına kaydeder ve işi `kabul-bekliyor` durumuna geçirir. Kendi
+5. Raporu kod `.aec/isler/<kimlik>/dogrulama.md` dosyasına kaydeder ve işi `kabul-bekliyor` durumuna geçirir. Kendi
    geri okumanı kontrolcü raporunun yerine koyma.
-
-Revit'e yazmayan işlerde durum bugün kodla `uygulandi` olmaz ve kontrolcü çağrısı reddedilir. Bu durumda kartın
-"Geri okuma" adımını uygula, sonucu ölçüt tablosu hâlinde göster ve tablonun üstüne şunu yaz: "Bu tablo bağımsız
-kontrolcü raporu değildir; kontrol, uygulamayı yapan ajan tarafından yapılmıştır." İş kaydı `plan-onaylandi`
-durumunda açık kalır; bunu kişiye bir cümleyle bildir ve kabul sorusunu sorma.
 
 ### 10. Raporu göster ve kabul sorusunu sor
 1. `durum` ile işin `kabul-bekliyor` durumunda olduğunu doğrula. Değilse rapor kaydedilmemiştir: kontrolcüyü bir kez

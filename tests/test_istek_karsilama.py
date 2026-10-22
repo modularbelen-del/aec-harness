@@ -199,3 +199,11 @@ def test_authority_rules():
     kural = (STANDARDS / "authority.md").read_text(encoding="utf-8")
     assert "kontrolcü" in kural and "kabul" in kural and "aec:dogrulayici" in kural
     assert "3 soru sınırı uygulanmaz" in kural
+
+
+def test_skill_marks_non_revit_jobs_applied_before_verifier():
+    skill = SKILL.read_text(encoding="utf-8")
+    adim = skill[skill.index("### 9."):skill.index("### 10.")]
+    assert "`uygulandi --is" in skill and adim.index("uygulandi") < adim.index("aec:dogrulayici")
+    assert "zararsızdır" in adim  # running it after a Revit write is harmless
+    assert "bağımsız kontrolcü raporu değildir" not in skill and "kabul sorusunu sorma" not in adim

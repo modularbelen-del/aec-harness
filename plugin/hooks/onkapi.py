@@ -15,12 +15,20 @@ _LEFT_BOUNDARY = r"(?<![a-z0-9])"
 _REGEX_PREFIX = "re:"
 _NON_WORD = re.compile(r"[^a-z0-9]+")
 _SESSION_CHARS = re.compile(r"[^A-Za-z0-9_-]")
-CARD_TEMPLATE = (
+_CARD_HEAD = (
     "[aec ön kapı] İş: {titles}.\n"
     "Önce istek-karsilama skill'ini yükle ve kartı oku: {paths}\n"
     "Eksik olabilir: {missing}.\n"
+)
+CARD_TEMPLATE = _CARD_HEAD + (
     "Az sor, çok göster: proje MD'sine bak, en fazla 3 soru sor, varsayımları VARSAYIM diye yaz, "
     "planı göster, onay al; uyguladıktan sonra geri oku."
+)
+# Complex card (kartlar.json "karmasik": true): the full interview applies, not the 3-question limit.
+CARD_TEMPLATE_KARMASIK = _CARD_HEAD + (
+    "Bu iş karmaşık iştir (çizim programına yazar): istek-karsilama skill'indeki tam görüşme uygulanır, "
+    "3 soru sınırı uygulanmaz. Varsayımlar VARSAYIM diye yazılır; tarif, plan ve görevler ayrı ayrı onaya sunulur, "
+    "sonucu bağımsız kontrolcü denetler."
 )
 
 
@@ -69,7 +77,8 @@ def card_text(ids: list[str], cards: list[dict], card_dir: pathlib.Path) -> str:
         for item in card["eksikler"]:
             if item not in missing:
                 missing.append(item)
-    return CARD_TEMPLATE.format(
+    sablon = CARD_TEMPLATE_KARMASIK if any(c.get("karmasik") is True for c in chosen) else CARD_TEMPLATE
+    return sablon.format(
         titles=", ".join(c["baslik"] for c in chosen),
         paths="; ".join((pathlib.Path(card_dir) / f"{c['id']}.md").as_posix() for c in chosen),
         missing=", ".join(missing),

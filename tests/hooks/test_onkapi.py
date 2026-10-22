@@ -39,7 +39,21 @@ def test_card_text_fits_and_names_paths(tmp_path):
     assert len(text.encode("utf-8")) <= 1024
     assert len(onkapi.card_text(["tavan"], CARDS, tmp_path).encode("utf-8")) <= 700  # spec: tek kart ~600 bayt
     assert text.startswith("[aec ön kapı] İş: Revit modelleme, Metraj/liste.")
-    assert "revit-modelleme.md" in text and "VARSAYIM" in text and "en fazla 3 soru" in text
+    assert "revit-modelleme.md" in text and "VARSAYIM" in text
+    assert "en fazla 3 soru" in onkapi.card_text(["metraj-liste"], CARDS, tmp_path)
+
+
+def test_card_text_question_limit_follows_complexity(tmp_path):
+    for card in CARDS:
+        text = onkapi.card_text([card["id"]], CARDS, tmp_path)
+        if card["karmasik"]:
+            assert "karmaşık" in text and "3 soru sınırı uygulanmaz" in text, card["id"]
+            assert "en fazla 3 soru" not in text and "istek-karsilama" in text, card["id"]
+        else:
+            assert "en fazla 3 soru" in text and "karmaşık" not in text, card["id"]
+    karisik = onkapi.card_text(["dwg-okuma", "revit-modelleme"], CARDS, tmp_path)
+    assert "3 soru sınırı uygulanmaz" in karisik and "en fazla 3 soru" not in karisik
+    assert "en fazla 3 soru" in onkapi.card_text(["yok"], CARDS, tmp_path)
 
 
 def test_same_card_once_per_session(tmp_path):

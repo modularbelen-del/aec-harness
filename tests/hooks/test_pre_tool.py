@@ -2,6 +2,7 @@ import io
 import json
 
 import is_durumu
+import is_kaydi
 import pre_tool
 import user_prompt
 
@@ -184,3 +185,14 @@ def test_allowed_verifier_spawn_writes_marker(tmp_path):
     assert not yol.isaret_taze(sd, SID, kayit["id"])
     assert pre_tool.karar(_girdi("Agent", {"subagent_type": "aec:dogrulayici", "prompt": yol_}), tmp_path, sd) is None
     assert yol.isaret_taze(sd, SID, kayit["id"])
+
+
+def test_cli_applied_unlocks_verifier_for_job(tmp_path, capsys):
+    sd = tmp_path / "sd"
+    kayit = _is(tmp_path, "plan-onaylandi")
+    g = _girdi("Agent", {"subagent_type": "aec:dogrulayici", "prompt": str(tmp_path / ".aec" / "isler" / kayit["id"])})
+    assert _karar(pre_tool.karar(g, tmp_path, sd))[0] == "deny"
+    assert is_kaydi.main(["uygulandi", "--proje", str(tmp_path), "--is", kayit["id"]]) == 0
+    assert "✗" not in capsys.readouterr().out
+    assert is_durumu.is_yukle(tmp_path, kayit["id"])["durum"] == "uygulandi"
+    assert pre_tool.karar(g, tmp_path, sd) is None

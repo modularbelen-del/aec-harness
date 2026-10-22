@@ -93,3 +93,42 @@ def test_cli_malformed_job_file_returns_zero_with_message(tmp_path, capsys):
         assert is_kaydi.main(["durum", "--proje", str(tmp_path), "--is", is_id]) == 0
         out = capsys.readouterr().out
         assert out.startswith("✗") and "Traceback" not in out
+
+
+def _durumla(proje, capsys, durum):
+    is_id = _yeni(proje, capsys)
+    kayit = is_durumu.is_yukle(proje, is_id)
+    kayit["durum"] = durum
+    is_durumu.is_kaydet(proje, kayit)
+    return is_id
+
+
+def test_cli_applied_from_approved_plan(tmp_path, capsys):
+    is_id = _durumla(tmp_path, capsys, "plan-onaylandi")
+    assert is_kaydi.main(["uygulandi", "--proje", str(tmp_path), "--is", is_id]) == 0
+    out = capsys.readouterr().out
+    assert "✗" not in out and "uygulandi" in out
+    k = is_durumu.is_yukle(tmp_path, is_id)
+    assert k["durum"] == "uygulandi" and k["olaylar"][-1]["kaynak"] == "ajan"
+
+
+def test_cli_applied_is_noop_when_already_applied(tmp_path, capsys):
+    is_id = _durumla(tmp_path, capsys, "uygulandi")
+    olay_sayisi = len(is_durumu.is_yukle(tmp_path, is_id)["olaylar"])
+    assert is_kaydi.main(["uygulandi", "--proje", str(tmp_path), "--is", is_id]) == 0
+    out = capsys.readouterr().out
+    assert "✗" not in out and "uygulandi" in out
+    k = is_durumu.is_yukle(tmp_path, is_id)
+    assert k["durum"] == "uygulandi" and len(k["olaylar"]) == olay_sayisi
+
+
+def test_cli_applied_refused_in_every_other_state(tmp_path, capsys):
+    for durum in is_durumu.DURUMLAR:
+        if durum in ("plan-onaylandi", "uygulandi"):
+            continue
+        proje = tmp_path / durum.replace(":", "-")
+        is_id = _durumla(proje, capsys, durum)
+        assert is_kaydi.main(["uygulandi", "--proje", str(proje), "--is", is_id]) == 0
+        out = capsys.readouterr().out
+        assert out.startswith("✗") and durum in out, durum
+        assert is_durumu.is_yukle(proje, is_id)["durum"] == durum, durum
