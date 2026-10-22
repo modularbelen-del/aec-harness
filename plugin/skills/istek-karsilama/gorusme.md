@@ -33,7 +33,8 @@ Kişinin isteği bir konuyu zaten açıklıyorsa o konuyu özetle geç.
   seçenek yalnızca kişi kararsız kaldığında sun. Kişi "siz önerin" derse somut bir öneri yap ve VARSAYIM diye işaretle.
 - Seçenekli sorularda `AskUserQuestion` kullanılabilir; onay ve kabul sorularında kullanılmaz.
 - Araçla okunabilen bir şeyi sorma, oku: seviyeler, aileler, tipler, katmanlar. Ölçü görselden alınmaz.
-- Görüşmede yalnızca okuma araçları kullanılır; hiçbir yazma aracı çağrılmaz.
+- Görüşmede yalnızca okuma araçları kullanılır; hiçbir yazma aracı çağrılmaz (tek istisna: aşağıdaki kesin kuraldaki
+  `.aec/taslak/` taslağı).
 
 ## Bölüm özeti ve teyit
 - Bir konuyu anlatabilecek kadar anladığında o konuyu 150–250 kelimelik bir özetle kişiye geri anlat, sonra sıradaki
@@ -53,7 +54,9 @@ sınıfı (karmaşık) değişmez.
 | Birkaç adımlı iş | Tarif, plan ve görevler | Görev görev |
 | Birbirinden bağımsız birkaç iş | Her iş için ayrı iş kaydı | Sırası kişiyle belirlenir, işler tek tek yürütülür |
 
-Uygulama sırasında iş büyürse dur, durumu kişiye söyle ve planı yeniden onaya sun.
+Uygulama sırasında iş büyürse dur ve durumu kişiye söyle. Henüz hiçbir şey yazılmadıysa planı yeniden onaya sun. Bir
+şey yazıldıktan sonra plan yeniden kaydedilemez: kontrol yapılır, kişi kabulde reddederse yeni plan `reddedildi`
+durumundan kaydedilir ya da iş kişiye bildirilerek iptal edilir (SKILL.md, 8. adım).
 
 ## Görüşmenin sonu
 - Kabul ölçütleri kesinleşince iş kaydını aç ve ölçütleri kaydet (SKILL.md, 4. adım).
@@ -65,6 +68,8 @@ Uygulama sırasında iş büyürse dur, durumu kişiye söyle ve planı yeniden 
 ## Kesin kural
 Onay olmadan uygulama yapılmaz. Tarif, plan ve görevler için kişinin onayı kaydedilmeden hiçbir yazma aracı
 çağrılmaz: Revit'e yerleştirme, modeli değiştiren kod ve dosya yazma bu kurala dahildir. Okuma ve inceleme serbesttir.
+Tek istisna, iş kaydına verilecek belge taslağının `.aec/taslak/<aşama>.md` dosyasına yazılmasıdır; bu klasöre başka
+bir şey yazılmaz (SKILL.md, "İş kaydı aracı").
 "Uygun görünüyor" gibi genel bir onay henüz yazılmamış bir belgeyi onaylamaz; onay yalnızca kaydedilen belgeye ve
 yalnızca hook'un kaydettiği "evet" ile verilir.
 

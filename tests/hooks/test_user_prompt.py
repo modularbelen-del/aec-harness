@@ -100,3 +100,21 @@ def test_project_dir_env_takes_precedence_over_cwd(tmp_path, monkeypatch):
     user_prompt.build_output(stdin, tmp_path / "durum")
     assert is_durumu.aktif_is(env_proje, "sid-3")["durum"] == "plan-onaylandi"
     assert is_durumu.aktif_is(cwd_proje, "sid-3")["durum"] == "onay-bekliyor:plan"
+
+
+def test_routing_card_under_1kb_with_long_plugin_path(tmp_path, monkeypatch):
+    import itertools
+
+    import onkapi
+    kok = "D:/ofis-bilgisayari/claude-eklentileri/onbellek/modularbelen-del-aec-harness/aec/0.14.0-gelistirme"
+    kok += "/" + "x" * max(0, 110 - len(kok) - 1)
+    assert len(kok) >= 110
+    kart_klasoru = pathlib.Path(kok) / "skills" / "istek-karsilama" / "kartlar"
+    kartlar = onkapi.load_cards()
+    en_uzun = max(itertools.combinations([k["id"] for k in kartlar], 2),
+                  key=lambda ikili: len(onkapi.card_text(list(ikili), kartlar, kart_klasoru).encode("utf-8")))
+    monkeypatch.setattr(user_prompt, "CARD_DIR", kart_klasoru)
+    monkeypatch.setattr(onkapi, "match", lambda prompt, cards: list(en_uzun))
+    out = user_prompt.build_output(json.dumps({"prompt": "uzun bir ofis isteği", "session_id": "uzun"}), tmp_path / "sd")
+    assert out and kart_klasoru.as_posix() in json.loads(out)["hookSpecificOutput"]["additionalContext"]
+    assert len(out.encode("utf-8")) <= 1024, (en_uzun, len(out.encode("utf-8")))

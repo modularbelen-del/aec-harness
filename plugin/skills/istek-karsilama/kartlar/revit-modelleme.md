@@ -50,7 +50,7 @@ Varsayılan ölçütlerdir; görüşmede işe göre kesinleştirilir ve `olcut` 
 - Konum ve ölçüler plana tolerans içinde uyar (olcu; Faz 1C öncesinde DOĞRULANAMADI olabilir)
 
 ## Geri okuma
-- Yazdıktan sonra aynı Revit aracıyla oku: öğe sayısı, seviye, aile ve tip, konum ve ölçüler.
+- Yazdıktan sonra Revit okuma araçlarıyla oku: öğe sayısı, seviye, aile ve tip, konum ve ölçüler.
 - Plandaki her maddeyle karşılaştır; tutmayanı tabloda göster.
 - Kendi yazdığın kodun çıktısına bakıp "tamam" deme; sonucu modelden ayrıca oku.
 

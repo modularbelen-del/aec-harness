@@ -3,6 +3,7 @@ and the job flow (complexity rule, interview guide, templates, approval wording)
 import pathlib
 import re
 
+import is_durumu
 import onkapi
 from _md import frontmatter
 
@@ -108,6 +109,10 @@ def _bolum(text, bas, son):
     return text[text.index(bas):text.index(son)]
 
 
+def _tek(metin):
+    return " ".join(metin.split())
+
+
 def test_card_length_bounds():
     for p in KARTLAR.glob("*.md"):
         satir = len(p.read_text(encoding="utf-8").splitlines())
@@ -153,7 +158,10 @@ def test_skill_mentions_flow_pieces():
         assert parca in skill, parca
     ask = [s for s in skill.splitlines() if "AskUserQuestion" in s]
     assert any("onay" in s and "kabul" in s and "kullanılmaz" in s for s in ask)
-    assert "evet/hayır" in skill  # no other plain-text yes/no question while a decision is pending
+    bekleme = _tek(skill[skill.index("**Bekleme kuralı:**"):skill.index("**Yumuşak mod:**")])
+    for parca in ("`onay-bekliyor:<aşama>` ya da `kabul-bekliyor` durumundayken", "başka hiçbir evet/hayır sorusu sorma",
+                  "bekleyen onay ya da kabul olarak kaydedilir", "`AskUserQuestion` kullan"):
+        assert parca in bekleme, parca
     assert "plan onayı, bağımsız kontrol ve kabul" in frontmatter(SKILL)["description"]
 
 
@@ -207,3 +215,50 @@ def test_skill_marks_non_revit_jobs_applied_before_verifier():
     assert "`uygulandi --is" in skill and adim.index("uygulandi") < adim.index("aec:dogrulayici")
     assert "zararsızdır" in adim  # running it after a Revit write is harmless
     assert "bağımsız kontrolcü raporu değildir" not in skill and "kabul sorusunu sorma" not in adim
+
+
+def test_soft_mode_follows_stage():
+    skill = SKILL.read_text(encoding="utf-8")
+    bolum = _bolum(skill, "**Yumuşak mod:**", "## Her işte")
+    maddeler = [_tek(m) for m in bolum.split("\n  - ")[1:]]
+    for durum in is_durumu.DURUMLAR:  # every state named, and only in one bullet (plan differs by class)
+        sayi = sum(f"`{durum}`" in m for m in maddeler)
+        assert sayi == (2 if durum == "onay-bekliyor:plan" else 1), (durum, sayi)
+    son = next(m for m in maddeler if "`onay-bekliyor:gorevler`" in m)
+    assert "basit işte `onay-bekliyor:plan`" in son and "uygulamaya geç" in son
+    onceki = next(m for m in maddeler if "`onay-bekliyor:tarif`" in m)
+    assert "karmaşık işte `onay-bekliyor:plan`" in onceki and "sabit onay cümlesiyle" in onceki
+    assert "kaydetmeden" in onceki
+    izin = [m for m in maddeler if "izin penceresi" in m]
+    assert len(izin) == 1 and "Yalnızca Revit işinde" in izin[0]
+    assert "bağımsız kontrol ve kabul bu oturumda kaydedilemeyecektir" in izin[0]
+
+
+def test_apply_and_verify_steps():
+    skill = SKILL.read_text(encoding="utf-8")
+    uygula = _tek(_bolum(skill, "### 8.", "### 9."))
+    assert "Geri okuma" in uygula and "yalnızca okuma araçlarıyla" in uygula and "kontrolcüden önce" in uygula
+    assert "kontrolcü raporunun yerine geçmez" in uygula
+    assert "`reddedildi`" in uygula and "9. adıma" in uygula  # re-planning after something was written
+    kontrol = _tek(_bolum(skill, "### 9.", "### 10."))
+    assert "her zaman çalıştır" in kontrol and "hiçbir şeyi değiştirmez" in kontrol
+    assert "kişiye bildir ve dur" in kontrol
+    assert "`reddedildi`" in _tek(GORUSME.read_text(encoding="utf-8"))
+
+
+def test_draft_exception_main_card_and_criteria_shown():
+    skill = _tek(SKILL.read_text(encoding="utf-8"))
+    assert "Tek istisna" in skill and "yalnızca `.aec/taslak/`" in skill
+    assert "`.aec/taslak/`" in _tek(GORUSME.read_text(encoding="utf-8"))
+    assert "`yeni --kart` için karmaşık kartı" in skill
+    dort = _tek(_bolum(SKILL.read_text(encoding="utf-8"), "### 4.", "### 5."))
+    assert "Kişiye gösterilip kesinleşen" in dort and "kişinin görmediği bir ölçütü kaydetme" in dort
+
+
+def test_readback_wording_and_ceiling_skill():
+    revit = _card("revit-modelleme")
+    assert "aynı Revit aracıyla" not in revit and "Revit okuma araçlarıyla" in revit
+    tavan = _tek(_card("tavan"))
+    assert "görüşmede" in tavan and "okuma ve çözümleme" in tavan and "onaylı planla" in tavan
+    kural = (STANDARDS / "authority.md").read_text(encoding="utf-8")
+    assert "geri okuyup doğrula" not in kural and "Revit okuma araçlarıyla" in kural

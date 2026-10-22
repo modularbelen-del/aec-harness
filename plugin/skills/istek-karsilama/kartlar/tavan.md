@@ -21,8 +21,9 @@
 
 ## Skill / araç
 - Bu iş karmaşıktır; iş kaydı, tarif, plan ve görevler onayı, kontrolcü ve kabul bu akışla yürür.
-- Oturumda `ceiling-from-dwg` skill'i varsa uygulama adımında onu yükle ve onun prosedürüyle çalış; Revit'e yazma
-  yine yalnızca onaylı planla yapılabilir.
+- Oturumda `ceiling-from-dwg` skill'i varsa görüşmede DWG'nin okuma ve çözümlemesi için kullanılabilir; uygulama
+  adımında onun prosedürüyle çalış. Bu skill'in yazma adımları (Revit'e yazma, dosya üretme) yine yalnızca onaylı
+  planla yapılır.
 - Tanınmayan tavan öğesi ya da ürün için oturumda `tavan-arastirma` skill'i varsa onu kullan.
 - Bu skill'ler yoksa: tavan modülü yakında (Faz 1D). Özel araç henüz yok (yakında); genel akışla çalış:
   görüşme → onaylar → kopya modelde uygula → kontrolcü → kabul.

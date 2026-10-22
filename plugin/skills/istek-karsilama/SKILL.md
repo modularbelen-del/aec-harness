@@ -26,7 +26,8 @@ varsayamaz ya da kişinin başka sözlerinden çıkaramazsın.
 | `tavan` | Asma tavan, baffle, bandraster, open cell, menfez, lineer armatür, LED panel |
 | `render` | Render, görsel, perspektif, atmosfer |
 
-İstek iki işe giriyorsa iki kartı da oku; tek iş kaydı açılır ve kartlardan biri karmaşıksa iş karmaşıktır. Ofis işi
+İstek iki işe giriyorsa iki kartı da oku; tek iş kaydı açılır ve kartlardan biri karmaşıksa iş karmaşıktır.
+`yeni --kart` için karmaşık kartı, iki kart aynı sınıftaysa ilk kartı (ön kapının ilk saydığı kartı) kullan. Ofis işi
 değilse bu skill'i bırak, normal çalış.
 
 İş türü belli değilse ama işin ofis çalışması olduğu belliyse (ör. "şu planı düzelt", "şunu hazırla": hangi dosya,
@@ -61,15 +62,17 @@ EOF
 ```
 
 - Komutu PowerShell ile çalıştırman gerekirse ortam değişkenlerini `$env:CLAUDE_PROJECT_DIR` biçiminde yaz ve belge
-  metnini boruyla verme (Türkçe karakterler bozulur); metni önce `.aec/taslak/<aşama>.md` dosyasına yaz ve `--dosya`
-  ile bu yolu ver.
+  metnini boruyla verme (Türkçe karakterler bozulur); metni önce taslak dosyasına yaz ve `--dosya` ile bu yolu ver.
+  **Tek istisna:** "onaydan önce yazma aracı çağrılmaz" kuralının tek istisnası bu taslaktır. Taslak yalnızca
+  `.aec/taslak/` klasörüne, `<aşama>.md` adıyla yazılır ve içine yalnızca iş kaydına verilecek belge metni yazılır.
 - `yeni` komutunu başka komutlarla zincirleme; oturum bağı bu komutun çıktısındaki `IS:` satırından kurulur.
 - "✗" ile başlayan satır, işlemin yapılmadığını gösterir; satırı kişiye aktar ve akışa göre düzelt. `yeni` ev
   klasöründe ya da sürücü kökünde olunduğunu söylerse işi başlatma; kişiden Claude'u projenin klasöründe açmasını iste.
 - Onay ya da kabul komutu yoktur; böyle bir komut deneme. `.aec/isler/` altındaki kayıtları yalnızca bu komutlar
   değiştirir: oraya Write ya da Edit ile yazma (reddedilir), Bash, PowerShell ya da Python ile de dokunma.
 - **İptal kuralı:** `iptal` yalnızca kişi işten vazgeçtiğinde ya da iş yeniden açılmak zorunda kaldığında (sınıf
-  yükseltme, ölçüt değişikliği, önceki oturumdan kalan iş) ve kişiye bildirilerek kullanılır. Onay ya da kabul
+  yükseltme, ölçüt değişikliği, yazmadan sonra plan değişikliği, önceki oturumdan kalan iş) ve kişiye bildirilerek
+  kullanılır. Onay ya da kabul
   bekleyen bir iş, kararı atlamak için iptal edilmez.
 
 ## Akış
@@ -95,15 +98,18 @@ belirle. Sınıfı kişiye sorma; gerekçesiyle bir cümleyle bildir. Kişi iste
   okuyarak doldur. Kalanlar için en fazla 3 soru sor; hepsini tek mesajda numaralı liste hâlinde, mümkünse seçenekle
   sor. Aynı mesajda kartın "Kabul ölçütleri" bölümünden yola çıkarak 2–4 kabul ölçütünü yöntemleriyle teklif et;
   sormadığın her şeyi VARSAYIM diye yaz. Taslak plan da ekleyebilirsin, ama onay sorusunu bu mesajda sorma: onay
-  ancak plan kaydedildikten sonra sorulur (6. adım). Eksik bilgi yoksa ölçütleri doğrudan planda teklif et.
+  ancak plan kaydedildikten sonra sorulur (6. adım). Eksik bilgi olmasa da ölçütleri kaydetmeden önce kişiye göster;
+  mesajı şu cümleyle bitir: "Ölçütlerde değişiklik istiyorsanız belirtiniz; aksi hâlde plan bu ölçütlerle onayınıza
+  sunulacaktır."
 - **Karmaşık iş:** `${CLAUDE_SKILL_DIR}/gorusme.md` rehberini izle. Konu konu ilerle; her bölümde özet ver ve teyit
   al. 3 soru sınırı uygulanmaz. Kabul ölçütleri görüşmede kesinleşir.
-- Görüşmede yalnızca okuma araçlarını kullan; hiçbir yazma aracı çağırma. `execute_revit_code` okuma için de olsa
-  Revit kilidine takılır; okumak için Revit okuma araçlarını kullan.
+- Görüşmede yalnızca okuma araçlarını kullan; hiçbir yazma aracı çağırma (tek istisna: `.aec/taslak/` taslağı).
+  `execute_revit_code` okuma için de olsa Revit kilidine takılır; okumak için Revit okuma araçlarını kullan.
 
 ### 4. İş kaydını aç
 1. `yeni` komutunu çalıştır; karmaşık işte `--karmasik` ekle. Çıktıdaki `IS: <kimlik>` değerini not et.
-2. Kesinleşen her kabul ölçütü için `olcut` komutunu çalıştır; varsa `--beklenen` ve `--tolerans` ver. En az bir
+2. Kişiye gösterilip kesinleşen her kabul ölçütü için `olcut` komutunu çalıştır; kişinin görmediği bir ölçütü
+   kaydetme. Varsa `--beklenen` ve `--tolerans` ver. En az bir
    ölçüt kaydedilmeden belgeye geçme. Ölçütler ilk belge kaydedildikten sonra değiştirilemez; değişmeleri gerekirse
    kişiye bildirerek işi `iptal` ile kapat ve yeni iş aç.
 
@@ -136,8 +142,11 @@ kişinin yanıtını bekle.
 - Hiçbir `[aec]` satırı gelmezse aşağıdaki yumuşak mod kuralını uygula.
 
 ### 8. Uygula
-- Yalnızca onaylı plandaki (karmaşık işte görevlerdeki) adımları sırayla uygula; kapsam dışına çıkma. Plan değişmesi
-  gerekirse dur, yeni planı `plan` komutuyla yeniden kaydet ve onaya sun; önceki onay düşer.
+- Yalnızca onaylı plandaki (karmaşık işte görevlerdeki) adımları sırayla uygula; kapsam dışına çıkma.
+- Plan değişmesi gerekirse dur. Henüz hiçbir şey yazılmadıysa yeni planı `plan` komutuyla yeniden kaydet ve onaya sun;
+  önceki onay düşer. Bir şey yazıldıktan sonra plan yeniden kaydedilemez: 9. adıma geç, raporu göster ve değişiklik
+  gerekçesini kişiye bildir; kişi kabulde reddederse yeni plan `reddedildi` durumundan kaydedilir. Diğer yol, kişiye
+  bildirerek işi `iptal` ile kapatmaktır.
 - Revit'e yazma kodla kilitlidir: onaylı plan olmadan yazma reddedilir, `sync_with_central` hiçbir zaman çalışmaz,
   `save_document` yalnızca iş kabul edildikten sonra çalışır. Kaydetme ve merkez modelle eşitleme kişinin işidir;
   `save_document` ve `sync_with_central` araçlarını kendiliğinden çağırma.
@@ -148,13 +157,15 @@ kişinin yanıtını bekle.
 - Revit'e yazmayan işlerde (Excel, DXF, render metni) kod düzeyinde kilit yoktur; aynı kurallara yine uyulur.
 - Uygulama sırasında hata çıkarsa: henüz hiçbir şey yazılmadıysa dur ve kişiye bildir. Bir kısmı yazıldıysa 9. adıma
   geç; rapor eksikleri gösterir, kararı kişi verir.
+- Uygulama bitince kartın "Geri okuma" adımını yalnızca okuma araçlarıyla ve kontrolcüden önce yap. Bu okuma
+  kontrolcü raporunun yerine geçmez.
 
 ### 9. Bağımsız kontrol
-1. Uygulamada Revit araç çağrısı dışında yazma yapıldıysa (DWG/DXF, Excel, render ya da Rhino dosyası, başka
-   dosyalar) önce `uygulandi --is <kimlik>` komutunu çalıştır. Revit yazmasında durumu hook zaten ilerletir; komutu
-   yine de çalıştırmak zararsızdır, durum değişmez. Komut "✗" yazarsa plan onaylanmamıştır: kontrolcüyü çağırma ve
-   durumu kişiye bildir.
-2. `durum` komutuyla işin `uygulandi` durumunda olduğunu doğrula.
+1. Uygulamanın tamamı ya da bir kısmı yazıldıktan sonra `uygulandi --is <kimlik>` komutunu her zaman çalıştır. Revit
+   dışı yazmalarda (DWG/DXF, Excel, render ya da Rhino dosyası, başka dosyalar) durumu bu komut ilerletir. Revit
+   yazmasından sonra durumu hook zaten ilerletmiştir; bu durumda komut zararsızdır ve hiçbir şeyi değiştirmez.
+2. `durum` komutuyla işin `uygulandi` durumunda olduğunu doğrula. Değilse (ör. komut "✗" yazdıysa) kontrolcüyü
+   çağırma; durumu kişiye bildir ve dur.
 3. Agent (Task) aracını `subagent_type: "aec:dogrulayici"` ile çağır. İstem (prompt) yalnızca iş klasörünün tam
    yoludur: `<proje klasörünün tam yolu>/.aec/isler/<IS kimliği>`. Başka hiçbir kelime, açıklama ya da satır
    ekleme; başka bir istemle yapılan çağrı reddedilir. Proje klasörünün yolunu bilmiyorsan Bash ile
@@ -175,7 +186,8 @@ kişinin yanıtını bekle.
 
    "Kabul ediyorsanız yalnızca 'evet', etmiyorsanız yalnızca 'hayır' yazınız."
 4. "[aec] Kabulünüz kaydedildi" satırını görmeden işi kabul edilmiş sayma. "[aec] Ret kaydedildi: kabul" gelirse
-   gerekçeyi sor, planı düzelt ve 5. adımdan yeniden onaya sun.
+   gerekçeyi sor, planı düzelt ve 5. adımdan yeniden onaya sun. Hiçbir `[aec]` satırı gelmezse yumuşak mod kuralını
+   uygula.
 
 ### 11. Kayıt
 - Kabul ve ret satırlarını kod `.aec/gunluk.md` dosyasına yazar; günlüğe sen yazma.
@@ -197,13 +209,25 @@ kişinin yanıtını bekle.
 - **Bekleme kuralı:** iş `onay-bekliyor:<aşama>` ya da `kabul-bekliyor` durumundayken düz metinle başka hiçbir
   evet/hayır sorusu sorma; kişinin "evet"i o sırada bekleyen onay ya da kabul olarak kaydedilir. Başka bir şey
   sorman gerekirse `AskUserQuestion` kullan ya da soruyu karar kaydedildikten sonra sor.
-- **Yumuşak mod:** kişi yalnızca "evet" yazdığı hâlde hiçbir `[aec]` satırı gelmezse önce `durum` ile kaydı oku.
-  - Durum ilerlemişse akışa devam et.
-  - Durum `onay-bekliyor` değilse belge kaydedilmemiştir: belgeyi kaydet, göster ve onay sorusunu yeniden sor.
-  - Durum hâlâ `onay-bekliyor` ise hook'lar bu oturumda çalışmıyordur (ör. Cowork). Onayın kaydedildiğini asla
-    söyleme; kişiye "Onayınız bu oturumda kayda geçirilemedi. Revit'e yazma sırasında bir izin penceresi açılırsa
-    onayınızı bu pencereden veriniz." de ve uygulamaya geç. Revit'e yazma sırasında açılan izin penceresini kişi
-    kendisi onaylar.
+- **Yumuşak mod:** kişi yalnızca "evet" yazdığı hâlde hiçbir `[aec]` satırı gelmezse `durum` ile kaydı oku ve
+  durumuna göre ilerle (işin sınıfını çıktıdaki "Karmaşık" satırı gösterir):
+  - `onaylandi:tarif`, `onaylandi:plan`, `plan-onaylandi`, `uygulandi` ya da `kabul-edildi`: kayıt yapılmıştır,
+    yalnızca bağlam satırı görünmemiştir. Akışa bu durumdan devam et.
+  - `gorusme` ya da `reddedildi`: onay bekleyen kayıtlı bir belge yoktur. Belgeyi kaydet, göster ve onay sorusunu
+    yeniden sor.
+  - `iptal`: iş kapatılmıştır. Bunu kişiye bildir; iş sürecekse yeni iş aç.
+  - `kabul-bekliyor`: kabul kaydedilemedi. İşi kabul edilmiş sayma ve bunu kişiye bildir.
+  - Son belge bekleniyorsa, yani basit işte `onay-bekliyor:plan`, karmaşık işte `onay-bekliyor:gorevler` durumunda:
+    hook'lar bu oturumda çalışmıyordur (ör. Cowork). Aşağıdaki bildirimi yap ve uygulamaya geç.
+  - Önceki bir belge bekleniyorsa, yani `onay-bekliyor:tarif` ya da karmaşık işte `onay-bekliyor:plan` durumunda:
+    hook'lar bu oturumda çalışmıyordur. Aşağıdaki bildirimi yap. Kayıt bu durumdan ilerleyemediği için sıradaki
+    belgeyi kaydetmeden metin olarak göster ve aynı sabit onay cümlesiyle bitir. Son belgenin "evet"ine kadar böyle
+    sürdür, sonra uygulamaya geç.
+  - Hook'ların çalışmadığı bu iki hâlde kişiye bir kez şunu söyle: "Onaylarınız bu oturumda kayda geçirilemiyor. İş
+    kaydı onay bekleyen durumda kalacak; bağımsız kontrol ve kabul bu oturumda kaydedilemeyecektir." Yalnızca Revit
+    işinde şunu ekle: "Revit'e yazma sırasında bir izin penceresi açılırsa onayınızı bu pencereden veriniz."
+    Onayın kaydedildiğini asla söyleme. Uygulamadan sonra 9. ve 10. adımları atla: kartın "Geri okuma" adımını okuma
+    araçlarıyla yap, sonucu bağımsız kontrol raporu olmadığını belirterek göster ve kabul sorusunu sorma.
 
 ## Her işte
 - Kişiye resmi Türkçeyle, "siz" hitabıyla ve kişinin kendi terimleriyle yaz; kısa maddeler kullan.

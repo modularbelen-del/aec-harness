@@ -128,7 +128,9 @@ def test_cli_applied_refused_in_every_other_state(tmp_path, capsys):
             continue
         proje = tmp_path / durum.replace(":", "-")
         is_id = _durumla(proje, capsys, durum)
+        olay_sayisi = len(is_durumu.is_yukle(proje, is_id)["olaylar"])
         assert is_kaydi.main(["uygulandi", "--proje", str(proje), "--is", is_id]) == 0
         out = capsys.readouterr().out
         assert out.startswith("✗") and durum in out, durum
-        assert is_durumu.is_yukle(proje, is_id)["durum"] == durum, durum
+        k = is_durumu.is_yukle(proje, is_id)
+        assert k["durum"] == durum and len(k["olaylar"]) == olay_sayisi, durum
