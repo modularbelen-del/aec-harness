@@ -103,3 +103,29 @@ def test_seen_any(tmp_path):
     onkapi.unseen("s", ["tavan"], tmp_path)
     assert onkapi.seen_any("s", tmp_path) is True
     assert onkapi.seen_any("other", tmp_path) is False
+
+
+def test_blok_alone_is_not_dwg():
+    a_blok = onkapi.match("A blok zemin kata bir kapı koymam lazım", CARDS)
+    assert "revit-modelleme" in a_blok and "dwg-okuma" not in a_blok
+    assert "dwg-okuma" not in onkapi.match("B blok sunumu için notlar hazırla", CARDS)
+    assert "dwg-okuma" in onkapi.match("DWG'deki blokları listele", CARDS)
+
+
+def test_rhino_example_with_blok_keeps_rhino():
+    assert "rhino-revit" in onkapi.match("Rhino'daki cephe panellerini A blok Revit modelinin kopyasına aktar.", CARDS)
+
+
+def test_aile_tavan_gorsel_everyday_uses_do_not_route():
+    assert "revit-modelleme" not in onkapi.match("ailemle tatile gidiyorum", CARDS)
+    assert "tavan" not in onkapi.match("duvarları tavana kadar uzat", CARDS)
+    assert "tavan" not in onkapi.match("dolabı tavanına kadar yükselt", CARDS)
+    assert "render" not in onkapi.match("bu görseldeki planı Revit'e çiz", CARDS)
+
+
+def test_aile_tavan_gorsel_office_uses_still_route():
+    assert "revit-modelleme" in onkapi.match("kapı ailesini değiştir", CARDS)
+    assert "revit-modelleme" in onkapi.match("bu ailenin tiplerini listele", CARDS)
+    assert "tavan" in onkapi.match("koridorun asma tavanını çıkar", CARDS)
+    assert "render" in onkapi.match("lobiyi görselleştir", CARDS)
+    assert "render" in onkapi.match("giriş için bir görsel hazırla", CARDS)

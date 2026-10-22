@@ -30,8 +30,9 @@ en fazla 3 soruyla sor, ardından 4. adımdaki gibi taslak plan ve onay sorusuyl
 
 ## Prosedür
 
-1. **Kartı seç.** Bağlamda `[aec ön kapı]` kartı varsa onun söylediği kartı kullan. Yoksa isteği yukarıdaki
-   tabloyla eşleştir.
+1. **Kartı seç.** Bağlamda `[aec ön kapı]` kartı varsa onun söylediği kartı kullan. Ön kapı yalnızca kelimelere
+   bakar; önerdiği kart istekle açıkça uymuyorsa (ör. "A blok" yazısı yüzünden DWG kartı geldiyse) körü körüne
+   izleme, isteği yukarıdaki tabloyla yeniden eşleştir. Kart yoksa isteği tabloyla eşleştir.
 2. **Kartı oku.** Kart dosyası bu skill'in klasöründeki `kartlar/` altında: `${CLAUDE_SKILL_DIR}/kartlar/<kart>.md`.
    Kartı okumadan plan yazma. Kartı okur okumaz, soru sormadan önce, gereken aracın bu oturumda olup olmadığına
    bak; yoksa 6. adımdaki "Yapamıyorsam" metnini hemen söyle.

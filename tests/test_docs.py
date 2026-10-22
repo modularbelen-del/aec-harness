@@ -43,3 +43,14 @@ def test_examples_list_each_cards_missing_items():
             assert e.lower() in sec or " ".join(e.lower().split()[:2]) in sec, (c["baslik"], e)
         assert "**durum:**" in sec.split("\n", 3)[2] or "**durum:**" in sec[:200], c["baslik"]
     assert "Fiyat" not in secs["Metraj/liste"]
+
+
+def test_each_example_routes_to_its_own_card():
+    text = (ROOT / "plugin/docs/ORNEK-ISTEKLER.md").read_text(encoding="utf-8")
+    secs = _sections(text)
+    cards = onkapi.load_cards()
+    for c in cards:
+        examples = re.findall(r"\*\*Böyle yazın:\*\* `([^`]+)`", secs[c["baslik"]])
+        assert examples, c["baslik"]
+        for ex in examples:
+            assert c["id"] in onkapi.match(ex, cards), (c["id"], ex, onkapi.match(ex, cards))

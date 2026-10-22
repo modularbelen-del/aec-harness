@@ -84,3 +84,9 @@ def test_frontmatter_needs_leading_fence(tmp_path):
     assert frontmatter(p) == {}
     p.write_bytes("﻿---\nname: a\n---\n".encode("utf-8"))
     assert frontmatter(p) == {"name": "a"}
+
+
+def test_skill_does_not_follow_wrong_card_blindly():
+    skill = SKILL.read_text(encoding="utf-8")
+    step1 = skill[skill.index("1. **Kartı seç.**"):skill.index("2. **Kartı oku.**")]
+    assert "uymuyorsa" in step1 and "tabloyla yeniden eşleştir" in step1

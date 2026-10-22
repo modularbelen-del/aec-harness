@@ -9,11 +9,12 @@
       "doseme",
       "re:kolon(?!ya)",
       "kiris",
-      "aile",
+      "re:aile(?!m|n(?!in))",
       "family",
       "seviye",
       "level",
       "kapi yerlestir",
+      "re:(kapi|pencere)(yi|lari|leri|si|sini)? (koy(?!u)|ekle)",
       "pencere yerlestir",
       "modelle"
     ],
@@ -33,8 +34,7 @@
       "cizimden",
       "plandan",
       "katman",
-      "layer",
-      "blok"
+      "layer"
     ],
     "eksikler": [
       "hangi dosya ve pafta",
@@ -107,7 +107,7 @@
     "id": "tavan",
     "baslik": "Asma tavan",
     "anahtar": [
-      "tavan",
+      "re:tavan(?!(in)?a kadar)",
       "baffle",
       "bandraster",
       "open cell",
@@ -128,7 +128,8 @@
     "baslik": "Render/görsel",
     "anahtar": [
       "render",
-      "gorsel",
+      "gorsellestir",
+      "re:gorsel(i|ler|leri)? (uret|hazirla|olustur)",
       "perspektif",
       "atmosfer",
       "midjourney",
